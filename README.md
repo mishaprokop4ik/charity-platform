@@ -1,0 +1,1 @@
+# Kurajj charity platform 
