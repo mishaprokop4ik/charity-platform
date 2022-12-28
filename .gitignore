@@ -1,7 +1,7 @@
 /.idea
 Kurajj.iml
 /bin
-
+/db_data
 # Ignore Gradle project-specific cache directory
 .gradle
 
