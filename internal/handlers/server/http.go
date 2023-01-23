@@ -61,6 +61,7 @@ func (h *HTTP) Run() {
 			return
 		}
 	}()
+
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, os.Interrupt)
 	signal.Notify(sc, syscall.SIGTERM)
