@@ -10,7 +10,7 @@ type Handler struct {
 	services *service.Service
 }
 
-func NewHandler(s *service.Service) Handler {
+func New(s *service.Service) Handler {
 	return Handler{services: s}
 }
 
@@ -18,11 +18,15 @@ func (h *Handler) InitRoutes() http.Handler {
 	r := mux.NewRouter()
 	apiRouter := r.PathPrefix("/api").Subrouter()
 
+	auth := apiRouter.PathPrefix("/auth").Subrouter()
+	auth.HandleFunc("/sign-up", h.SignUp).
+		Methods(http.MethodPost)
+	auth.HandleFunc("/sign-in", h.SignIn).
+		Methods(http.MethodPost)
+
 	var (
-		//helpRequestRouter = apiRouter.PathPrefix("/help-request").Subrouter()
-		//publicEvent       = apiRouter.PathPrefix("/public-event").Subrouter()
-		proposalEvent = apiRouter.PathPrefix("/proposal-event").Subrouter()
+	//helpRequestRouter = apiRouter.PathPrefix("/help-request").Subrouter()
+	//publicEvent       = apiRouter.PathPrefix("/public-event").Subrouter()
+	//proposalEvent = apiRouter.PathPrefix("/proposal-event").Subrouter()
 	)
-	// get all, get by id, delete, update, accept and declare, answer, get reports
-	proposalEvent.HandleFunc("/").Methods(http.MethodGet)
 }
