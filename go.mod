@@ -3,12 +3,14 @@ module Kurajj
 go 1.18
 
 require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-logr/logr v1.2.3
 	github.com/go-logr/zapr v1.2.3
 	github.com/go-playground/validator/v10 v10.11.1
 	github.com/gorilla/mux v1.8.0
 	github.com/samber/lo v1.37.0
 	go.uber.org/zap v1.23.0
+	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/driver/postgres v1.4.6
 	gorm.io/gorm v1.24.3
 )

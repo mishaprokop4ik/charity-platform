@@ -1,15 +1,20 @@
 BEGIN;
 
+CREATE SEQUENCE members_id_seq;
+
 CREATE TABLE members (
-    id bigint PRIMARY KEY,
-    full_name bigint,
-    telephone varchar(13),
+    id SERIAL PRIMARY KEY DEFAULT nextval('members_id_seq'),
+    full_name varchar,
+    telephone varchar(13) UNIQUE,
     telegram_username varchar,
-    email varchar,
+    email varchar UNIQUE,
     password varchar,
     image_path varchar,
     company_name varchar,
     address varchar,
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    updated_at timestamp,
+    deleted_at timestamp,
     is_deleted boolean
 );
 

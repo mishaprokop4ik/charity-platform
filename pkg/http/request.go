@@ -6,14 +6,27 @@ import (
 	"net/http"
 )
 
-func SendErrorResponse(w http.ResponseWriter, status uint, message string) {
-	w.Header().Set("Content-Type", "application/json")
-	http.Error(w, message, int(status))
+type errorResponse struct {
+	Error string `json:"error,omitempty"`
 }
 
-func SendHTTPResponse(w http.ResponseWriter, data []byte) error {
+func SendErrorResponse(w http.ResponseWriter, statusCode uint, message string) {
 	w.Header().Set("Content-Type", "application/json")
-	_, err := w.Write(data)
+	w.WriteHeader(int(statusCode))
+	resp := errorResponse{
+		Error: message,
+	}
+	respEncoded, _ := json.Marshal(resp)
+	_, _ = w.Write(respEncoded)
+}
+
+type Byter interface {
+	Bytes() []byte
+}
+
+func SendHTTPResponse(w http.ResponseWriter, resp Byter) error {
+	w.Header().Set("Content-Type", "application/json")
+	_, err := w.Write(resp.Bytes())
 	if err != nil {
 		return fmt.Errorf("could not send response: %s", err)
 	}

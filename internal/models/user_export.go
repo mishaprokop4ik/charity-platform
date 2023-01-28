@@ -1,7 +1,6 @@
 package models
 
 import (
-	httpHelper "Kurajj/pkg/http"
 	"encoding/json"
 	"fmt"
 	"github.com/samber/lo"
@@ -55,7 +54,11 @@ type Address struct {
 	HomeLocation string `json:"homeLocation,omitempty"`
 }
 
-type NewUserInput struct {
+func (a Address) String() string {
+	return fmt.Sprintf("%s|%s|%s|%s", a.Region, a.City, a.District, a.HomeLocation)
+}
+
+type SignUpUser struct {
 	Email       Email     `json:"email,omitempty"`
 	FirstName   string    `json:"firstName,omitempty"`
 	SecondName  string    `json:"secondName,omitempty"`
@@ -65,20 +68,62 @@ type NewUserInput struct {
 	Address     Address   `json:"address" json:"address"`
 }
 
-type GetUserInput struct {
+type SignInUser struct {
 	Email    Email  `json:"email,omitempty"`
 	Password string `json:"password,omitempty"`
 }
 
-func UnmarshalNewUserInput(r *http.Request) (NewUserInput, error) {
-	userBytes, err := httpHelper.GetBody(r)
-	if err != nil {
-		return NewUserInput{}, err
+func UnmarshalSignUpUser(r *http.Request) (SignUpUser, error) {
+	user := SignUpUser{}
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		return SignUpUser{}, fmt.Errorf("cound not decode user: %s", err)
 	}
-	user := NewUserInput{}
-	err = json.Unmarshal(userBytes, &user)
+
+	return user, nil
+}
+
+func UnmarshalSignInUser(r *http.Request) (SignInUser, error) {
+	user := SignInUser{}
+	err := json.NewDecoder(r.Body).Decode(&user)
 	if err != nil {
-		return NewUserInput{}, fmt.Errorf("cound not parse user input: %s", err)
+		return SignInUser{}, err
 	}
 	return user, nil
+}
+
+func (i SignUpUser) GetInternalUser() User {
+	fullName := fmt.Sprintf("%s %s", i.FirstName, i.SecondName)
+	return User{
+		Email:       string(i.Email),
+		FullName:    fullName,
+		Telephone:   string(i.Telephone),
+		CompanyName: i.CompanyName,
+		Password:    i.Password,
+		Address:     i.Address.String(),
+	}
+}
+
+type UserCreationResponse struct {
+	ID int `json:"ID,omitempty"`
+}
+
+type SignedInUser struct {
+	ID          int       `json:"ID,omitempty"`
+	Email       Email     `json:"email,omitempty"`
+	FirstName   string    `json:"firstName,omitempty"`
+	SecondName  string    `json:"secondName,omitempty"`
+	Telephone   Telephone `json:"telephone,omitempty"`
+	CompanyName string    `json:"companyName,omitempty"`
+	Address     Address   `json:"address" json:"address"`
+	Token       string    `json:"token,omitempty"`
+}
+
+func (s SignedInUser) Bytes() []byte {
+	encoded, _ := json.Marshal(s)
+	return encoded
+}
+
+func (r UserCreationResponse) Bytes() []byte {
+	encoded, _ := json.Marshal(r)
+	return encoded
 }

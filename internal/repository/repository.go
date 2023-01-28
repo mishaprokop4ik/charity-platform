@@ -1,20 +1,24 @@
 package repository
 
-import models "Kurajj/internal/bussiness_models"
+import (
+	"Kurajj/internal/models"
+	"context"
+)
 
 type Userer interface {
-	CreateUser(user models.User) (uint, error)
-	GetUser(id uint) (models.User, error)
-	DeleteUser(id uint) error
-	UpsertUser(newUser models.User) error
+	CreateUser(ctx context.Context, user models.User) (uint, error)
+	GetUserAuthentication(ctx context.Context, email, password string) (uint, error)
+	GetUser(ctx context.Context, id uint) (models.User, error)
+	DeleteUser(ctx context.Context, id uint) error
+	UpsertUser(ctx context.Context, newUser models.User) error
 }
 
 type Repository struct {
-	user Userer
+	User Userer
 }
 
-func New(user Userer) *Repository {
+func New(dbConnector *Connector) *Repository {
 	return &Repository{
-		user: user,
+		User: NewUser(dbConnector),
 	}
 }

@@ -1,21 +1,23 @@
 package service
 
 import (
-	models "Kurajj/internal/bussiness_models"
+	"Kurajj/internal/config"
+	"Kurajj/internal/models"
+	"Kurajj/internal/repository"
 	"context"
 )
 
 type Service struct {
-	Authentication Authentication
+	Authentication *Authentication
 }
 
-func New(auth Authentication) *Service {
+func New(repo *repository.Repository, config *config.AuthenticationConfig) *Service {
 	return &Service{
-		Authentication: auth,
+		Authentication: NewAuthentication(repo, config),
 	}
 }
 
 type Authenticator interface {
 	SignUp(ctx context.Context, user models.User) (uint, error)
-	SignIn(ctx context.Context, user models.User) (*models.User, error)
+	SignIn(ctx context.Context, user models.User) (models.SignedInUser, error)
 }

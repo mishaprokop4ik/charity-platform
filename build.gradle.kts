@@ -25,13 +25,14 @@ tasks.register("serverDockerBuild") {
     }
 }
 
+
+
 tasks.register("dbDockerStart") {
     group = "docker"
-    description = "Start PostgreSQL database in the Docker contrainer"
-    val currentDir = System.getProperty("user.dir")
+    description = "Start PostgreSQL database in the Docker container"
     doLast {
         exec {
-            commandLine = listOf("docker", "run", "-v", "${currentDir}/db_data/:/var/lib/postgresql/data", "--name=kurajj_db", "-e", "POSTGRES_PASSWORD=rootroot", "-e", "POSTGRES_DB=kurajj", "-p", "5433:5432", "-d", "--rm", "postgres")
+            commandLine = listOf("docker", "run", "-d", "-v", "/tmp/charity_platform_data/:/var/lib/postgresql/data", "--name=kurajj_db", "-e", "POSTGRES_PASSWORD=rootroot", "-e", "POSTGRES_DB=kurajj", "-p", "5432:5432", "-d", "--rm", "postgres")
         }
     }
 }
@@ -67,7 +68,7 @@ tasks.register("migrateUp") {
     description = "Up migrations in spec dir"
 
     val migrationFilesPath: String by extra { properties.getOrDefault("migrationFilesPath", "internal/repository/postgres/migrations") as String }
-    val databaseURL: String by extra { properties.getOrDefault("url", "postgres://postgres:rootroot@localhost:5433/kurajj?sslmode=disable") as String }
+    val databaseURL: String by extra { properties.getOrDefault("url", "postgres://postgres:rootroot@localhost:5432/kurajj?sslmode=disable") as String }
     doLast {
         exec {
             commandLine = listOf("migrate", "-path", "$migrationFilesPath", "-database", "$databaseURL", "up")
