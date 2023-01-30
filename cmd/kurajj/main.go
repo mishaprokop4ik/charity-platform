@@ -39,7 +39,6 @@ func main() {
 		zlog.Log.Error(err, "could not create connector")
 		os.Exit(1)
 	}
-
 	repo := repository.New(conn)
 	service := logic.New(repo, &authConfig)
 	handlers := handlers2.New(service)

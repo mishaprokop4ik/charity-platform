@@ -19,6 +19,7 @@ type User struct {
 	FullName         string
 	Telephone        string
 	CompanyName      string
+	IsAdmin          bool
 	Password         string
 	Address          string
 	IsDeleted        bool
@@ -26,10 +27,10 @@ type User struct {
 	AvatarImagePath  string `gorm:"column:image_path"`
 }
 
-func (u User) getAddress() Address {
+func (u User) getAddress() (Address, error) {
 	fullAddress := strings.Split(u.Address, "|")
 	if len(fullAddress) != DecodedAddressLength {
-		panic(fmt.Sprintf("something went wrong. the size of address is incorrect. want %d; got: %d", DecodedAddressLength, len(fullAddress)))
+		return Address{}, fmt.Errorf("something went wrong. the size of address is incorrect. want %d; got: %d", DecodedAddressLength, len(fullAddress))
 	}
 
 	return Address{
@@ -37,18 +38,27 @@ func (u User) getAddress() Address {
 		City:         fullAddress[1],
 		District:     fullAddress[2],
 		HomeLocation: fullAddress[3],
-	}
+	}, nil
 }
 
 func (u User) GetUserFullResponse(token string) SignedInUser {
+	var (
+		firstName  = ""
+		secondName = ""
+	)
+
 	fullName := strings.Split(u.FullName, " ")
-	address := u.getAddress()
+	if len(fullName) == 2 {
+		firstName = fullName[0]
+		secondName = fullName[1]
+	}
+	address, _ := u.getAddress()
 	return SignedInUser{
 		ID: int(u.ID),
 		//TODO add email validation
 		Email:      Email(u.Email),
-		FirstName:  fullName[0],
-		SecondName: fullName[1],
+		FirstName:  firstName,
+		SecondName: secondName,
 		//TODO add telephone validation
 		Telephone:   Telephone(u.Telephone),
 		CompanyName: u.CompanyName,

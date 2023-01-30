@@ -3,34 +3,28 @@ package handlers
 import (
 	"Kurajj/internal/models"
 	httpHelper "Kurajj/pkg/http"
-	zlog "Kurajj/pkg/logger"
 	"context"
 	"fmt"
 	"net/http"
 	"time"
 )
 
-type userSignInResponse struct {
-	err  error
-	resp models.SignedInUser
-}
-
-func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) AdminSignIn(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	user, err := models.UnmarshalSignInEntity(r)
+	admin, err := models.UnmarshalSignInEntity(r)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ok, err := user.Email.Validate()
+	ok, err := admin.Email.Validate()
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if !ok {
-		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("email: %s is incorrect", user.Email))
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("email: %s is incorrect", admin.Email))
 		return
 	}
 
@@ -38,7 +32,7 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		user, err := h.services.Authentication.SignIn(ctx, models.User{Email: string(user.Email), Password: user.Password})
+		user, err := h.services.Authentication.SignIn(ctx, models.User{Email: string(admin.Email), Password: admin.Password, IsAdmin: true})
 		userch <- userSignInResponse{
 			resp: user,
 			err:  err,
@@ -66,53 +60,41 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type idResponse struct {
-	id  int
-	err error
-}
-
-func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) CreateNewAdmin(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	user, err := models.UnmarshalSignUpUser(r)
+	admin, err := models.UnmarshalCreateAdmin(r)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 
-	ok, err := user.Email.Validate()
+	ok, err := admin.Email.Validate()
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusInternalServerError, err.Error())
 		return
 	}
 
 	if !ok {
-		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("email: %s is incorrect", user.Email))
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("email: %s is incorrect", admin.Email))
 		return
 	}
 
-	ok = user.Telephone.Validate()
-
-	if !ok {
-		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("phone number: %s is incorrect", user.Telephone))
-		return
-	}
-
-	user.Telephone = user.Telephone.GetDefaultTelephoneNumber()
+	newAdmin := admin.CreateUser()
 
 	userch := make(chan idResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		userID, err := h.services.Authentication.SignUp(ctx, user.GetInternalUser())
+		id, err := h.services.Admin.CreateAdmin(ctx, newAdmin)
 		userch <- idResponse{
-			id:  int(userID),
+			id:  int(id),
 			err: err,
 		}
 	}()
 
 	select {
 	case <-ctx.Done():
-		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "signing up new user took too long")
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "signing up new admin took too long")
 		return
 	case resp := <-userch:
 		if resp.err != nil {
@@ -124,11 +106,9 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
 			return
 		}
-		userResponse := models.CreationResponse{ID: resp.id}
-
-		err := httpHelper.SendHTTPResponse(w, userResponse)
+		adminResponse := models.CreationResponse{ID: resp.id}
+		err := httpHelper.SendHTTPResponse(w, adminResponse)
 		if err != nil {
-			zlog.Log.Error(err, "could not send response")
 			return
 		}
 	}

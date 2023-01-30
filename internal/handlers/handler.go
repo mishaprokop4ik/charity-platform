@@ -16,25 +16,19 @@ func New(s *service.Service) Handler {
 
 func (h *Handler) InitRoutes() http.Handler {
 	r := mux.NewRouter()
-	//apiRouter := r.PathPrefix("/api").Subrouter()
+	apiRouter := r.PathPrefix("/api").Subrouter()
+	apiRouter.Use(h.Authentication)
 
 	auth := r.PathPrefix("/auth").Subrouter()
-	userAuth := auth.PathPrefix("/user").Subrouter()
-	userAuth.HandleFunc("/sign-up", h.UserSignUp).
+	auth.HandleFunc("/sign-up", h.UserSignUp).
 		Methods(http.MethodPost)
-	userAuth.HandleFunc("/sign-in", h.UserSignIn).
+	auth.HandleFunc("/sign-in", h.UserSignIn).
 		Methods(http.MethodPost)
-	adminAuth := auth.PathPrefix("/admin").Subrouter()
-	adminAuth.Use(h.Authentication)
-	adminAuth.HandleFunc("/sign-up", h.UserSignUp).
+	auth.HandleFunc("/sign-in-admin", h.AdminSignIn).
 		Methods(http.MethodPost)
-	adminAuth.HandleFunc("/sign-in", h.UserSignIn).
-		Methods(http.MethodPost)
-	var (
-	//helpRequestRouter = apiRouter.PathPrefix("/help-request").Subrouter()
-	//publicEvent       = apiRouter.PathPrefix("/public-event").Subrouter()
-	//proposalEvent = apiRouter.PathPrefix("/proposal-event").Subrouter()
-	)
+
+	adminSubRouter := apiRouter.PathPrefix("/admin").Subrouter()
+	adminSubRouter.HandleFunc("/create", h.CreateNewAdmin)
 
 	return r
 }

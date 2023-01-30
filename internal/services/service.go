@@ -8,16 +8,19 @@ import (
 )
 
 type Service struct {
-	Authentication *Authentication
+	Authentication Authenticator
+	Admin          AdminCRUDer
 }
 
 func New(repo *repository.Repository, config *config.AuthenticationConfig) *Service {
 	return &Service{
 		Authentication: NewAuthentication(repo, config),
+		Admin:          NewAdmin(repo, config),
 	}
 }
 
 type Authenticator interface {
 	SignUp(ctx context.Context, user models.User) (uint, error)
 	SignIn(ctx context.Context, user models.User) (models.SignedInUser, error)
+	ParseToken(accessToken string) (uint, error)
 }

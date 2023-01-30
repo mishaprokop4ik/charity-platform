@@ -1,13 +1,11 @@
 BEGIN;
 
-CREATE SEQUENCE members_id_seq;
-
 CREATE TABLE members (
-    id SERIAL PRIMARY KEY DEFAULT nextval('members_id_seq'),
+    id bigserial PRIMARY KEY,
     full_name varchar,
-    telephone varchar(13) UNIQUE,
+    telephone varchar(13),
     telegram_username varchar,
-    email varchar UNIQUE,
+    email varchar,
     password varchar,
     image_path varchar,
     company_name varchar,
@@ -15,13 +13,15 @@ CREATE TABLE members (
     created_at timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     updated_at timestamp,
     deleted_at timestamp,
-    is_deleted boolean
+    is_deleted boolean,
+    is_admin boolean,
+    UNIQUE (id, telephone, telegram_username, email)
 );
 
 CREATE TYPE event AS ENUM ('propositional', 'help', 'public');
 
 CREATE TABLE propositional_event (
-    id bigint PRIMARY KEY,
+    id bigserial PRIMARY KEY,
     title varchar,
     description varchar,
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE propositional_event (
 CREATE TYPE priority_rate AS ENUM('нормально', 'швидко', 'дуже швидко');
 
 CREATE TABLE help_event (
-    id bigint PRIMARY KEY,
+    id bigserial PRIMARY KEY,
     title varchar,
     description varchar,
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
@@ -47,7 +47,7 @@ CREATE TABLE help_event (
 );
 
 CREATE TABLE report (
-    id bigint PRIMARY KEY,
+    id bigserial PRIMARY KEY,
     s3_path varchar,
     event_type event,
     transaction_id bigint,

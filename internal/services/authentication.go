@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"math/rand"
 	"time"
 )
 
@@ -17,28 +18,39 @@ type Authentication struct {
 	authConfig *config.AuthenticationConfig
 }
 
+func GenerateRandomString() string {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+	rand.Seed(time.Now().UnixNano())
+	length := 10 + rand.Intn(5)
+	s := make([]byte, length)
+	for i := range s {
+		s[i] = charset[rand.Intn(len(charset))]
+	}
+	return string(s)
+}
+
 func NewAuthentication(repo *repository.Repository, authConfig *config.AuthenticationConfig) *Authentication {
 	return &Authentication{repo: repo, authConfig: authConfig}
 }
 
 func (a *Authentication) SignUp(ctx context.Context, user models.User) (uint, error) {
-	user.Password = a.generatePasswordHash(user.Password)
+	user.Password = GeneratePasswordHash(user.Password, a.authConfig.Salt)
 	return a.repo.User.CreateUser(ctx, user)
 }
 
-func (a *Authentication) generatePasswordHash(password string) string {
+func GeneratePasswordHash(password, salt string) string {
 	hash := sha1.New()
 	hash.Write([]byte(password))
 
-	return fmt.Sprintf("%x", hash.Sum([]byte(a.authConfig.Salt)))
+	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
 }
 
 func (a *Authentication) generateToken(ctx context.Context, email, password string) (string, error) {
-	userID, err := a.repo.User.GetUserAuthentication(ctx, email, a.generatePasswordHash(password))
+	userID, err := a.repo.User.GetUserAuthentication(ctx, email, GeneratePasswordHash(password, a.authConfig.Salt))
 	if err != nil {
 		return "", err
 	}
-	expirationAfterHours := time.Duration(a.authConfig.TokenExpirationHours)
+	expirationAfterHours := time.Duration(a.authConfig.TokenExpirationHours) * time.Hour
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, TokenClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(expirationAfterHours).Unix(),
@@ -53,7 +65,7 @@ func (a *Authentication) generateToken(ctx context.Context, email, password stri
 func (a *Authentication) ParseToken(accessToken string) (uint, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, errors.New("invalid signing method")
+			return nil, fmt.Errorf("invalid signing method")
 		}
 
 		return []byte(a.authConfig.SigningKey), nil
@@ -76,8 +88,8 @@ func (a *Authentication) SignIn(ctx context.Context, user models.User) (models.S
 	if err != nil {
 		return models.SignedInUser{}, err
 	}
-	userID, _ := a.ParseToken(token)
-	userInformation, err := a.repo.User.GetUser(ctx, userID)
+	user.Password = GeneratePasswordHash(user.Password, a.authConfig.Salt)
+	userInformation, err := a.repo.User.GetEntity(ctx, user.Email, user.Password, user.IsAdmin, false)
 	if err != nil {
 		return models.SignedInUser{}, err
 	}
@@ -86,5 +98,5 @@ func (a *Authentication) SignIn(ctx context.Context, user models.User) (models.S
 
 type TokenClaims struct {
 	jwt.StandardClaims
-	ID uint `json:"staff_id"`
+	ID uint `json:"id"`
 }
