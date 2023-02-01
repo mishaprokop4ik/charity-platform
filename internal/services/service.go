@@ -2,9 +2,7 @@ package service
 
 import (
 	"Kurajj/internal/config"
-	"Kurajj/internal/models"
 	"Kurajj/internal/repository"
-	"context"
 )
 
 type Service struct {
@@ -12,15 +10,9 @@ type Service struct {
 	Admin          AdminCRUDer
 }
 
-func New(repo *repository.Repository, config *config.AuthenticationConfig) *Service {
+func New(repo *repository.Repository, authConfig *config.AuthenticationConfig, emailConfig *config.Email) *Service {
 	return &Service{
-		Authentication: NewAuthentication(repo, config),
-		Admin:          NewAdmin(repo, config),
+		Authentication: NewAuthentication(repo, authConfig, emailConfig),
+		Admin:          NewAdmin(repo, authConfig, emailConfig),
 	}
-}
-
-type Authenticator interface {
-	SignUp(ctx context.Context, user models.User) (uint, error)
-	SignIn(ctx context.Context, user models.User) (models.SignedInUser, error)
-	ParseToken(accessToken string) (uint, error)
 }

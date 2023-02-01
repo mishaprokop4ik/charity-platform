@@ -18,7 +18,6 @@ type defaultFields struct {
 	SecondName  string    `json:"secondName,omitempty"`
 	Telephone   Telephone `json:"telephone,omitempty"`
 	CompanyName string    `json:"companyName,omitempty"`
-	Password    string    `json:"password,omitempty"`
 }
 
 func (e Email) Validate() (bool, error) {
@@ -79,7 +78,8 @@ func (a Address) String() string {
 
 type SignUpUser struct {
 	defaultFields
-	Address Address `json:"address" json:"address"`
+	Address  Address `json:"address" json:"address"`
+	Password string  `json:"password,omitempty"`
 }
 
 // SignInEntity represents default sign in structure.
@@ -170,6 +170,6 @@ func (a AdminCreation) CreateUser() User {
 		Telephone:   string(a.Telephone),
 		CompanyName: a.CompanyName,
 		IsAdmin:     true,
-		Password:    a.Password,
+		IsActivated: true,
 	}
 }

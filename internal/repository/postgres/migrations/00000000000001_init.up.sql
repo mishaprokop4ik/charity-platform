@@ -15,6 +15,7 @@ CREATE TABLE members (
     deleted_at timestamp,
     is_deleted boolean,
     is_admin boolean,
+    is_activated boolean,
     UNIQUE (id, telephone, telegram_username, email)
 );
 

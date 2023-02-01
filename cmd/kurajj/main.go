@@ -12,8 +12,9 @@ import (
 )
 
 var (
-	dbConfig   = flag.String("db-config", "configs/db.yaml", "Provide Database's config values")
-	authConfig = flag.String("auth-config", "configs/auth.yaml", "Provide Authentication's config values")
+	dbConfig    = flag.String("db-config", "configs/db.yaml", "Provide Database's config values")
+	authConfig  = flag.String("auth-config", "configs/auth.yaml", "Provide Authentication's config values")
+	emailConfig = flag.String("admin-config", "configs/gmail.yaml", "Provide Email's config values")
 )
 
 var port = flag.Int("port", 8080, "HTTP server port number")
@@ -34,13 +35,19 @@ func main() {
 		os.Exit(1)
 	}
 
+	emailConfig, err := config.NewEmailConfigFromFile(*emailConfig)
+	if err != nil {
+		zlog.Log.Error(err, "could not read email config")
+		os.Exit(1)
+	}
+
 	conn, err := repository.NewConnector(dbConfig)
 	if err != nil {
 		zlog.Log.Error(err, "could not create connector")
 		os.Exit(1)
 	}
 	repo := repository.New(conn)
-	service := logic.New(repo, &authConfig)
+	service := logic.New(repo, &authConfig, &emailConfig)
 	handlers := handlers2.New(service)
 
 	httpServer, err := server.NewHTTPServer(*port, server.TLSCertPair{

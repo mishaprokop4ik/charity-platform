@@ -4,19 +4,32 @@ import (
 	"Kurajj/internal/config"
 	"Kurajj/internal/models"
 	"Kurajj/internal/repository"
+	zlog "Kurajj/pkg/logger"
+	"bytes"
 	"context"
 	"crypto/sha1"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"html/template"
 	"math/rand"
 	"time"
 )
 
-type Authentication struct {
-	repo       *repository.Repository
-	authConfig *config.AuthenticationConfig
+type Authenticator interface {
+	SignUp(ctx context.Context, user models.User) (uint, error)
+	SignIn(ctx context.Context, user models.User) (models.SignedInUser, error)
+	ParseToken(accessToken string) (uint, error)
+	ConfirmEmail(ctx context.Context, email string) error
 }
+
+type Authentication struct {
+	repo        *repository.Repository
+	authConfig  *config.AuthenticationConfig
+	emailSender Sender
+}
+
+const confirmEmail = "Confirm Your Email Address"
 
 func GenerateRandomString() string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -29,13 +42,53 @@ func GenerateRandomString() string {
 	return string(s)
 }
 
-func NewAuthentication(repo *repository.Repository, authConfig *config.AuthenticationConfig) *Authentication {
-	return &Authentication{repo: repo, authConfig: authConfig}
+func NewAuthentication(repo *repository.Repository, authConfig *config.AuthenticationConfig, emailConfig *config.Email) *Authentication {
+	return &Authentication{repo: repo, authConfig: authConfig, emailSender: Sender{
+		email:        emailConfig.Email,
+		password:     emailConfig.Password,
+		SMTPEndpoint: emailConfig.SMPTEndpoint,
+	}}
+}
+
+type EmailCheck struct {
+	Title         string
+	Email         string
+	ServerConfirm string
 }
 
 func (a *Authentication) SignUp(ctx context.Context, user models.User) (uint, error) {
 	user.Password = GeneratePasswordHash(user.Password, a.authConfig.Salt)
-	return a.repo.User.CreateUser(ctx, user)
+	id, err := a.repo.User.CreateUser(ctx, user)
+	if err != nil {
+		return 0, err
+	}
+
+	confirmEmailBody := bytes.Buffer{}
+
+	confirmEmailValues := EmailCheck{
+		Title:         confirmEmail,
+		Email:         user.Email,
+		ServerConfirm: "http://localhost:8080/auth/confirm",
+	}
+
+	confirmEmailTmpl, err := template.New("confirm_email.tmpl").ParseFiles("internal/templates/confirm_email.tmpl")
+	if err != nil {
+		zlog.Log.Error(err, "could not parse confirm_email.tmpl")
+		return 0, err
+	}
+
+	err = confirmEmailTmpl.Execute(&confirmEmailBody, confirmEmailValues)
+	if err != nil {
+		zlog.Log.Error(err, "could not create confirm email body")
+		return 0, err
+	}
+
+	err = a.emailSender.SendEmail(user.Email, confirmEmailBody.String(), "html")
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
 }
 
 func GeneratePasswordHash(password, salt string) string {
@@ -94,6 +147,15 @@ func (a *Authentication) SignIn(ctx context.Context, user models.User) (models.S
 		return models.SignedInUser{}, err
 	}
 	return userInformation.GetUserFullResponse(token), nil
+}
+
+func (a *Authentication) ConfirmEmail(ctx context.Context, email string) error {
+	userValues := models.User{
+		Email:       email,
+		IsActivated: true,
+	}.GetValuesToUpdate()
+
+	return a.repo.User.UpdateUserByEmail(ctx, email, userValues)
 }
 
 type TokenClaims struct {

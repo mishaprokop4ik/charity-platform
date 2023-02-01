@@ -11,6 +11,5 @@ func GetBody(r *http.Request) ([]byte, error) {
 	if err != nil {
 		return []byte{}, fmt.Errorf("cound not get body from request: %s", err)
 	}
-	fmt.Println(string(data))
 	return data, nil
 }

@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"reflect"
 	"strings"
 )
 
@@ -14,16 +15,17 @@ type Tabler interface {
 
 type User struct {
 	gorm.Model
-	ID               uint `gorm:"primaryKey"`
-	Email            string
-	FullName         string
-	Telephone        string
-	CompanyName      string
-	IsAdmin          bool
-	Password         string
-	Address          string
-	IsDeleted        bool
-	TelegramUsername string
+	ID               uint   `gorm:"primaryKey"`
+	Email            string `gorm:"column:email"`
+	FullName         string `gorm:"column:full_name"`
+	Telephone        string `gorm:"column:telephone"`
+	CompanyName      string `gorm:"column:company_name"`
+	IsAdmin          bool   `gorm:"column:is_admin"`
+	Password         string `gorm:"column:password"`
+	Address          string `gorm:"column:address"`
+	IsDeleted        bool   `gorm:"column:is_deleted"`
+	IsActivated      bool   `gorm:"column:is_activated"`
+	TelegramUsername string `gorm:"column:telegram_username"`
 	AvatarImagePath  string `gorm:"column:image_path"`
 }
 
@@ -39,6 +41,30 @@ func (u User) getAddress() (Address, error) {
 		District:     fullAddress[2],
 		HomeLocation: fullAddress[3],
 	}, nil
+}
+
+func (u User) GetValuesToUpdate() map[string]any {
+	getUserTag := func(f reflect.StructField, tagName string) string {
+		tag := strings.Split(f.Tag.Get(tagName), ":")
+		if len(tag) != 2 {
+			return ""
+		}
+		return string(tag[1])
+	}
+	updateValues := make(map[string]any)
+
+	user := reflect.TypeOf(u)
+	userFields := reflect.ValueOf(u)
+	userFieldsCount := user.NumField()
+	for i := 0; i < userFieldsCount; i++ {
+		field := user.Field(i)
+		value := userFields.Field(i).Interface()
+		if !userFields.Field(i).IsZero() {
+			updateValues[getUserTag(field, "gorm")] = value
+		}
+	}
+
+	return updateValues
 }
 
 func (u User) GetUserFullResponse(token string) SignedInUser {
