@@ -7,3 +7,5 @@ Kurajj.iml
 
 # Ignore Gradle build output directory
 kurajj-openssl-ca.cnf
+
+configs/gmail.yaml
