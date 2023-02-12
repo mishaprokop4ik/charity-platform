@@ -31,5 +31,24 @@ func (h *Handler) InitRoutes() http.Handler {
 	adminSubRouter := apiRouter.PathPrefix("/admin").Subrouter()
 	adminSubRouter.HandleFunc("/create", h.CreateNewAdmin)
 
+	eventsSubRouter := apiRouter.PathPrefix("events").Subrouter()
+	proposalEventSubRouter := eventsSubRouter.PathPrefix("proposal").Subrouter()
+
+	proposalEventSubRouter.HandleFunc("/create", h.CreateProposalEvent).
+		Methods(http.MethodPost)
+	proposalEventSubRouter.HandleFunc("/update/{id}", h.UpdateProposalEvent).
+		Methods(http.MethodPut, http.MethodPatch)
+	proposalEventSubRouter.HandleFunc("/get/{id}", h.GetProposalEvent).
+		Methods(http.MethodGet)
+	proposalEventSubRouter.HandleFunc("/get", h.GetProposalEvents).
+		Methods(http.MethodGet)
+	proposalEventSubRouter.HandleFunc("/get-own", h.GetUsersProposalEvents).
+		Methods(http.MethodGet)
+	proposalEventSubRouter.HandleFunc("/delete/{id}", h.DeleteProposalEvent).
+		Methods(http.MethodDelete)
+	proposalEventSubRouter.HandleFunc("/reports/{id}", h.GetProposalEventReports).
+		Methods(http.MethodGet)
+	proposalEventSubRouter.HandleFunc("/complain/{id}", h.SendProposalEventComplaint).
+		Methods(http.MethodPost)
 	return r
 }
