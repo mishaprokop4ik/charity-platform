@@ -52,8 +52,8 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 		CompetitionDate: completionDate,
 		AuthorID:        event.AuthorID,
 		Category:        event.Category,
-		Comments:        event.Comments,
-		Transactions:    event.Transactions,
+		//Comments:        event.Comments,
+		//Transactions:    event.Transactions,
 	}
 }
 

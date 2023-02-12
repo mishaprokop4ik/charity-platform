@@ -18,6 +18,11 @@ type proposalEventCreateResponse struct {
 
 func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
+	userID := r.Context().Value("id")
+	if userID == "" {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
+		return
+	}
 	event, err := models.UnmarshalProposalEventCreate(r)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -29,6 +34,7 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	go func() {
 		id, err := h.services.ProposalEvent.CreateEvent(ctx, models.ProposalEvent{
+			AuthorID:    userID.(uint),
 			Title:       event.Title,
 			Description: event.Description,
 		})
@@ -246,7 +252,7 @@ func (h *Handler) GetProposalEvents(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) GetUsersProposalEvents(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	userID := r.Context().Value("id")
-	if userID != "" {
+	if userID == "" {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
 		return
 	}

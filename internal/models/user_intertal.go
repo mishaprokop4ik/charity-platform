@@ -28,7 +28,7 @@ type User struct {
 	TelegramUsername string `gorm:"column:telegram_username"`
 	AvatarImagePath  string `gorm:"column:image_path"`
 
-	ProposalEvents []ProposalEvent `gorm:"foreignKey:AuthorID"`
+	//ProposalEvents []ProposalEvent `gorm:"foreignKey:AuthorID"`
 }
 
 func (u User) getAddress() (Address, error) {

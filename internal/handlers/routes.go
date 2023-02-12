@@ -31,8 +31,8 @@ func (h *Handler) InitRoutes() http.Handler {
 	adminSubRouter := apiRouter.PathPrefix("/admin").Subrouter()
 	adminSubRouter.HandleFunc("/create", h.CreateNewAdmin)
 
-	eventsSubRouter := apiRouter.PathPrefix("events").Subrouter()
-	proposalEventSubRouter := eventsSubRouter.PathPrefix("proposal").Subrouter()
+	eventsSubRouter := apiRouter.PathPrefix("/events").Subrouter()
+	proposalEventSubRouter := eventsSubRouter.PathPrefix("/proposal").Subrouter()
 
 	proposalEventSubRouter.HandleFunc("/create", h.CreateProposalEvent).
 		Methods(http.MethodPost)

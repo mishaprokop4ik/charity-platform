@@ -12,11 +12,15 @@ type ProposalEvent struct {
 	Title           string `gorm:"column:title"`
 	Description     string
 	CreationDate    time.Time
-	CompetitionDate sql.NullTime `gorm:"column:completion_date"`
+	CompetitionDate sql.NullTime `gorm:"column:competition_date"`
 	AuthorID        uint         `gorm:"column:author_id"`
 	Category        string       `gorm:"column:category"`
-	Comments        []Comment
-	Transactions    []Transaction
+	//Comments        []Comment
+	//Transactions    []Transaction
+}
+
+func (p ProposalEvent) TableName() string {
+	return "propositional_event"
 }
 
 func (p ProposalEvent) GetValuesToUpdate() map[string]any {
