@@ -31,7 +31,7 @@ type Authentication struct {
 
 const confirmEmail = "Confirm Your Email Address"
 
-func GenerateRandomString() string {
+func GenerateRandomPassword() string {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
 	rand.Seed(time.Now().UnixNano())
 	length := 10 + rand.Intn(5)

@@ -8,11 +8,15 @@ import (
 type Service struct {
 	Authentication Authenticator
 	Admin          AdminCRUDer
+	ProposalEvent  ProposalEventer
 }
 
-func New(repo *repository.Repository, authConfig *config.AuthenticationConfig, emailConfig *config.Email) *Service {
+func New(repo *repository.Repository,
+	authConfig *config.AuthenticationConfig,
+	emailConfig *config.Email) *Service {
 	return &Service{
 		Authentication: NewAuthentication(repo, authConfig, emailConfig),
 		Admin:          NewAdmin(repo, authConfig, emailConfig),
+		ProposalEvent:  NewProposalEvent(repo),
 	}
 }

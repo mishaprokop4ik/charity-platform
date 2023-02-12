@@ -27,6 +27,8 @@ type User struct {
 	IsActivated      bool   `gorm:"column:is_activated"`
 	TelegramUsername string `gorm:"column:telegram_username"`
 	AvatarImagePath  string `gorm:"column:image_path"`
+
+	ProposalEvents []ProposalEvent `gorm:"foreignKey:AuthorID"`
 }
 
 func (u User) getAddress() (Address, error) {
@@ -49,7 +51,7 @@ func (u User) GetValuesToUpdate() map[string]any {
 		if len(tag) != 2 {
 			return ""
 		}
-		return string(tag[1])
+		return tag[1]
 	}
 	updateValues := make(map[string]any)
 

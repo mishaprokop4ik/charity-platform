@@ -29,7 +29,7 @@ type OneTimePassword struct {
 }
 
 func (a *Admin) CreateAdmin(ctx context.Context, admin models.User) (uint, error) {
-	password := GenerateRandomString()
+	password := GenerateRandomPassword()
 	admin.Password = GeneratePasswordHash(password, a.authConfig.Salt)
 	oneTimePasswordBody := bytes.Buffer{}
 

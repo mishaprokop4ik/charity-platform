@@ -3,6 +3,7 @@ package handlers
 import (
 	httpHelper "Kurajj/pkg/http"
 	zlog "Kurajj/pkg/logger"
+	"context"
 	"net/http"
 	"strings"
 )
@@ -21,13 +22,15 @@ func (h *Handler) Authentication(next http.Handler) http.Handler {
 			httpHelper.SendErrorResponse(w, http.StatusBadRequest, "invalid auth header")
 			return
 		}
-		_, err := h.services.Authentication.ParseToken(headerParts[1])
+		id, err := h.services.Authentication.ParseToken(headerParts[1])
 		if err != nil {
 			zlog.Log.Error(err, "incorrect input token")
 			httpHelper.SendErrorResponse(w, http.StatusUnauthorized, "invalid auth token")
 			return
 		}
-
+		ctx := r.Context()
+		req := r.WithContext(context.WithValue(ctx, "id", id))
+		*r = *req
 		next.ServeHTTP(w, r)
 	})
 }

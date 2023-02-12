@@ -9,6 +9,15 @@ import (
 	"gorm.io/gorm"
 )
 
+type Userer interface {
+	CreateUser(ctx context.Context, user models.User) (uint, error)
+	GetUserAuthentication(ctx context.Context, email, password string) (uint, error)
+	GetEntity(ctx context.Context, email, password string, isAdmin, isDeleted bool) (models.User, error)
+	DeleteUser(ctx context.Context, id uint) error
+	UpsertUser(ctx context.Context, values map[string]any) error
+	UpdateUserByEmail(ctx context.Context, email string, values map[string]any) error
+}
+
 type User struct {
 	DBConnector *Connector
 }
