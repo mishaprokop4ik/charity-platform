@@ -34,9 +34,10 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	go func() {
 		id, err := h.services.ProposalEvent.CreateEvent(ctx, models.ProposalEvent{
-			AuthorID:    userID.(uint),
-			Title:       event.Title,
-			Description: event.Description,
+			AuthorID:     userID.(uint),
+			Title:        event.Title,
+			Description:  event.Description,
+			CreationDate: time.Now(),
 		})
 		eventch <- proposalEventCreateResponse{
 			id:  id,
@@ -92,8 +93,7 @@ func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 			Title:       event.Title,
 			Description: event.Description,
 			CompetitionDate: sql.NullTime{
-				Time:  event.CompetitionDate,
-				Valid: true,
+				Time: event.CompetitionDate,
 			},
 			Category: event.Category,
 		})

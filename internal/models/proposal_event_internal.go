@@ -8,10 +8,10 @@ import (
 )
 
 type ProposalEvent struct {
-	ID              uint   `gorm:"primaryKey"`
-	Title           string `gorm:"column:title"`
-	Description     string
-	CreationDate    time.Time
+	ID              uint         `gorm:"primaryKey"`
+	Title           string       `gorm:"column:title"`
+	Description     string       `gorm:"column:description"`
+	CreationDate    time.Time    `gorm:"column:creation_date"`
 	CompetitionDate sql.NullTime `gorm:"column:competition_date"`
 	AuthorID        uint         `gorm:"column:author_id"`
 	Category        string       `gorm:"column:category"`
@@ -31,6 +31,15 @@ func (p ProposalEvent) GetValuesToUpdate() map[string]any {
 		}
 		return tag[1]
 	}
+
+	isTimeZero := func(t any) bool {
+		timeValue, ok := t.(time.Time)
+		if !timeValue.IsZero() || !ok {
+			return false
+		}
+		return true
+	}
+
 	updateValues := make(map[string]any)
 
 	proposalEvent := reflect.TypeOf(p)
@@ -39,8 +48,11 @@ func (p ProposalEvent) GetValuesToUpdate() map[string]any {
 	for i := 0; i < proposalEventFieldsCount; i++ {
 		field := proposalEvent.Field(i)
 		value := proposalEventFields.Field(i).Interface()
-		if !proposalEventFields.Field(i).IsZero() {
-			updateValues[getProposalEventTag(field, "gorm")] = value
+		fieldName := getProposalEventTag(field, "gorm")
+		if !proposalEventFields.Field(i).IsZero() &&
+			!isTimeZero(proposalEventFields.Field(i).Interface()) &&
+			fieldName != "" {
+			updateValues[fieldName] = value
 		}
 	}
 

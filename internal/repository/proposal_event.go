@@ -63,6 +63,7 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 }
 
 func (p *ProposalEvent) UpdateEvent(ctx context.Context, id uint, toUpdate map[string]any) error {
+	fmt.Println(lo.Keys(toUpdate))
 	return p.DBConnector.DB.
 		Model(&models.ProposalEvent{}).
 		Select(lo.Keys(toUpdate)).
@@ -73,7 +74,7 @@ func (p *ProposalEvent) UpdateEvent(ctx context.Context, id uint, toUpdate map[s
 }
 
 func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
-	err := p.DBConnector.DB.Delete(&models.ProposalEvent{}).Where("id = ?", id).WithContext(ctx).Error
+	err := p.DBConnector.DB.Where("id = ?", id).Delete(&models.ProposalEvent{}).WithContext(ctx).Error
 	return err
 }
 
