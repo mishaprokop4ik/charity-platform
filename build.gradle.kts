@@ -20,7 +20,7 @@ tasks.register("serverDockerBuild") {
     val kvServerDockerName: String by extra { properties.getOrDefault("dockerName", "miprokop/kurajj_charity_planform") as String }
     doLast {
         exec {
-            commandLine = listOf("docker", "build", "-t", "${kvServerDockerName}:v$version", "-f", "server/Dockerfile", ".")
+            commandLine = listOf("docker", "build", "-t", "${kvServerDockerName}:v$version", "-f", "build/docker/Dockerfile", ".")
         }
     }
 }
@@ -72,6 +72,28 @@ tasks.register("migrateUp") {
     doLast {
         exec {
             commandLine = listOf("migrate", "-path", "$migrationFilesPath", "-database", "$databaseURL", "up")
+        }
+    }
+}
+
+tasks.register("dc-up") {
+    group = "docker"
+    description = "Docker compose up"
+
+    doLast {
+        exec {
+            commandLine = listOf("docker-compose", "-f", "build/docker-compose/services.yaml", "up", "-d")
+        }
+    }
+}
+
+tasks.register("dc-down") {
+    group = "docker"
+    description = "Docker compose down"
+
+    doLast {
+        exec {
+            commandLine = listOf("docker-compose", "-f", "build/docker-compose/services.yaml", "down")
         }
     }
 }
