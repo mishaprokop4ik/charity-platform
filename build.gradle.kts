@@ -32,7 +32,7 @@ tasks.register("dbDockerStart") {
     description = "Start PostgreSQL database in the Docker container"
     doLast {
         exec {
-            commandLine = listOf("docker", "run", "-d", "-v", "/var/lib/postgresql/charity_platform_data/:/var/lib/postgresql/data", "--name=kurajj_db", "-e", "POSTGRES_PASSWORD=rootroot", "-e", "POSTGRES_DB=kurajj", "-p", "5432:5432", "-d", "--rm", "postgres")
+            commandLine = listOf("docker", "run", "-d", "-v", "/var/lib/postgresql/charity_platform_data/:/var/lib/postgresql/data", "--name=kurajj_db", "-e", "POSTGRES_PASSWORD=rootroot", "-e", "POSTGRES_DB=kurajj", "-p", "5432:5432", "-d", "--rm", "postgres:15.2")
         }
     }
 }

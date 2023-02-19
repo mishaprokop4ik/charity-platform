@@ -16,6 +16,19 @@ type proposalEventCreateResponse struct {
 	err error
 }
 
+// CreateProposalEvent create a new proposal event
+// @Summary      Create a new proposal event
+// @Tags         Proposal Event
+// @Accept       json
+// @Produce      json
+// @Param request body models.ProposalEventRequestCreate true "query params"
+// @Success      201  {object}  models.CreationResponse
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/create [post]
 func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	userID := r.Context().Value("id")
@@ -66,6 +79,20 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// UpdateProposalEvent update a proposal event
+// @Summary      Update proposal event
+// @Tags         Proposal Event
+// @Accept       json
+// @Produce      json
+// @Param request body models.ProposalEventRequestUpdate true "query params"
+// @Param        id   path int  true  "ID"
+// @Success      200
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/update/{id} [put]
 func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	event, err := models.UnmarshalProposalEventUpdate(r)
@@ -122,6 +149,20 @@ func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+// DeleteProposalEvent delete a proposal event
+// @Summary      Delete proposal event
+// @Tags         Proposal Event
+// @Accept       json
+// @Produce      json
+// @Param        id   path int  true  "ID"
+// @Success      200
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/delete/{id} [delete]
 func (h *Handler) DeleteProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -168,6 +209,19 @@ type getProposalEvent struct {
 	err           error
 }
 
+// GetProposalEvent get proposal event by id
+// @Summary      Get proposal event by id
+// @Tags         Proposal Event
+// @Accept       json
+// @Produce      json
+// @Param        id   path int  true  "ID"
+// @Success      200  {object} models.ProposalEventGetResponse
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/get/{id} [get]
 func (h *Handler) GetProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -215,6 +269,18 @@ type getProposalEvents struct {
 	err               error
 }
 
+// GetProposalEvents get all proposal events
+// @Summary      Get all proposal events
+// @Tags         Proposal Event
+// @Accept       json
+// @Produce      json
+// @Success      200  {object} models.ProposalEventList
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/get [get]
 func (h *Handler) GetProposalEvents(w http.ResponseWriter, r *http.Request) {
 	// TODO add filters
 	// TODO add sorts
@@ -249,6 +315,18 @@ func (h *Handler) GetProposalEvents(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// GetUsersProposalEvents get all proposal events created by user requester id
+// @Summary      Get all proposal events created by user requester id
+// @Tags         Proposal Event
+// @Accept       json
+// @Produce      json
+// @Success      200  {object} models.ProposalEventList
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/get-own [get]
 func (h *Handler) GetUsersProposalEvents(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	userID := r.Context().Value("id")

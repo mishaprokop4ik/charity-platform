@@ -16,6 +16,19 @@ type userSignInResponse struct {
 	err  error
 }
 
+// UserSignIn godoc
+// @Summary      Signs In a user
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param request body models.SignInEntity true "query params"
+// @Success      201  {object}  models.SignedInUser
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /auth/sign-in [post]
 func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	user, err := models.UnmarshalSignInEntity(r)
@@ -150,6 +163,19 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// ConfirmEmail godoc
+// @Summary      Updates user's status to activated.
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        email   path string  true  "Email"
+// @Success      200
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /auth/confirm/{email} [post]
 func (h *Handler) ConfirmEmail(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	email, ok := mux.Vars(r)["email"]

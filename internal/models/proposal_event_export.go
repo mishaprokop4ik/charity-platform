@@ -23,15 +23,15 @@ func UnmarshalProposalEventCreate(r *http.Request) (ProposalEventRequestCreate, 
 }
 
 type ProposalEventGetResponse struct {
-	ID              uint          `json:"id,omitempty"`
-	Title           string        `json:"title,omitempty"`
-	Description     string        `json:"description,omitempty"`
-	CreationDate    string        `json:"creationDate,omitempty"`
-	CompetitionDate string        `json:"competitionDate,omitempty"`
-	AuthorID        uint          `json:"authorID,omitempty"`
-	Category        string        `json:"category,omitempty"`
-	Comments        []Comment     `json:"comments,omitempty"`
-	Transactions    []Transaction `json:"transactions,omitempty"`
+	ID              uint                  `json:"id,omitempty"`
+	Title           string                `json:"title,omitempty"`
+	Description     string                `json:"description,omitempty"`
+	CreationDate    string                `json:"creationDate,omitempty"`
+	CompetitionDate string                `json:"competitionDate,omitempty"`
+	AuthorID        uint                  `json:"authorID,omitempty"`
+	Category        string                `json:"category,omitempty"`
+	Comments        []Comment             `json:"comments,omitempty"`
+	Transactions    []TransactionResponse `json:"transactions,omitempty"`
 }
 
 func (p ProposalEventGetResponse) Bytes() []byte {

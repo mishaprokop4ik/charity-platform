@@ -9,6 +9,19 @@ import (
 	"time"
 )
 
+// AdminSignIn godoc
+// @Summary      Signs In a user
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param request body models.SignInEntity true "query params"
+// @Success      201  {object}  models.SignedInUser
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /auth/sign-in-admin [post]
 func (h *Handler) AdminSignIn(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	admin, err := models.UnmarshalSignInEntity(r)
@@ -60,6 +73,19 @@ func (h *Handler) AdminSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// CreateNewAdmin godoc
+// @Summary      Create a new admin
+// @Tags         Admin
+// @Accept       json
+// @Produce      json
+// @Param request body models.AdminCreation true "query params"
+// @Success      201  {object}  models.CreationResponse
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/admin/create [post]
 func (h *Handler) CreateNewAdmin(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	admin, err := models.UnmarshalCreateAdmin(r)
