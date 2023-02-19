@@ -1,0 +1,21 @@
+version: "3.9"
+services:
+  web:
+    image: miprokop/kurajj_charity_planform:v1
+    restart: always
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+  postgres:
+    image: postgres:15.2
+    restart: always
+    container_name: kurajj_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - "/var/lib/postgresql/charity_platform_data/:/var/lib/postgresql/data"
+    environment:
+      - POSTGRES_PASSWORD=rootroot
+      - POSTGRES_DB=kurajj
+      - POSTGRES_USER=posgres

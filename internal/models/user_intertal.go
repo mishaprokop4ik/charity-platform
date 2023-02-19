@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"reflect"
 	"strings"
 )
 
@@ -14,22 +15,26 @@ type Tabler interface {
 
 type User struct {
 	gorm.Model
-	ID               uint `gorm:"primaryKey"`
-	Email            string
-	FullName         string
-	Telephone        string
-	CompanyName      string
-	Password         string
-	Address          string
-	IsDeleted        bool
-	TelegramUsername string
+	ID               uint   `gorm:"primaryKey"`
+	Email            string `gorm:"column:email"`
+	FullName         string `gorm:"column:full_name"`
+	Telephone        string `gorm:"column:telephone"`
+	CompanyName      string `gorm:"column:company_name"`
+	IsAdmin          bool   `gorm:"column:is_admin"`
+	Password         string `gorm:"column:password"`
+	Address          string `gorm:"column:address"`
+	IsDeleted        bool   `gorm:"column:is_deleted"`
+	IsActivated      bool   `gorm:"column:is_activated"`
+	TelegramUsername string `gorm:"column:telegram_username"`
 	AvatarImagePath  string `gorm:"column:image_path"`
+
+	//ProposalEvents []ProposalEvent `gorm:"foreignKey:AuthorID"`
 }
 
-func (u User) getAddress() Address {
+func (u User) getAddress() (Address, error) {
 	fullAddress := strings.Split(u.Address, "|")
 	if len(fullAddress) != DecodedAddressLength {
-		panic(fmt.Sprintf("something went wrong. the size of address is incorrect. want %d; got: %d", DecodedAddressLength, len(fullAddress)))
+		return Address{}, fmt.Errorf("something went wrong. the size of address is incorrect. want %d; got: %d", DecodedAddressLength, len(fullAddress))
 	}
 
 	return Address{
@@ -37,18 +42,51 @@ func (u User) getAddress() Address {
 		City:         fullAddress[1],
 		District:     fullAddress[2],
 		HomeLocation: fullAddress[3],
+	}, nil
+}
+
+func (u User) GetValuesToUpdate() map[string]any {
+	getUserTag := func(f reflect.StructField, tagName string) string {
+		tag := strings.Split(f.Tag.Get(tagName), ":")
+		if len(tag) != 2 {
+			return ""
+		}
+		return tag[1]
 	}
+	updateValues := make(map[string]any)
+
+	user := reflect.TypeOf(u)
+	userFields := reflect.ValueOf(u)
+	userFieldsCount := user.NumField()
+	for i := 0; i < userFieldsCount; i++ {
+		field := user.Field(i)
+		value := userFields.Field(i).Interface()
+		if !userFields.Field(i).IsZero() {
+			updateValues[getUserTag(field, "gorm")] = value
+		}
+	}
+
+	return updateValues
 }
 
 func (u User) GetUserFullResponse(token string) SignedInUser {
+	var (
+		firstName  = ""
+		secondName = ""
+	)
+
 	fullName := strings.Split(u.FullName, " ")
-	address := u.getAddress()
+	if len(fullName) == 2 {
+		firstName = fullName[0]
+		secondName = fullName[1]
+	}
+	address, _ := u.getAddress()
 	return SignedInUser{
 		ID: int(u.ID),
 		//TODO add email validation
 		Email:      Email(u.Email),
-		FirstName:  fullName[0],
-		SecondName: fullName[1],
+		FirstName:  firstName,
+		SecondName: secondName,
 		//TODO add telephone validation
 		Telephone:   Telephone(u.Telephone),
 		CompanyName: u.CompanyName,

@@ -6,14 +6,14 @@ import (
 	"net/http"
 )
 
-type errorResponse struct {
+type ErrorResponse struct {
 	Error string `json:"error,omitempty"`
 }
 
 func SendErrorResponse(w http.ResponseWriter, statusCode uint, message string) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(int(statusCode))
-	resp := errorResponse{
+	resp := ErrorResponse{
 		Error: message,
 	}
 	respEncoded, _ := json.Marshal(resp)
