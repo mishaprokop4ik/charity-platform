@@ -265,8 +265,8 @@ func (h *Handler) GetProposalEvent(w http.ResponseWriter, r *http.Request) {
 }
 
 type getProposalEvents struct {
-	proposalEventList models.ProposalEventList
-	err               error
+	proposalEvents models.ProposalEvents
+	err            error
 }
 
 // GetProposalEvents get all proposal events
@@ -274,7 +274,7 @@ type getProposalEvents struct {
 // @Tags         Proposal Event
 // @Accept       json
 // @Produce      json
-// @Success      200  {object} models.ProposalEventList
+// @Success      200  {object} models.ProposalEvents
 // @Failure      401  {object}  models.ErrResponse
 // @Failure      403  {object}  models.ErrResponse
 // @Failure      404  {object}  models.ErrResponse
@@ -293,8 +293,8 @@ func (h *Handler) GetProposalEvents(w http.ResponseWriter, r *http.Request) {
 		events, err := h.services.ProposalEvent.GetEvents(ctx)
 
 		eventch <- getProposalEvents{
-			proposalEventList: models.GetProposalEvents(events...),
-			err:               err,
+			proposalEvents: models.GetProposalEvents(events...),
+			err:            err,
 		}
 	}()
 	select {
@@ -311,7 +311,7 @@ func (h *Handler) GetProposalEvents(w http.ResponseWriter, r *http.Request) {
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
 			return
 		}
-		httpHelper.SendHTTPResponse(w, resp.proposalEventList)
+		httpHelper.SendHTTPResponse(w, resp.proposalEvents)
 	}
 }
 
@@ -320,7 +320,7 @@ func (h *Handler) GetProposalEvents(w http.ResponseWriter, r *http.Request) {
 // @Tags         Proposal Event
 // @Accept       json
 // @Produce      json
-// @Success      200  {object} models.ProposalEventList
+// @Success      200  {object} models.ProposalEvents
 // @Failure      401  {object}  models.ErrResponse
 // @Failure      403  {object}  models.ErrResponse
 // @Failure      404  {object}  models.ErrResponse
@@ -341,8 +341,8 @@ func (h *Handler) GetUsersProposalEvents(w http.ResponseWriter, r *http.Request)
 		events, err := h.services.ProposalEvent.GetUserProposalEvents(ctx, userID.(uint))
 
 		eventch <- getProposalEvents{
-			proposalEventList: models.GetProposalEvents(events...),
-			err:               err,
+			proposalEvents: models.GetProposalEvents(events...),
+			err:            err,
 		}
 	}()
 	select {
@@ -359,7 +359,7 @@ func (h *Handler) GetUsersProposalEvents(w http.ResponseWriter, r *http.Request)
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
 			return
 		}
-		httpHelper.SendHTTPResponse(w, resp.proposalEventList)
+		httpHelper.SendHTTPResponse(w, resp.proposalEvents)
 	}
 }
 

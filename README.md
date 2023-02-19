@@ -5,6 +5,7 @@
 * Installed Docker and docker-compose in you machine
 * Go version >= 1.18
 * `configs` folder with all configs data
+* gradle >= 7.4 
 
 ## About
 
@@ -21,4 +22,4 @@ In docs folder you are able to see swagger documentation for API.
 * `./gradlew serverDockerBuild`
 * `./gradlew gc-up`
 
-How api is available locally on localhost:8080/ URL
+Now api is available locally on localhost:8080/ URL

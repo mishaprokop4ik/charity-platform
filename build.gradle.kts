@@ -97,3 +97,14 @@ tasks.register("dc-down") {
         }
     }
 }
+
+tasks.register("init-doc") {
+    group = "doc"
+    description = "Create swagger documentation for http API"
+
+    doLast {
+        exec {
+            commandLine = listOf("swag", "init", "--parseDependency", "--parseInternal", "--parseDepth", "1", "-g", "cmd/kurajj/main.go")
+        }
+    }
+}

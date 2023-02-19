@@ -231,7 +231,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ProposalEventList"
+                            "$ref": "#/definitions/models.ProposalEvents"
                         }
                     },
                     "401": {
@@ -283,7 +283,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ProposalEventList"
+                            "$ref": "#/definitions/models.ProposalEvents"
                         }
                     },
                     "401": {
@@ -807,17 +807,6 @@ var doc = `{
                 }
             }
         },
-        "models.ProposalEventList": {
-            "type": "object",
-            "properties": {
-                "proposalEvents": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/models.ProposalEventGetResponse"
-                    }
-                }
-            }
-        },
         "models.ProposalEventRequestCreate": {
             "type": "object",
             "properties": {
@@ -846,6 +835,17 @@ var doc = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "models.ProposalEvents": {
+            "type": "object",
+            "properties": {
+                "proposalEvents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.ProposalEventGetResponse"
+                    }
                 }
             }
         },
