@@ -1,4 +1,4 @@
-host: localhost
+host: kurajj_db
 port: 5432
 database: kurajj
 user: postgres

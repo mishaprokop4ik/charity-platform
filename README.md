@@ -18,6 +18,7 @@ In docs folder you are able to see swagger documentation for API.
 ## Run the project locally
 
 * `docker login` - put your credentials here
+* `./gradlew serverDockerBuild`
 * `./gradlew gc-up`
 
 How api is available locally on localhost:8080/ URL
