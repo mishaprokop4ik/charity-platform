@@ -19,6 +19,21 @@ var (
 
 var port = flag.Int("port", 8080, "HTTP server port number")
 
+// @title           Swagger Cor Charity Platform
+// @version         1.0
+// @description     Kurajj Charity Platform
+
+// @contact.name   API Support
+// @contact.url    http://www.swagger.io/support
+// @contact.email  mykha
+
+// @license.name  Apache 2.0
+// @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host      localhost:8080
+// @BasePath  /api/v1
+
+// @securityDefinitions.basic  BasicAuth
 func main() {
 	flag.Parse()
 	zlog.Init()

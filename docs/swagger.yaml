@@ -1,0 +1,94 @@
+basePath: /api/v1
+definitions:
+  models.Address:
+    properties:
+      city:
+        type: string
+      district:
+        type: string
+      homeLocation:
+        type: string
+      region:
+        type: string
+    type: object
+  models.CreationResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  models.ErrResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  models.SignUpUser:
+    properties:
+      address:
+        $ref: '#/definitions/models.Address'
+      companyName:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      password:
+        type: string
+      secondName:
+        type: string
+      telephone:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: mykha
+    name: API Support
+    url: http://www.swagger.io/support
+  description: Kurajj Charity Platform
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  title: Swagger Cor Charity Platform
+  version: "1.0"
+paths:
+  /auth/sign-up:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.SignUpUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.CreationResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.ErrResponse'
+      summary: Signs Up new user
+      tags:
+      - Auth
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

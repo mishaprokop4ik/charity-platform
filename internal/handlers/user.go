@@ -76,6 +76,18 @@ type errResponse struct {
 	err error
 }
 
+// UserSignUp godoc
+// @Summary      Signs Up new user
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param request body models.SignUpUser true "query params"
+// @Success      201  {object}  models.CreationResponse
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /auth/sign-up [post]
 func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	user, err := models.UnmarshalSignUpUser(r)

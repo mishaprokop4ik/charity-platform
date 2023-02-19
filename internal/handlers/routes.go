@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	_ "Kurajj/docs"
 	service "Kurajj/internal/services"
 	"github.com/gorilla/mux"
 	"net/http"
@@ -16,6 +17,7 @@ func New(s *service.Service) Handler {
 
 func (h *Handler) InitRoutes() http.Handler {
 	r := mux.NewRouter()
+
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(h.Authentication)
 
@@ -50,5 +52,6 @@ func (h *Handler) InitRoutes() http.Handler {
 		Methods(http.MethodGet)
 	proposalEventSubRouter.HandleFunc("/complain/{id}", h.SendProposalEventComplaint).
 		Methods(http.MethodPost)
+
 	return r
 }
