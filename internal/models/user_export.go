@@ -159,7 +159,7 @@ func UnmarshalCreateAdmin(r *http.Request) (AdminCreation, error) {
 
 type AdminCreation struct {
 	defaultFields
-	IsAdmin bool
+	IsAdmin bool `json:"-"`
 }
 
 func (a AdminCreation) CreateUser() User {

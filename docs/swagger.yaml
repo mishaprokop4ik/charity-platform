@@ -19,8 +19,6 @@ definitions:
         type: string
       firstName:
         type: string
-      isAdmin:
-        type: boolean
       secondName:
         type: string
       telephone:
