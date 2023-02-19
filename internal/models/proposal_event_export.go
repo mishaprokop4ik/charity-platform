@@ -6,11 +6,6 @@ import (
 	"time"
 )
 
-type DescriptionField struct {
-	Name string `json:"name,omitempty"`
-	Text string `json:"text,omitempty"`
-}
-
 type ProposalEventRequestCreate struct {
 	Title       string `json:"title,omitempty"`
 	Description string `json:"description,omitempty"`
@@ -57,19 +52,19 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 	}
 }
 
-type ProposalEventList struct {
+type ProposalEvents struct {
 	ProposalEvents []ProposalEventGetResponse `json:"proposalEvents,omitempty"`
 }
 
-func GetProposalEvents(events ...ProposalEvent) ProposalEventList {
-	list := ProposalEventList{}
+func GetProposalEvents(events ...ProposalEvent) ProposalEvents {
+	responseEvents := ProposalEvents{}
 	for _, e := range events {
-		list.ProposalEvents = append(list.ProposalEvents, GetProposalEvent(e))
+		responseEvents.ProposalEvents = append(responseEvents.ProposalEvents, GetProposalEvent(e))
 	}
-	return list
+	return responseEvents
 }
 
-func (l ProposalEventList) Bytes() []byte {
+func (l ProposalEvents) Bytes() []byte {
 	bytes, _ := json.Marshal(l)
 	return bytes
 }

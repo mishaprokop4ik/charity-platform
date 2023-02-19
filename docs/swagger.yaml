@@ -76,13 +76,6 @@ definitions:
           $ref: '#/definitions/models.TransactionResponse'
         type: array
     type: object
-  models.ProposalEventList:
-    properties:
-      proposalEvents:
-        items:
-          $ref: '#/definitions/models.ProposalEventGetResponse'
-        type: array
-    type: object
   models.ProposalEventRequestCreate:
     properties:
       description:
@@ -102,6 +95,13 @@ definitions:
         type: integer
       title:
         type: string
+    type: object
+  models.ProposalEvents:
+    properties:
+      proposalEvents:
+        items:
+          $ref: '#/definitions/models.ProposalEventGetResponse'
+        type: array
     type: object
   models.SignInEntity:
     properties:
@@ -304,7 +304,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ProposalEventList'
+            $ref: '#/definitions/models.ProposalEvents'
         "401":
           description: Unauthorized
           schema:
@@ -338,7 +338,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ProposalEventList'
+            $ref: '#/definitions/models.ProposalEvents'
         "401":
           description: Unauthorized
           schema:
