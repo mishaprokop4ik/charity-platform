@@ -9,6 +9,7 @@ type Service struct {
 	Authentication Authenticator
 	Admin          AdminCRUDer
 	ProposalEvent  ProposalEventer
+	Transaction    Transactioner
 }
 
 func New(repo *repository.Repository,
@@ -18,5 +19,6 @@ func New(repo *repository.Repository,
 		Authentication: NewAuthentication(repo, authConfig, emailConfig),
 		Admin:          NewAdmin(repo, authConfig, emailConfig),
 		ProposalEvent:  NewProposalEvent(repo),
+		Transaction:    NewTransaction(repo),
 	}
 }

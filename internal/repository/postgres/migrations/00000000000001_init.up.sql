@@ -70,7 +70,7 @@ CREATE TABLE comment (
         ON DELETE SET NULL ON UPDATE SET DEFAULT
 );
 
-CREATE type status AS ENUM ('finished', 'in_process', 'completed', 'interrupted', 'canceled');
+CREATE type status AS ENUM ('in_process', 'completed', 'interrupted', 'canceled');
 
 CREATE TABLE transaction (
     id bigserial PRIMARY KEY,
@@ -78,6 +78,7 @@ CREATE TABLE transaction (
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     completion_date timestamp,
     event_id bigint,
+    comment varchar(255),
     event_type event,
     status status,
     CONSTRAINT creator_fk FOREIGN KEY(creator_id) REFERENCES members(id)

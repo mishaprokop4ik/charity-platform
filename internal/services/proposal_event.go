@@ -8,6 +8,9 @@ import (
 
 type ProposalEventer interface {
 	ProposalEventCRUDer
+	Response(ctx context.Context, proposalEventID uint) error
+	Accept(ctx context.Context, proposalEventID uint) error
+	UpdateStatus(ctx context.Context, status models.Status, id uint) error
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
 }
 
@@ -20,7 +23,43 @@ type ProposalEventCRUDer interface {
 }
 
 type ProposalEvent struct {
+	Transaction
 	repo *repository.Repository
+}
+
+func (p *ProposalEvent) Response(ctx context.Context, proposalEventID uint) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *ProposalEvent) Accept(ctx context.Context, proposalEventID uint) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Status, id uint) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *ProposalEvent) GetAllTransactionsInEvent(ctx context.Context, eventType models.EventType, eventID uint) ([]models.Transaction, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *ProposalEvent) DeleteTransaction(ctx context.Context, eventType models.EventType, eventID uint) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *ProposalEvent) UpdateTransactions(ctx context.Context, eventType models.EventType, eventID uint) error {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (p *ProposalEvent) GetCurrentTransaction(ctx context.Context, eventType models.EventType, eventID uint) (models.Transaction, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error) {
@@ -44,7 +83,6 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 }
 
 func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEvent) error {
-
 	return p.repo.ProposalEvent.UpdateEvent(ctx, event.ID, event.GetValuesToUpdate())
 }
 

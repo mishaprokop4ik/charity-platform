@@ -81,6 +81,7 @@ func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 		return err
 	}
 	oldProposalEvent.CompetitionDate = sql.NullTime{Time: time.Now(), Valid: true}
+	oldProposalEvent.Status = models.Canceled
 	err = p.DBConnector.DB.Where("id = ?", id).Updates(oldProposalEvent).WithContext(ctx).Error
 	return err
 }

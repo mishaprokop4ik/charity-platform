@@ -6,12 +6,11 @@ const (
 	ProposalEventType EventType = "proposal-event"
 )
 
-type TransactionStatus string
+type Status string
 
 const (
-	Finished    TransactionStatus = "finished"
-	InProcess   TransactionStatus = "in_process"
-	Completed   TransactionStatus = "completed"
-	Interrupted TransactionStatus = "interrupted"
-	Canceled    TransactionStatus = "canceled"
+	InProcess   Status = "in_process"
+	Completed   Status = "completed"
+	Interrupted Status = "interrupted"
+	Canceled    Status = "canceled"
 )

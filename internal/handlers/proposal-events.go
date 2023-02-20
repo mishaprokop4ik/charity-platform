@@ -376,7 +376,44 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 // TODO add Transaction logic
 
 func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 
+	errch := make(chan errResponse)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		id, ok := mux.Vars(r)["id"]
+		parsedID, err := strconv.Atoi(id)
+		if !ok || err != nil {
+			response := "there is no id for getting in URL"
+			if err != nil {
+				response = err.Error()
+			}
+			httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
+			return
+		}
+		err = h.services.Transaction.UpdateTransactions()
+
+		errch <- errResponse{
+			err: err,
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "responding proposal event took too long")
+		return
+	case resp := <-errch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.NotFoundError.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
 }
 
 func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Request) {

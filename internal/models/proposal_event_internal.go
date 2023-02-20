@@ -15,8 +15,9 @@ type ProposalEvent struct {
 	CompetitionDate       sql.NullTime `gorm:"column:competition_date"`
 	AuthorID              uint         `gorm:"column:author_id"`
 	Category              string       `gorm:"column:category"`
-	MaxConcurrentRequests uint         `json:"maxConcurrentRequests,omitempty"`
-	RemainingHelps        uint         `json:"remainingHelps,omitempty"`
+	MaxConcurrentRequests uint         `gorm:"column:max_concurrent_requests"`
+	RemainingHelps        uint         `gorm:"column:remaining_helps"`
+	Status                Status       `gorm:"column:status"`
 	Comments              []Comment
 	Transactions          []Transaction
 }

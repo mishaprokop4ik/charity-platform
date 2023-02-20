@@ -8,5 +8,5 @@ type TransactionResponse struct {
 	CompetitionDate time.Time
 	EventID         uint
 	EventType       EventType
-	Status          TransactionStatus
+	Status          Status
 }

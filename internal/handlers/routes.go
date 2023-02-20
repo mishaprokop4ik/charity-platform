@@ -53,5 +53,11 @@ func (h *Handler) InitRoutes() http.Handler {
 	proposalEventSubRouter.HandleFunc("/complain/{id}", h.SendProposalEventComplaint).
 		Methods(http.MethodPost)
 
+	proposalEventSubRouter.HandleFunc("/response/{id}", h.ResponseProposalEvent).
+		Methods(http.MethodPost)
+	proposalEventSubRouter.HandleFunc("/accept/{id}", h.AcceptProposalEventResponse).
+		Methods(http.MethodPost)
+	proposalEventSubRouter.HandleFunc("/update-status/{id}", h.AcceptProposalEventResponse).
+		Methods(http.MethodPost)
 	return r
 }
