@@ -1,14 +1,11 @@
 package models
 
-import (
-	"database/sql"
-	"gorm.io/gorm"
-)
+import "time"
 
-type Transaction struct {
-	gorm.Model
+type TransactionResponse struct {
+	ID              uint `gorm:"primaryKey"`
 	CreatorID       uint
-	CompetitionDate sql.NullTime
+	CompetitionDate time.Time
 	EventID         uint
 	EventType       EventType
 	Status          TransactionStatus

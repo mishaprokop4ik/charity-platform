@@ -719,9 +719,6 @@ var doc = `{
                 "firstName": {
                     "type": "string"
                 },
-                "isAdmin": {
-                    "type": "boolean"
-                },
                 "secondName": {
                     "type": "string"
                 },

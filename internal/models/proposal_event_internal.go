@@ -8,15 +8,17 @@ import (
 )
 
 type ProposalEvent struct {
-	ID              uint         `gorm:"primaryKey"`
-	Title           string       `gorm:"column:title"`
-	Description     string       `gorm:"column:description"`
-	CreationDate    time.Time    `gorm:"column:creation_date"`
-	CompetitionDate sql.NullTime `gorm:"column:competition_date"`
-	AuthorID        uint         `gorm:"column:author_id"`
-	Category        string       `gorm:"column:category"`
-	//Comments        []Comment
-	//Transactions    []Transaction
+	ID                    uint         `gorm:"primaryKey"`
+	Title                 string       `gorm:"column:title"`
+	Description           string       `gorm:"column:description"`
+	CreationDate          time.Time    `gorm:"column:creation_date"`
+	CompetitionDate       sql.NullTime `gorm:"column:competition_date"`
+	AuthorID              uint         `gorm:"column:author_id"`
+	Category              string       `gorm:"column:category"`
+	MaxConcurrentRequests uint         `json:"maxConcurrentRequests,omitempty"`
+	RemainingHelps        uint         `json:"remainingHelps,omitempty"`
+	Comments              []Comment
+	Transactions          []Transaction
 }
 
 func (p ProposalEvent) TableName() string {

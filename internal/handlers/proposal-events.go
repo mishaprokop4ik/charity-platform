@@ -374,3 +374,15 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 // TODO add comment CRUD
 // TODO add report CRUD
 // TODO add Transaction logic
+
+func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Request) {
+
+}
+
+func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r *http.Request) {
+
+}

@@ -3,10 +3,12 @@ package repository
 import (
 	"Kurajj/internal/models"
 	"context"
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
+	"time"
 )
 
 type ProposalEventer interface {
@@ -63,7 +65,6 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 }
 
 func (p *ProposalEvent) UpdateEvent(ctx context.Context, id uint, toUpdate map[string]any) error {
-	fmt.Println(lo.Keys(toUpdate))
 	return p.DBConnector.DB.
 		Model(&models.ProposalEvent{}).
 		Select(lo.Keys(toUpdate)).
@@ -74,7 +75,13 @@ func (p *ProposalEvent) UpdateEvent(ctx context.Context, id uint, toUpdate map[s
 }
 
 func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
-	err := p.DBConnector.DB.Where("id = ?", id).Delete(&models.ProposalEvent{}).WithContext(ctx).Error
+	oldProposalEvent := &models.ProposalEvent{}
+	err := p.DBConnector.DB.Where("id = ?", id).WithContext(ctx).First(oldProposalEvent).Error
+	if err != nil {
+		return err
+	}
+	oldProposalEvent.CompetitionDate = sql.NullTime{Time: time.Now(), Valid: true}
+	err = p.DBConnector.DB.Where("id = ?", id).Updates(oldProposalEvent).WithContext(ctx).Error
 	return err
 }
 

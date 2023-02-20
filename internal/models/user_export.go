@@ -78,7 +78,7 @@ func (a Address) String() string {
 
 type SignUpUser struct {
 	defaultFields
-	Address  Address `json:"address" json:"address"`
+	Address  Address `json:"address"`
 	Password string  `json:"password,omitempty"`
 }
 
