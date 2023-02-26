@@ -36,7 +36,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.AdminCreation"
+                            "$ref": "#/definitions/Kurajj_internal_models.AdminCreation"
                         }
                     }
                 ],
@@ -44,37 +44,327 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.CreationResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.CreationResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "408": {
                         "description": "Request Timeout",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/proposal/accept": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Proposal Event"
+                ],
+                "summary": "Update proposal event transaction's status to models.InProcess state",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/proposal/comment": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Proposal Event"
+                ],
+                "summary": "Create new comment in proposal event",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.CommentCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.CreationResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/proposal/comment/{id}": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Proposal Event"
+                ],
+                "summary": "Update proposal event comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.CommentUpdateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Proposal Event"
+                ],
+                "summary": "Update proposal event comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/proposal/comments/id": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Proposal Event"
+                ],
+                "summary": "Take all comments in proposal event by its id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.Comments"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     }
                 }
@@ -99,7 +389,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ProposalEventRequestCreate"
+                            "$ref": "#/definitions/Kurajj_internal_models.ProposalEventRequestCreate"
                         }
                     }
                 ],
@@ -107,37 +397,37 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.CreationResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.CreationResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "408": {
                         "description": "Request Timeout",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     }
                 }
@@ -166,36 +456,36 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK"
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "408": {
                         "description": "Request Timeout",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     }
                 }
@@ -217,37 +507,37 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ProposalEvents"
+                            "$ref": "#/definitions/Kurajj_internal_models.ProposalEvents"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "408": {
                         "description": "Request Timeout",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     }
                 }
@@ -269,37 +559,37 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ProposalEvents"
+                            "$ref": "#/definitions/Kurajj_internal_models.ProposalEvents"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "408": {
                         "description": "Request Timeout",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     }
                 }
@@ -330,37 +620,205 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.ProposalEventGetResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ProposalEventGetResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "408": {
                         "description": "Request Timeout",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/proposal/response": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Proposal Event"
+                ],
+                "summary": "Create new transaction with waiting status for the proposal event if slot is available",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/proposal/transactions/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Proposal Event"
+                ],
+                "summary": "Update proposal event comment",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.TransactionsExport"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/events/proposal/update-status/{id}": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Proposal Event"
+                ],
+                "summary": "Update proposal event transaction's status to to one of models.Status state",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     }
                 }
@@ -385,7 +843,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ProposalEventRequestUpdate"
+                            "$ref": "#/definitions/Kurajj_internal_models.ProposalEventRequestUpdate"
                         }
                     },
                     {
@@ -398,36 +856,36 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK"
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "408": {
                         "description": "Request Timeout",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     }
                 }
@@ -456,36 +914,36 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": ""
+                        "description": "OK"
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "408": {
                         "description": "Request Timeout",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     }
                 }
@@ -510,7 +968,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SignInEntity"
+                            "$ref": "#/definitions/Kurajj_internal_models.SignInEntity"
                         }
                     }
                 ],
@@ -518,37 +976,37 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.SignedInUser"
+                            "$ref": "#/definitions/Kurajj_internal_models.SignedInUser"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "408": {
                         "description": "Request Timeout",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     }
                 }
@@ -573,7 +1031,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SignInEntity"
+                            "$ref": "#/definitions/Kurajj_internal_models.SignInEntity"
                         }
                     }
                 ],
@@ -581,37 +1039,37 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.SignedInUser"
+                            "$ref": "#/definitions/Kurajj_internal_models.SignedInUser"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "408": {
                         "description": "Request Timeout",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     }
                 }
@@ -636,7 +1094,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.SignUpUser"
+                            "$ref": "#/definitions/Kurajj_internal_models.SignUpUser"
                         }
                     }
                 ],
@@ -644,31 +1102,31 @@
                     "201": {
                         "description": "Created",
                         "schema": {
-                            "$ref": "#/definitions/models.CreationResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.CreationResponse"
                         }
                     },
                     "401": {
                         "description": "Unauthorized",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "403": {
                         "description": "Forbidden",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/models.ErrResponse"
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }
                     }
                 }
@@ -676,7 +1134,7 @@
         }
     },
     "definitions": {
-        "models.Address": {
+        "Kurajj_internal_models.Address": {
             "type": "object",
             "properties": {
                 "city": {
@@ -693,7 +1151,7 @@
                 }
             }
         },
-        "models.AdminCreation": {
+        "Kurajj_internal_models.AdminCreation": {
             "type": "object",
             "properties": {
                 "companyName": {
@@ -713,7 +1171,7 @@
                 }
             }
         },
-        "models.Comment": {
+        "Kurajj_internal_models.Comment": {
             "type": "object",
             "properties": {
                 "creationDate": {
@@ -723,20 +1181,91 @@
                     "type": "integer"
                 },
                 "eventType": {
-                    "type": "string"
+                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
                 },
                 "id": {
                     "type": "integer"
                 },
+                "isDeleted": {
+                    "type": "boolean"
+                },
+                "isUpdated": {
+                    "type": "boolean"
+                },
                 "text": {
                     "type": "string"
+                },
+                "updatedAt": {
+                    "$ref": "#/definitions/sql.NullTime"
                 },
                 "userID": {
                     "type": "integer"
                 }
             }
         },
-        "models.CreationResponse": {
+        "Kurajj_internal_models.CommentCreateRequest": {
+            "type": "object",
+            "properties": {
+                "eventId": {
+                    "type": "integer"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "Kurajj_internal_models.CommentResponse": {
+            "type": "object",
+            "properties": {
+                "authorId": {
+                    "type": "integer"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isUpdated": {
+                    "type": "boolean"
+                },
+                "profileImageURL": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
+                },
+                "updateTime": {
+                    "$ref": "#/definitions/sql.NullTime"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "Kurajj_internal_models.CommentUpdateRequest": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "text": {
+                    "type": "string"
+                }
+            }
+        },
+        "Kurajj_internal_models.Comments": {
+            "type": "object",
+            "properties": {
+                "comments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.CommentResponse"
+                    }
+                }
+            }
+        },
+        "Kurajj_internal_models.CreationResponse": {
             "type": "object",
             "properties": {
                 "id": {
@@ -744,7 +1273,7 @@
                 }
             }
         },
-        "models.ErrResponse": {
+        "Kurajj_internal_models.ErrResponse": {
             "type": "object",
             "properties": {
                 "error": {
@@ -752,10 +1281,22 @@
                 }
             }
         },
-        "models.ProposalEventGetResponse": {
+        "Kurajj_internal_models.EventType": {
+            "type": "string",
+            "enum": [
+                "proposal-event"
+            ],
+            "x-enum-varnames": [
+                "ProposalEventType"
+            ]
+        },
+        "Kurajj_internal_models.ProposalEventGetResponse": {
             "type": "object",
             "properties": {
                 "authorID": {
+                    "type": "integer"
+                },
+                "availableHelps": {
                     "type": "integer"
                 },
                 "category": {
@@ -764,7 +1305,7 @@
                 "comments": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.Comment"
+                        "$ref": "#/definitions/Kurajj_internal_models.Comment"
                     }
                 },
                 "competitionDate": {
@@ -779,29 +1320,35 @@
                 "id": {
                     "type": "integer"
                 },
+                "maxConcurrentRequests": {
+                    "type": "integer"
+                },
                 "title": {
                     "type": "string"
                 },
                 "transactions": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.TransactionResponse"
+                        "$ref": "#/definitions/Kurajj_internal_models.TransactionResponse"
                     }
                 }
             }
         },
-        "models.ProposalEventRequestCreate": {
+        "Kurajj_internal_models.ProposalEventRequestCreate": {
             "type": "object",
             "properties": {
                 "description": {
                     "type": "string"
+                },
+                "maxConcurrentRequests": {
+                    "type": "integer"
                 },
                 "title": {
                     "type": "string"
                 }
             }
         },
-        "models.ProposalEventRequestUpdate": {
+        "Kurajj_internal_models.ProposalEventRequestUpdate": {
             "type": "object",
             "properties": {
                 "category": {
@@ -821,18 +1368,18 @@
                 }
             }
         },
-        "models.ProposalEvents": {
+        "Kurajj_internal_models.ProposalEvents": {
             "type": "object",
             "properties": {
                 "proposalEvents": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/models.ProposalEventGetResponse"
+                        "$ref": "#/definitions/Kurajj_internal_models.ProposalEventGetResponse"
                     }
                 }
             }
         },
-        "models.SignInEntity": {
+        "Kurajj_internal_models.SignInEntity": {
             "type": "object",
             "properties": {
                 "email": {
@@ -843,11 +1390,11 @@
                 }
             }
         },
-        "models.SignUpUser": {
+        "Kurajj_internal_models.SignUpUser": {
             "type": "object",
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/models.Address"
+                    "$ref": "#/definitions/Kurajj_internal_models.Address"
                 },
                 "companyName": {
                     "type": "string"
@@ -869,11 +1416,11 @@
                 }
             }
         },
-        "models.SignedInUser": {
+        "Kurajj_internal_models.SignedInUser": {
             "type": "object",
             "properties": {
                 "address": {
-                    "$ref": "#/definitions/models.Address"
+                    "$ref": "#/definitions/Kurajj_internal_models.Address"
                 },
                 "companyName": {
                     "type": "string"
@@ -898,9 +1445,29 @@
                 }
             }
         },
-        "models.TransactionResponse": {
+        "Kurajj_internal_models.Status": {
+            "type": "string",
+            "enum": [
+                "in_process",
+                "completed",
+                "interrupted",
+                "canceled",
+                "waiting"
+            ],
+            "x-enum-varnames": [
+                "InProcess",
+                "Completed",
+                "Interrupted",
+                "Canceled",
+                "Waiting"
+            ]
+        },
+        "Kurajj_internal_models.TransactionResponse": {
             "type": "object",
             "properties": {
+                "comment": {
+                    "type": "string"
+                },
                 "competitionDate": {
                     "type": "string"
                 },
@@ -911,13 +1478,39 @@
                     "type": "integer"
                 },
                 "eventType": {
-                    "type": "string"
+                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
                 },
                 "id": {
                     "type": "integer"
                 },
-                "status": {
+                "responderStatus": {
+                    "$ref": "#/definitions/Kurajj_internal_models.Status"
+                },
+                "transactionStatus": {
+                    "$ref": "#/definitions/Kurajj_internal_models.Status"
+                }
+            }
+        },
+        "Kurajj_internal_models.TransactionsExport": {
+            "type": "object",
+            "properties": {
+                "transactions": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.TransactionResponse"
+                    }
+                }
+            }
+        },
+        "sql.NullTime": {
+            "type": "object",
+            "properties": {
+                "time": {
                     "type": "string"
+                },
+                "valid": {
+                    "description": "Valid is true if Time is not NULL",
+                    "type": "boolean"
                 }
             }
         }
