@@ -27,7 +27,7 @@ func (c Comments) Bytes() []byte {
 
 type CommentCreateRequest struct {
 	Text    string `json:"text,omitempty"`
-	EventID uint   `json:"eventIdD,omitempty"`
+	EventID uint   `json:"eventId,omitempty"`
 }
 
 type CommentUpdateRequest struct {

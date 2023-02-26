@@ -17,7 +17,7 @@ type ProposalEvent struct {
 	Category              string        `gorm:"column:category"`
 	MaxConcurrentRequests uint          `gorm:"column:max_concurrent_requests"`
 	RemainingHelps        int           `gorm:"column:remaining_helps"`
-	Status                Status        `gorm:"column:status"`
+	IsDeleted             bool          `gorm:"column:is_deleted"`
 	Comments              []Comment     `gorm:"-"`
 	Transactions          []Transaction `gorm:"-"`
 }

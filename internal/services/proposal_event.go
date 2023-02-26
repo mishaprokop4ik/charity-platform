@@ -23,7 +23,8 @@ type ProposalEventCRUDer interface {
 }
 
 func NewProposalEvent(repo *repository.Repository) *ProposalEvent {
-	return &ProposalEvent{repo: repo}
+	return &ProposalEvent{
+		repo: repo, Transaction: *NewTransaction(repo)}
 }
 
 type ProposalEvent struct {

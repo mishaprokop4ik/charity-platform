@@ -12,9 +12,10 @@ type Comment struct {
 
 func (c *Comment) WriteComment(ctx context.Context, comment models.Comment) (uint, error) {
 	err := c.DBConnector.
-		DB.Create(comment).
+		DB.Create(&comment).
 		WithContext(ctx).
 		Error
+
 	return comment.ID, err
 }
 

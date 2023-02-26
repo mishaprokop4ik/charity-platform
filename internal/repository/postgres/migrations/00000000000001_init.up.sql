@@ -19,7 +19,7 @@ CREATE TABLE members (
     UNIQUE (id, telephone, telegram_username, email)
 );
 
-CREATE TYPE event AS ENUM ('propositional', 'help', 'public');
+CREATE TYPE event AS ENUM ('proposal-event', 'help', 'public');
 
 CREATE TABLE propositional_event (
     id bigserial PRIMARY KEY,
@@ -31,6 +31,7 @@ CREATE TABLE propositional_event (
     remaining_helps integer NOT NULL,
     author_id bigint,
     category varchar,
+    is_deleted bool,
     CONSTRAINT author_fk FOREIGN KEY(author_id) REFERENCES members(id)
 );
 
@@ -68,9 +69,8 @@ CREATE TABLE comment (
     updated_at timestamp,
     is_updated bool,
     is_deleted bool,
-    creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    CONSTRAINT user_fk FOREIGN KEY(user_id) REFERENCES members(id)
-        ON DELETE SET NULL ON UPDATE SET DEFAULT
+    creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
+                     -- Add user and event transaction
 );
 
 CREATE type status AS ENUM ('in_process', 'completed', 'interrupted', 'canceled', 'waiting');
@@ -81,7 +81,7 @@ CREATE TABLE transaction (
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     completion_date timestamp,
     event_id bigint,
-    comment varchar(255),
+    last_comment varchar(255),
     event_type event,
     transaction_status status NOT NULL,
     responder_status status NOT NULL,

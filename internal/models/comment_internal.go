@@ -15,8 +15,12 @@ type Comment struct {
 	UserID       uint         `gorm:"column:user_id"`
 	CreationDate time.Time    `gorm:"column:creation_date"`
 	IsUpdated    bool         `gorm:"column:is_updated"`
-	UpdateTime   sql.NullTime `gorm:"column:update_time"`
+	UpdatedAt    sql.NullTime `gorm:"column:updated_at"`
 	IsDeleted    bool         `gorm:"column:is_deleted"`
+}
+
+func (Comment) TableName() string {
+	return "comment"
 }
 
 func (c Comment) GetValuesToUpdate() map[string]any {

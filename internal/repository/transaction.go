@@ -29,6 +29,7 @@ func (t *Transaction) GetTransactionByID(ctx context.Context, id uint) (models.T
 func (t *Transaction) UpdateTransactionByEvent(ctx context.Context, eventID uint, eventType models.EventType, toUpdate map[string]any) error {
 	return t.DBConnector.DB.
 		Select(lo.Keys(toUpdate)).
+		Model(&models.Transaction{}).
 		Where("event_id = ?", eventID).
 		Where("event_type = ?", eventType).
 		Updates(toUpdate).
@@ -38,6 +39,7 @@ func (t *Transaction) UpdateTransactionByEvent(ctx context.Context, eventID uint
 
 func (t *Transaction) UpdateTransactionByID(ctx context.Context, id uint, toUpdate map[string]any) error {
 	return t.DBConnector.DB.
+		Model(&models.Transaction{}).
 		Select(lo.Keys(toUpdate)).
 		Where("id = ?", id).
 		Updates(toUpdate).
@@ -74,11 +76,12 @@ func (t *Transaction) UpdateAllNotFinishedTransactions(ctx context.Context, even
 }
 
 func (t *Transaction) GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error) {
-	transactions := make([]models.Transaction, 0)
+	transactions := []models.Transaction{}
 	err := t.DBConnector.DB.
+		Find(&transactions).
 		Where("event_id = ?", eventID).
 		Where("event_type = ?", eventType).
-		Find(&transactions).WithContext(ctx).
+		WithContext(ctx).
 		Error
 
 	return transactions, err

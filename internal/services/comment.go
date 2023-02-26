@@ -26,7 +26,7 @@ func (c *Comment) GetCommentByID(ctx context.Context, id uint) (models.Comment, 
 
 func (c *Comment) UpdateComment(ctx context.Context, comment models.Comment) error {
 	comment.IsUpdated = true
-	comment.UpdateTime = sql.NullTime{
+	comment.UpdatedAt = sql.NullTime{
 		Time:  time.Now(),
 		Valid: true,
 	}

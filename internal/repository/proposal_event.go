@@ -42,6 +42,7 @@ func (p *ProposalEvent) GetEvent(ctx context.Context, id uint) (models.ProposalE
 	resp := p.DBConnector.DB.
 		Where("id = ?", id).
 		First(&event).
+		Where("is_deleted = ?", false).
 		WithContext(ctx)
 
 	if errors.Is(resp.Error, gorm.ErrRecordNotFound) {
@@ -55,6 +56,7 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 	events := []models.ProposalEvent{}
 	resp := p.DBConnector.DB.
 		Find(&events).
+		Where("is_deleted = ?", false).
 		WithContext(ctx)
 
 	if errors.Is(resp.Error, gorm.ErrRecordNotFound) {
@@ -92,7 +94,7 @@ func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 		return err
 	}
 	oldProposalEvent.CompetitionDate = sql.NullTime{Time: time.Now(), Valid: true}
-	oldProposalEvent.Status = models.Canceled
+	oldProposalEvent.IsDeleted = true
 	err = p.DBConnector.DB.Where("id = ?", id).Updates(oldProposalEvent).WithContext(ctx).Error
 	if err != nil {
 		tx.Rollback()
@@ -130,6 +132,7 @@ func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) 
 	resp := p.DBConnector.DB.
 		Find(&events).
 		Where("author_id = ?", userID).
+		Where("is_deleted", false).
 		WithContext(ctx)
 
 	if errors.Is(resp.Error, gorm.ErrRecordNotFound) {

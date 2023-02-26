@@ -3,6 +3,7 @@ package handlers
 import (
 	"Kurajj/internal/models"
 	httpHelper "Kurajj/pkg/http"
+	zlog "Kurajj/pkg/logger"
 	"context"
 	"database/sql"
 	"fmt"
@@ -587,16 +588,7 @@ func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r 
 // @Router       /api/events/proposal/comment [post]
 func (h *Handler) WriteCommentInProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	transactionID, ok := mux.Vars(r)["id"]
-	parsedTransactionID, err := strconv.Atoi(transactionID)
-	if !ok || err != nil {
-		response := "there is no transactionID for getting in URL"
-		if err != nil {
-			response = err.Error()
-		}
-		httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
-		return
-	}
+
 	userID := r.Context().Value("id")
 	if userID == "" {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user transactionID isn't in context")
@@ -613,9 +605,11 @@ func (h *Handler) WriteCommentInProposalEvent(w http.ResponseWriter, r *http.Req
 	defer cancel()
 	go func() {
 		id, err := h.services.Comment.WriteComment(ctx, models.Comment{
-			EventID: comment.EventID,
-			Text:    comment.Text,
-			UserID:  userID.(uint),
+			EventID:      comment.EventID,
+			EventType:    models.ProposalEventType,
+			Text:         comment.Text,
+			CreationDate: time.Now(),
+			UserID:       userID.(uint),
 		})
 
 		eventch <- idResponse{
@@ -625,7 +619,7 @@ func (h *Handler) WriteCommentInProposalEvent(w http.ResponseWriter, r *http.Req
 	}()
 	select {
 	case <-ctx.Done():
-		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, fmt.Sprintf("updating proposal event transaction wtih transactionID - %d took too long", parsedTransactionID))
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "writing comment took too long")
 		return
 	case resp := <-eventch:
 		if resp.err != nil {
@@ -712,7 +706,7 @@ func (h *Handler) GetCommentsInProposalEvent(w http.ResponseWriter, r *http.Requ
 				Text:         c.Text,
 				CreationDate: c.CreationDate,
 				IsUpdated:    c.IsUpdated,
-				UpdateTime:   c.UpdateTime,
+				UpdateTime:   c.UpdatedAt,
 				UserComment:  user,
 			}
 		}
@@ -762,7 +756,7 @@ func (h *Handler) UpdateProposalEventComment(w http.ResponseWriter, r *http.Requ
 			EventType: models.ProposalEventType,
 			Text:      comment.Text,
 			IsUpdated: true,
-			UpdateTime: sql.NullTime{
+			UpdatedAt: sql.NullTime{
 				Time:  time.Now(),
 				Valid: true,
 			},
@@ -840,5 +834,88 @@ func (h *Handler) DeleteProposalEventComment(w http.ResponseWriter, r *http.Requ
 			return
 		}
 		w.WriteHeader(http.StatusOK)
+	}
+}
+
+type transactionsResponse struct {
+	transactions []models.Transaction
+	err          error
+}
+
+// GetProposalEventTransactions gets all proposal event transactions
+// @Param        id   path int  true  "ID"
+// @Summary      Update proposal event comment
+// @Tags         Proposal Event
+// @Accept       json
+// @Success      200  {object}  models.TransactionsExport
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/transactions/{id} [get]
+func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	eventID, ok := mux.Vars(r)["id"]
+	parsedEventID, err := strconv.Atoi(eventID)
+	if !ok || err != nil {
+		response := "there is no commentID for getting in URL"
+		if err != nil {
+			response = err.Error()
+		}
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
+		return
+	}
+
+	eventch := make(chan transactionsResponse)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		transactions, err := h.services.Transaction.GetAllEventTransactions(ctx, uint(parsedEventID), models.ProposalEventType)
+
+		eventch <- transactionsResponse{
+			transactions: transactions,
+			err:          err,
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "getting all transactions for proposal event took too long")
+		return
+	case resp := <-eventch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.NotFoundError.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+
+		transactions := models.TransactionsExport{
+			Transactions: make([]models.TransactionResponse, len(resp.transactions)),
+		}
+
+		for i, t := range resp.transactions {
+			transaction := models.TransactionResponse{
+				ID:                t.ID,
+				CreatorID:         t.CreatorID,
+				EventID:           t.EventID,
+				Comment:           t.Comment,
+				EventType:         t.EventType,
+				TransactionStatus: t.TransactionStatus,
+				ResponderStatus:   t.ResponderStatus,
+			}
+			if t.CompetitionDate.Valid {
+				transaction.CompetitionDate = t.CompetitionDate.Time
+			}
+			transactions.Transactions[i] = transaction
+		}
+		w.WriteHeader(http.StatusOK)
+		err = httpHelper.SendHTTPResponse(w, transactions)
+		if err != nil {
+			zlog.Log.Error(err, "could not send proposal event transaction")
+		}
 	}
 }
