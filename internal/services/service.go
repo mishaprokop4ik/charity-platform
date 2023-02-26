@@ -10,6 +10,7 @@ type Service struct {
 	Admin          AdminCRUDer
 	ProposalEvent  ProposalEventer
 	Transaction    Transactioner
+	Comment        Commenter
 }
 
 func New(repo *repository.Repository,
@@ -20,5 +21,6 @@ func New(repo *repository.Repository,
 		Admin:          NewAdmin(repo, authConfig, emailConfig),
 		ProposalEvent:  NewProposalEvent(repo),
 		Transaction:    NewTransaction(repo),
+		Comment:        NewComment(repo),
 	}
 }

@@ -14,8 +14,8 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - "/var/lib/postgresql/charity_platform_data/:/var/lib/postgresql/data"
+      - "/Volumes/charity_platform_data/:/var/lib/postgres/charity_platform"
     environment:
       - POSTGRES_PASSWORD=rootroot
       - POSTGRES_DB=kurajj
-      - POSTGRES_USER=posgres
+      - POSTGRES_USER=postgres

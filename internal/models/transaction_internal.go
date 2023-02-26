@@ -19,7 +19,7 @@ type Transaction struct {
 }
 
 func (t Transaction) GetValuesToUpdate() map[string]any {
-	getProposalEventTag := func(f reflect.StructField, tagName string) string {
+	getTransactionTag := func(f reflect.StructField, tagName string) string {
 		tag := strings.Split(f.Tag.Get(tagName), ":")
 		if len(tag) != 2 {
 			return ""
@@ -43,7 +43,7 @@ func (t Transaction) GetValuesToUpdate() map[string]any {
 	for i := 0; i < proposalEventFieldsCount; i++ {
 		field := proposalEvent.Field(i)
 		value := proposalEventFields.Field(i).Interface()
-		fieldName := getProposalEventTag(field, "gorm")
+		fieldName := getTransactionTag(field, "gorm")
 		if !proposalEventFields.Field(i).IsZero() &&
 			!isTimeZero(proposalEventFields.Field(i).Interface()) &&
 			fieldName != "" {

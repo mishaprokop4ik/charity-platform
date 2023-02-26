@@ -5,6 +5,7 @@ type Repository struct {
 	Admin         adminCRUDer
 	ProposalEvent ProposalEventer
 	Transaction   Transactioner
+	Comment       Commenter
 }
 
 func New(dbConnector *Connector) *Repository {
@@ -13,5 +14,6 @@ func New(dbConnector *Connector) *Repository {
 		Admin:         NewAdmin(dbConnector),
 		ProposalEvent: NewProposalEvent(dbConnector),
 		Transaction:   NewTransaction(dbConnector),
+		Comment:       NewComment(dbConnector),
 	}
 }

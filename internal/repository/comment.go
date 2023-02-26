@@ -10,6 +10,18 @@ type Comment struct {
 	DBConnector *Connector
 }
 
+func (c *Comment) WriteComment(ctx context.Context, comment models.Comment) (uint, error) {
+	err := c.DBConnector.
+		DB.Create(comment).
+		WithContext(ctx).
+		Error
+	return comment.ID, err
+}
+
+func NewComment(DBConnector *Connector) *Comment {
+	return &Comment{DBConnector: DBConnector}
+}
+
 func (c *Comment) GetAllCommentsInEvent(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Comment, error) {
 	comments := make([]models.Comment, 0)
 	err := c.DBConnector.DB.
@@ -77,4 +89,5 @@ type Commenter interface {
 	GetCommentByID(ctx context.Context, id uint) (models.Comment, error)
 	UpdateComment(ctx context.Context, id uint, toUpdate map[string]any) error
 	DeleteComment(ctx context.Context, id uint) error
+	WriteComment(ctx context.Context, comment models.Comment) (uint, error)
 }
