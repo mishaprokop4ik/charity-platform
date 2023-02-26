@@ -13,4 +13,5 @@ const (
 	Completed   Status = "completed"
 	Interrupted Status = "interrupted"
 	Canceled    Status = "canceled"
+	Waiting     Status = "waiting"
 )

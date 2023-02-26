@@ -8,8 +8,8 @@ import (
 
 type ProposalEventer interface {
 	ProposalEventCRUDer
-	Response(ctx context.Context, proposalEventID uint) error
-	Accept(ctx context.Context, proposalEventID uint) error
+	Response(ctx context.Context, proposalEventID, responderID uint) error
+	Accept(ctx context.Context, transactionID uint) error
 	UpdateStatus(ctx context.Context, status models.Status, id uint) error
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
 }
@@ -22,52 +22,35 @@ type ProposalEventCRUDer interface {
 	DeleteEvent(ctx context.Context, id uint) error
 }
 
+func NewProposalEvent(repo *repository.Repository) *ProposalEvent {
+	return &ProposalEvent{repo: repo}
+}
+
 type ProposalEvent struct {
 	Transaction
 	repo *repository.Repository
 }
 
-func (p *ProposalEvent) Response(ctx context.Context, proposalEventID uint) error {
-	//TODO implement me
-	panic("implement me")
+func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responderID uint) error {
+	_, err := p.CreateTransaction(ctx, models.Transaction{
+		CreatorID: responderID,
+		EventID:   proposalEventID,
+		EventType: models.ProposalEventType,
+		Status:    models.Waiting,
+	})
+
+	return err
 }
 
-func (p *ProposalEvent) Accept(ctx context.Context, proposalEventID uint) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Status, id uint) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (p *ProposalEvent) GetAllTransactionsInEvent(ctx context.Context, eventType models.EventType, eventID uint) ([]models.Transaction, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (p *ProposalEvent) DeleteTransaction(ctx context.Context, eventType models.EventType, eventID uint) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (p *ProposalEvent) UpdateTransactions(ctx context.Context, eventType models.EventType, eventID uint) error {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (p *ProposalEvent) GetCurrentTransaction(ctx context.Context, eventType models.EventType, eventID uint) (models.Transaction, error) {
-	//TODO implement me
-	panic("implement me")
+func (p *ProposalEvent) Accept(ctx context.Context, transactionID uint) error {
+	return p.UpdateTransaction(ctx, models.Transaction{
+		ID:     transactionID,
+		Status: models.InProcess,
+	})
 }
 
 func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error) {
 	return p.repo.ProposalEvent.GetUserProposalEvents(ctx, userID)
-}
-
-func NewProposalEvent(repo *repository.Repository) *ProposalEvent {
-	return &ProposalEvent{repo: repo}
 }
 
 func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error) {
@@ -87,5 +70,10 @@ func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEv
 }
 
 func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
+	//TODO add transaction login
+	err := p.UpdateAllNotFinishedTransactions(ctx, id, models.ProposalEventType, models.Canceled)
+	if err != nil {
+		return err
+	}
 	return p.repo.ProposalEvent.DeleteEvent(ctx, id)
 }

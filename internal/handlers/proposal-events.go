@@ -5,6 +5,7 @@ import (
 	httpHelper "Kurajj/pkg/http"
 	"context"
 	"database/sql"
+	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
@@ -16,7 +17,7 @@ type proposalEventCreateResponse struct {
 	err error
 }
 
-// CreateProposalEvent create a new proposal event
+// CreateProposalEvent creates a new proposal event
 // @Summary      Create a new proposal event
 // @Tags         Proposal Event
 // @Accept       json
@@ -47,11 +48,14 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	go func() {
 		id, err := h.services.ProposalEvent.CreateEvent(ctx, models.ProposalEvent{
-			AuthorID:     userID.(uint),
-			Title:        event.Title,
-			Description:  event.Description,
-			CreationDate: time.Now(),
+			AuthorID:              userID.(uint),
+			Title:                 event.Title,
+			Description:           event.Description,
+			CreationDate:          time.Now(),
+			MaxConcurrentRequests: uint(event.MaxConcurrentRequests),
+			RemainingHelps:        event.MaxConcurrentRequests,
 		})
+
 		eventch <- proposalEventCreateResponse{
 			id:  id,
 			err: err,
@@ -79,7 +83,7 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// UpdateProposalEvent update a proposal event
+// UpdateProposalEvent updates a proposal event
 // @Summary      Update proposal event
 // @Tags         Proposal Event
 // @Accept       json
@@ -150,7 +154,7 @@ func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// DeleteProposalEvent delete a proposal event
+// DeleteProposalEvent deletes a proposal event
 // @Summary      Delete proposal event
 // @Tags         Proposal Event
 // @Accept       json
@@ -209,7 +213,7 @@ type getProposalEvent struct {
 	err           error
 }
 
-// GetProposalEvent get proposal event by id
+// GetProposalEvent gets proposal event by id
 // @Summary      Get proposal event by id
 // @Tags         Proposal Event
 // @Accept       json
@@ -269,7 +273,7 @@ type getProposalEvents struct {
 	err            error
 }
 
-// GetProposalEvents get all proposal events
+// GetProposalEvents gets all proposal events
 // @Summary      Get all proposal events
 // @Tags         Proposal Event
 // @Accept       json
@@ -375,9 +379,26 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 // TODO add report CRUD
 // TODO add Transaction logic
 
+// ResponseProposalEvent creates new transaction with waiting status for the proposal event if slot is available
+// @Summary      Create new transaction with waiting status for the proposal event if slot is available
+// @Tags         Proposal Event
+// @Accept       json
+// @Param        id   path int  true  "ID"
+// @Success      200
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/response [post]
 func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
+	userID := r.Context().Value("id")
+	if userID == "" {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
+		return
+	}
 	errch := make(chan errResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
@@ -392,7 +413,15 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 			httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
 			return
 		}
-		err = h.services.Transaction.UpdateTransactions()
+		err = h.validateProposalEventTransactionRequest(ctx, uint(parsedID))
+		if err != nil {
+			errch <- errResponse{
+				err: err,
+			}
+
+			return
+		}
+		err = h.services.ProposalEvent.Response(ctx, uint(parsedID), userID.(uint))
 
 		errch <- errResponse{
 			err: err,
@@ -416,8 +445,73 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) validateProposalEvent() {
 
+}
+
+// AcceptProposalEventResponse updates proposal event transaction's status to models.InProcess state
+// @Summary      Update proposal event transaction's status to models.InProcess state
+// @Tags         Proposal Event
+// @Accept       json
+// @Param        id   path int  true  "ID"
+// @Success      200
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/accept [post]
+func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	errch := make(chan errResponse)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		id, ok := mux.Vars(r)["id"]
+		parsedID, err := strconv.Atoi(id)
+		if !ok || err != nil {
+			response := "there is no id for getting in URL"
+			if err != nil {
+				response = err.Error()
+			}
+			httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
+			return
+		}
+		err = h.services.ProposalEvent.Accept(ctx, uint(parsedID))
+
+		errch <- errResponse{
+			err: err,
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "responding proposal event took too long")
+		return
+	case resp := <-errch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.NotFoundError.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+}
+
+func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, transactionID uint) error {
+	transaction, err := h.services.ProposalEvent.GetEvent(ctx, transactionID)
+	if err != nil {
+		return err
+	}
+
+	if transaction.RemainingHelps-1 < 0 {
+		return fmt.Errorf("there is no available slot")
+	}
+	return nil
 }
 
 func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r *http.Request) {

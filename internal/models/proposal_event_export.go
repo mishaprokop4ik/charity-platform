@@ -7,8 +7,9 @@ import (
 )
 
 type ProposalEventRequestCreate struct {
-	Title       string `json:"title,omitempty"`
-	Description string `json:"description,omitempty"`
+	Title                 string `json:"title,omitempty"`
+	Description           string `json:"description,omitempty"`
+	MaxConcurrentRequests int    `json:"maxConcurrentRequests,omitempty"`
 }
 
 func UnmarshalProposalEventCreate(r *http.Request) (ProposalEventRequestCreate, error) {

@@ -11,14 +11,23 @@ type Transactioner interface {
 	GetCurrentEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
 	UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.Status) error
 	GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
+	CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error)
 }
 
 type Transaction struct {
 	repo *repository.Repository
 }
 
+func (t *Transaction) CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error) {
+	return t.repo.Transaction.CreateTransaction(ctx, transaction)
+}
+
 func (t *Transaction) UpdateTransaction(ctx context.Context, transaction models.Transaction) error {
-	return t.repo.Transaction.UpdateTransaction(ctx, transaction.EventID, transaction.EventType, transaction.GetValuesToUpdate())
+	if transaction.ID != 0 {
+		return t.repo.Transaction.UpdateTransactionByID(ctx, transaction.ID, transaction.GetValuesToUpdate())
+	}
+
+	return t.repo.Transaction.UpdateTransactionByEvent(ctx, transaction.EventID, transaction.EventType, transaction.GetValuesToUpdate())
 }
 
 func (t *Transaction) GetCurrentEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error) {

@@ -34,7 +34,7 @@ CREATE TABLE propositional_event (
     CONSTRAINT author_fk FOREIGN KEY(author_id) REFERENCES members(id)
 );
 
-CREATE TYPE priority_rate AS ENUM('нормально', 'швидко', 'дуже швидко');
+CREATE TYPE priority_rate AS ENUM('normal', 'fast', 'very fast');
 
 CREATE TABLE help_event (
     id bigserial PRIMARY KEY,
@@ -70,7 +70,7 @@ CREATE TABLE comment (
         ON DELETE SET NULL ON UPDATE SET DEFAULT
 );
 
-CREATE type status AS ENUM ('in_process', 'completed', 'interrupted', 'canceled');
+CREATE type status AS ENUM ('in_process', 'completed', 'interrupted', 'canceled', 'waiting');
 
 CREATE TABLE transaction (
     id bigserial PRIMARY KEY,
@@ -80,7 +80,7 @@ CREATE TABLE transaction (
     event_id bigint,
     comment varchar(255),
     event_type event,
-    status status,
+    status status DEFAULT 'waiting' NOT NULL,
     CONSTRAINT creator_fk FOREIGN KEY(creator_id) REFERENCES members(id)
         ON DELETE SET NULL ON UPDATE SET DEFAULT
 );

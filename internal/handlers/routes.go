@@ -57,7 +57,7 @@ func (h *Handler) InitRoutes() http.Handler {
 		Methods(http.MethodPost)
 	proposalEventSubRouter.HandleFunc("/accept/{id}", h.AcceptProposalEventResponse).
 		Methods(http.MethodPost)
-	proposalEventSubRouter.HandleFunc("/update-status/{id}", h.AcceptProposalEventResponse).
+	proposalEventSubRouter.HandleFunc("/update-status/{id}", h.UpdateProposalEventTransactionStatus).
 		Methods(http.MethodPost)
 	return r
 }
