@@ -75,15 +75,54 @@ func (p *ProposalEvent) UpdateEvent(ctx context.Context, id uint, toUpdate map[s
 }
 
 func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
+	tx := p.DBConnector.DB.Begin()
+	if tx.Error != nil {
+		return tx.Error
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
 	oldProposalEvent := &models.ProposalEvent{}
 	err := p.DBConnector.DB.Where("id = ?", id).WithContext(ctx).First(oldProposalEvent).Error
 	if err != nil {
+		tx.Rollback()
 		return err
 	}
 	oldProposalEvent.CompetitionDate = sql.NullTime{Time: time.Now(), Valid: true}
 	oldProposalEvent.Status = models.Canceled
 	err = p.DBConnector.DB.Where("id = ?", id).Updates(oldProposalEvent).WithContext(ctx).Error
-	return err
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = p.DBConnector.DB.
+		Model(&models.Transaction{}).
+		Where("event_id = ?", id).
+		Where("event_type = ?", models.ProposalEventType).
+		Not("status IN ?", models.Completed, models.Interrupted, models.Canceled).
+		Update("status = ?", models.Canceled).
+		WithContext(ctx).
+		Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = p.DBConnector.DB.
+		Model(&models.Comment{}).
+		Where("event_id = ?", id).
+		Where("event_type = ?", models.ProposalEventType).
+		Update("is_deleted = ?", true).
+		WithContext(ctx).
+		Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error) {

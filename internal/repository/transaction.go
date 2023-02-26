@@ -13,10 +13,17 @@ type Transactioner interface {
 	UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.Status) error
 	GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
 	CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error)
+	GetTransactionByID(ctx context.Context, id uint) (models.Transaction, error)
 }
 
 type Transaction struct {
 	DBConnector *Connector
+}
+
+func (t *Transaction) GetTransactionByID(ctx context.Context, id uint) (models.Transaction, error) {
+	transaction := models.Transaction{}
+	err := t.DBConnector.DB.Where("id = ?", id).First(&transaction).WithContext(ctx).Error
+	return transaction, err
 }
 
 func (t *Transaction) UpdateTransactionByEvent(ctx context.Context, eventID uint, eventType models.EventType, toUpdate map[string]any) error {
@@ -57,6 +64,7 @@ func (t *Transaction) GetCurrentEventTransactions(ctx context.Context, eventID u
 
 func (t *Transaction) UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.Status) error {
 	return t.DBConnector.DB.
+		Model(&models.Transaction{}).
 		Where("event_id = ?", eventID).
 		Where("event_type = ?", eventType).
 		Not("status IN ?", models.Completed, models.Interrupted, models.Canceled).

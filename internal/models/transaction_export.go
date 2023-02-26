@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"encoding/json"
+	"net/http"
+	"time"
+)
 
 type TransactionResponse struct {
 	ID              uint `gorm:"primaryKey"`
@@ -9,4 +13,14 @@ type TransactionResponse struct {
 	EventID         uint
 	EventType       EventType
 	Status          Status
+}
+
+type StatusExport struct {
+	Status Status `json:"status,omitempty"`
+}
+
+func UnmarshalStatusExport(r *http.Request) (StatusExport, error) {
+	s := StatusExport{}
+	err := json.NewDecoder(r.Body).Decode(&s)
+	return s, err
 }

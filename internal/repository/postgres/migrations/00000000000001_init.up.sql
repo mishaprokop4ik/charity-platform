@@ -65,6 +65,9 @@ CREATE TABLE comment (
     event_type event,
     text varchar(255),
     user_id bigint,
+    updated_at timestamp,
+    is_updated bool,
+    is_deleted bool,
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT user_fk FOREIGN KEY(user_id) REFERENCES members(id)
         ON DELETE SET NULL ON UPDATE SET DEFAULT
@@ -80,7 +83,8 @@ CREATE TABLE transaction (
     event_id bigint,
     comment varchar(255),
     event_type event,
-    status status DEFAULT 'waiting' NOT NULL,
+    transaction_status status NOT NULL,
+    responder_status status NOT NULL,
     CONSTRAINT creator_fk FOREIGN KEY(creator_id) REFERENCES members(id)
         ON DELETE SET NULL ON UPDATE SET DEFAULT
 );

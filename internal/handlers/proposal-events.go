@@ -514,6 +514,65 @@ func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, t
 	return nil
 }
 
+// UpdateProposalEventTransactionStatus updates proposal event transaction's status to one of models.Status state
+// @Summary      Update proposal event transaction's status to to one of models.Status state
+// @Tags         Proposal Event
+// @Accept       json
+// @Param        id   path int  true  "ID"
+// @Success      200
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/update-status/{id} [post]
 func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	transactionID, ok := mux.Vars(r)["transactionID"]
+	parsedTransactionID, err := strconv.Atoi(transactionID)
+	if !ok || err != nil {
+		response := "there is no transactionID for getting in URL"
+		if err != nil {
+			response = err.Error()
+		}
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
+		return
+	}
+	userID := r.Context().Value("transactionID")
+	if userID == "" {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user transactionID isn't in context")
+		return
+	}
+	s, err := models.UnmarshalStatusExport(r)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
 
+	eventch := make(chan errResponse)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		err := h.services.ProposalEvent.UpdateStatus(ctx, s.Status, uint(parsedTransactionID), userID.(uint))
+
+		eventch <- errResponse{
+			err: err,
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, fmt.Sprintf("updating proposal event transaction wtih transactionID - %d took too long", parsedTransactionID))
+		return
+	case resp := <-eventch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.NotFoundError.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
 }

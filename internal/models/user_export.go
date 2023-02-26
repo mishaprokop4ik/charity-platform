@@ -173,3 +173,9 @@ func (a AdminCreation) CreateUser() User {
 		IsActivated: true,
 	}
 }
+
+type UserComment struct {
+	AuthorID        uint   `json:"authorId,omitempty"`
+	Username        string `json:"username,omitempty"`
+	ProfileImageURL string `json:"profileImageURL,omitempty"`
+}
