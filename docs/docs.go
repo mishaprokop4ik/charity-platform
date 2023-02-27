@@ -725,7 +725,7 @@ const docTemplate = `{
                 "tags": [
                     "Proposal Event"
                 ],
-                "summary": "Update proposal event comment",
+                "summary": "Get all proposal event transactions(finished, in proccess, etc)",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1287,6 +1287,19 @@ const docTemplate = `{
                 }
             }
         },
+        "Kurajj_internal_models.EventStatus": {
+            "type": "string",
+            "enum": [
+                "active",
+                "inactive",
+                "done"
+            ],
+            "x-enum-varnames": [
+                "Active",
+                "InActive",
+                "Done"
+            ]
+        },
         "Kurajj_internal_models.EventType": {
             "type": "string",
             "enum": [
@@ -1328,6 +1341,9 @@ const docTemplate = `{
                 },
                 "maxConcurrentRequests": {
                     "type": "integer"
+                },
+                "status": {
+                    "$ref": "#/definitions/Kurajj_internal_models.EventStatus"
                 },
                 "title": {
                     "type": "string"

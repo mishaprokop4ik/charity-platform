@@ -844,7 +844,7 @@ type transactionsResponse struct {
 
 // GetProposalEventTransactions gets all proposal event transactions
 // @Param        id   path int  true  "ID"
-// @Summary      Update proposal event comment
+// @Summary      Get all proposal event transactions(finished, in process, etc)
 // @Tags         Proposal Event
 // @Accept       json
 // @Success      200  {object}  models.TransactionsExport

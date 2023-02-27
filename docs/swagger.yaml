@@ -95,6 +95,16 @@ definitions:
       error:
         type: string
     type: object
+  Kurajj_internal_models.EventStatus:
+    enum:
+    - active
+    - inactive
+    - done
+    type: string
+    x-enum-varnames:
+    - Active
+    - InActive
+    - Done
   Kurajj_internal_models.EventType:
     enum:
     - proposal-event
@@ -123,6 +133,8 @@ definitions:
         type: integer
       maxConcurrentRequests:
         type: integer
+      status:
+        $ref: '#/definitions/Kurajj_internal_models.EventStatus'
       title:
         type: string
       transactions:
@@ -753,7 +765,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-      summary: Update proposal event comment
+      summary: Get all proposal event transactions(finished, in proccess, etc)
       tags:
       - Proposal Event
   /api/events/proposal/update-status/{id}:

@@ -4,6 +4,7 @@ import (
 	_ "Kurajj/docs"
 	service "Kurajj/internal/services"
 	"github.com/gorilla/mux"
+	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 )
 
@@ -17,6 +18,8 @@ func New(s *service.Service) Handler {
 
 func (h *Handler) InitRoutes() http.Handler {
 	r := mux.NewRouter()
+
+	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(h.Authentication)
