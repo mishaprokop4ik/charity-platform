@@ -6,6 +6,14 @@ const (
 	ProposalEventType EventType = "proposal-event"
 )
 
+type EventStatus string
+
+const (
+	Active   EventStatus = "active"
+	InActive EventStatus = "inactive"
+	Done     EventStatus = "done"
+)
+
 type Status string
 
 const (
