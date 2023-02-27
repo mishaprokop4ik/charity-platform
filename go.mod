@@ -8,6 +8,7 @@ require (
 	github.com/go-logr/zapr v1.2.3
 	github.com/gorilla/mux v1.8.0
 	github.com/samber/lo v1.37.0
+	github.com/swaggo/http-swagger v1.3.3
 	github.com/swaggo/swag v1.8.1
 	go.uber.org/zap v1.23.0
 	gopkg.in/yaml.v3 v3.0.1
@@ -29,10 +30,12 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
+	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
 	go.uber.org/atomic v1.10.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.4.0 // indirect
 	golang.org/x/exp v0.0.0-20220303212507-bbda1eaf7a17 // indirect
+	golang.org/x/net v0.6.0 // indirect
 	golang.org/x/sys v0.5.0 // indirect
 	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
