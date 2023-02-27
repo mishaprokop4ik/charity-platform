@@ -12,6 +12,7 @@ import (
 type Userer interface {
 	CreateUser(ctx context.Context, user models.User) (uint, error)
 	GetUserAuthentication(ctx context.Context, email, password string) (uint, error)
+	GetUserInfo(ctx context.Context, id uint) (models.User, error)
 	GetEntity(ctx context.Context, email, password string, isAdmin, isDeleted bool) (models.User, error)
 	DeleteUser(ctx context.Context, id uint) error
 	UpsertUser(ctx context.Context, values map[string]any) error
@@ -20,6 +21,23 @@ type Userer interface {
 
 type User struct {
 	DBConnector *Connector
+}
+
+func (u *User) GetUserInfo(ctx context.Context, id uint) (models.User, error) {
+	user := models.User{}
+	err := u.DBConnector.DB.
+		Where("id = ?", id).
+		Where("is_deleted = ?", false).
+		Where("is_activated = ?", true).
+		First(&user).
+		WithContext(ctx).
+		Error
+	if err != nil {
+		return models.User{}, err
+	}
+	user.Password = ""
+
+	return user, nil
 }
 
 func NewUser(DBConnector *Connector) *User {

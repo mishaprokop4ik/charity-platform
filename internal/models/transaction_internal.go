@@ -8,17 +8,22 @@ import (
 )
 
 type Transaction struct {
-	ID              uint         `gorm:"primaryKey"`
-	CreatorID       uint         `gorm:"column:creator_id"`
-	CompetitionDate sql.NullTime `gorm:"column:competition_date"`
-	EventID         uint         `gorm:"column:event_id"`
-	Comment         string       `gorm:"column:last_comment"`
-	EventType       EventType    `gorm:"column:event_type"`
-	Status          Status       `gorm:"column:status"`
+	ID                uint         `gorm:"primaryKey"`
+	CreatorID         uint         `gorm:"column:creator_id"`
+	CompetitionDate   sql.NullTime `gorm:"column:completion_date"`
+	EventID           uint         `gorm:"column:event_id"`
+	Comment           string       `gorm:"column:last_comment"`
+	EventType         EventType    `gorm:"column:event_type"`
+	TransactionStatus Status       `gorm:"column:transaction_status"`
+	ResponderStatus   Status       `gorm:"column:responder_status"`
+}
+
+func (Transaction) TableName() string {
+	return "transaction"
 }
 
 func (t Transaction) GetValuesToUpdate() map[string]any {
-	getProposalEventTag := func(f reflect.StructField, tagName string) string {
+	getTransactionTag := func(f reflect.StructField, tagName string) string {
 		tag := strings.Split(f.Tag.Get(tagName), ":")
 		if len(tag) != 2 {
 			return ""
@@ -42,7 +47,7 @@ func (t Transaction) GetValuesToUpdate() map[string]any {
 	for i := 0; i < proposalEventFieldsCount; i++ {
 		field := proposalEvent.Field(i)
 		value := proposalEventFields.Field(i).Interface()
-		fieldName := getProposalEventTag(field, "gorm")
+		fieldName := getTransactionTag(field, "gorm")
 		if !proposalEventFields.Field(i).IsZero() &&
 			!isTimeZero(proposalEventFields.Field(i).Interface()) &&
 			fieldName != "" {

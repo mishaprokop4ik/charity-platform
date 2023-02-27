@@ -53,11 +53,23 @@ func (h *Handler) InitRoutes() http.Handler {
 	proposalEventSubRouter.HandleFunc("/complain/{id}", h.SendProposalEventComplaint).
 		Methods(http.MethodPost)
 
+	proposalEventSubRouter.HandleFunc("/comments/{id}", h.GetCommentsInProposalEvent).
+		Methods(http.MethodGet)
+	proposalEventSubRouter.HandleFunc("/comment", h.WriteCommentInProposalEvent).
+		Methods(http.MethodPost)
+	proposalEventSubRouter.HandleFunc("/comment/{id}", h.UpdateProposalEventComment).
+		Methods(http.MethodPut)
+	proposalEventSubRouter.HandleFunc("/comment/{id}", h.DeleteProposalEventComment).
+		Methods(http.MethodDelete)
+	proposalEventSubRouter.HandleFunc("/transactions/{id}", h.GetProposalEventTransactions).
+		Methods(http.MethodGet)
+
 	proposalEventSubRouter.HandleFunc("/response/{id}", h.ResponseProposalEvent).
 		Methods(http.MethodPost)
 	proposalEventSubRouter.HandleFunc("/accept/{id}", h.AcceptProposalEventResponse).
 		Methods(http.MethodPost)
 	proposalEventSubRouter.HandleFunc("/update-status/{id}", h.UpdateProposalEventTransactionStatus).
 		Methods(http.MethodPost)
+
 	return r
 }

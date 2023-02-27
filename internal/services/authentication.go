@@ -17,6 +17,7 @@ import (
 )
 
 type Authenticator interface {
+	GetUserShortInfo(ctx context.Context, id uint) (models.UserComment, error)
 	SignUp(ctx context.Context, user models.User) (uint, error)
 	SignIn(ctx context.Context, user models.User) (models.SignedInUser, error)
 	ParseToken(accessToken string) (uint, error)
@@ -27,6 +28,21 @@ type Authentication struct {
 	repo        *repository.Repository
 	authConfig  *config.AuthenticationConfig
 	emailSender Sender
+}
+
+func (a *Authentication) GetUserShortInfo(ctx context.Context, id uint) (models.UserComment, error) {
+	fullUser, err := a.repo.User.GetUserInfo(ctx, id)
+	if err != nil {
+		return models.UserComment{}, err
+	}
+
+	user := models.UserComment{
+		AuthorID:        fullUser.ID,
+		Username:        fullUser.FullName,
+		ProfileImageURL: fullUser.AvatarImagePath,
+	}
+
+	return user, nil
 }
 
 const confirmEmail = "Confirm Your Email Address"

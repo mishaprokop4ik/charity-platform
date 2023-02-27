@@ -26,6 +26,7 @@ type ProposalEventGetResponse struct {
 	MaxConcurrentRequests uint                  `json:"maxConcurrentRequests,omitempty"`
 	AvailableHelps        uint                  `json:"availableHelps,omitempty"`
 	CompetitionDate       string                `json:"competitionDate,omitempty"`
+	Status                EventStatus           `json:"status,omitempty"`
 	AuthorID              uint                  `json:"authorID,omitempty"`
 	Category              string                `json:"category,omitempty"`
 	Comments              []Comment             `json:"comments,omitempty"`

@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  models.Address:
+  Kurajj_internal_models.Address:
     properties:
       city:
         type: string
@@ -11,7 +11,7 @@ definitions:
       region:
         type: string
     type: object
-  models.AdminCreation:
+  Kurajj_internal_models.AdminCreation:
     properties:
       companyName:
         type: string
@@ -24,40 +24,94 @@ definitions:
       telephone:
         type: string
     type: object
-  models.Comment:
+  Kurajj_internal_models.Comment:
     properties:
       creationDate:
         type: string
       eventID:
         type: integer
       eventType:
+        $ref: '#/definitions/Kurajj_internal_models.EventType'
+      id:
+        type: integer
+      isDeleted:
+        type: boolean
+      isUpdated:
+        type: boolean
+      text:
         type: string
+      updatedAt:
+        $ref: '#/definitions/sql.NullTime'
+      userID:
+        type: integer
+    type: object
+  Kurajj_internal_models.CommentCreateRequest:
+    properties:
+      eventId:
+        type: integer
+      text:
+        type: string
+    type: object
+  Kurajj_internal_models.CommentResponse:
+    properties:
+      authorId:
+        type: integer
+      creationDate:
+        type: string
+      id:
+        type: integer
+      isUpdated:
+        type: boolean
+      profileImageURL:
+        type: string
+      text:
+        type: string
+      updateTime:
+        $ref: '#/definitions/sql.NullTime'
+      username:
+        type: string
+    type: object
+  Kurajj_internal_models.CommentUpdateRequest:
+    properties:
       id:
         type: integer
       text:
         type: string
-      userID:
-        type: integer
     type: object
-  models.CreationResponse:
+  Kurajj_internal_models.Comments:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.CommentResponse'
+        type: array
+    type: object
+  Kurajj_internal_models.CreationResponse:
     properties:
       id:
         type: integer
     type: object
-  models.ErrResponse:
+  Kurajj_internal_models.ErrResponse:
     properties:
       error:
         type: string
     type: object
-  models.ProposalEventGetResponse:
+  Kurajj_internal_models.EventType:
+    enum:
+    - proposal-event
+    type: string
+    x-enum-varnames:
+    - ProposalEventType
+  Kurajj_internal_models.ProposalEventGetResponse:
     properties:
       authorID:
+        type: integer
+      availableHelps:
         type: integer
       category:
         type: string
       comments:
         items:
-          $ref: '#/definitions/models.Comment'
+          $ref: '#/definitions/Kurajj_internal_models.Comment'
         type: array
       competitionDate:
         type: string
@@ -67,21 +121,25 @@ definitions:
         type: string
       id:
         type: integer
+      maxConcurrentRequests:
+        type: integer
       title:
         type: string
       transactions:
         items:
-          $ref: '#/definitions/models.TransactionResponse'
+          $ref: '#/definitions/Kurajj_internal_models.TransactionResponse'
         type: array
     type: object
-  models.ProposalEventRequestCreate:
+  Kurajj_internal_models.ProposalEventRequestCreate:
     properties:
       description:
         type: string
+      maxConcurrentRequests:
+        type: integer
       title:
         type: string
     type: object
-  models.ProposalEventRequestUpdate:
+  Kurajj_internal_models.ProposalEventRequestUpdate:
     properties:
       category:
         type: string
@@ -94,24 +152,24 @@ definitions:
       title:
         type: string
     type: object
-  models.ProposalEvents:
+  Kurajj_internal_models.ProposalEvents:
     properties:
       proposalEvents:
         items:
-          $ref: '#/definitions/models.ProposalEventGetResponse'
+          $ref: '#/definitions/Kurajj_internal_models.ProposalEventGetResponse'
         type: array
     type: object
-  models.SignInEntity:
+  Kurajj_internal_models.SignInEntity:
     properties:
       email:
         type: string
       password:
         type: string
     type: object
-  models.SignUpUser:
+  Kurajj_internal_models.SignUpUser:
     properties:
       address:
-        $ref: '#/definitions/models.Address'
+        $ref: '#/definitions/Kurajj_internal_models.Address'
       companyName:
         type: string
       email:
@@ -125,10 +183,10 @@ definitions:
       telephone:
         type: string
     type: object
-  models.SignedInUser:
+  Kurajj_internal_models.SignedInUser:
     properties:
       address:
-        $ref: '#/definitions/models.Address'
+        $ref: '#/definitions/Kurajj_internal_models.Address'
       companyName:
         type: string
       email:
@@ -144,8 +202,24 @@ definitions:
       token:
         type: string
     type: object
-  models.TransactionResponse:
+  Kurajj_internal_models.Status:
+    enum:
+    - in_process
+    - completed
+    - interrupted
+    - canceled
+    - waiting
+    type: string
+    x-enum-varnames:
+    - InProcess
+    - Completed
+    - Interrupted
+    - Canceled
+    - Waiting
+  Kurajj_internal_models.TransactionResponse:
     properties:
+      comment:
+        type: string
       competitionDate:
         type: string
       creatorID:
@@ -153,11 +227,28 @@ definitions:
       eventID:
         type: integer
       eventType:
-        type: string
+        $ref: '#/definitions/Kurajj_internal_models.EventType'
       id:
         type: integer
-      status:
+      responderStatus:
+        $ref: '#/definitions/Kurajj_internal_models.Status'
+      transactionStatus:
+        $ref: '#/definitions/Kurajj_internal_models.Status'
+    type: object
+  Kurajj_internal_models.TransactionsExport:
+    properties:
+      transactions:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.TransactionResponse'
+        type: array
+    type: object
+  sql.NullTime:
+    properties:
+      time:
         type: string
+      valid:
+        description: Valid is true if Time is not NULL
+        type: boolean
     type: object
 host: localhost:8080
 info:
@@ -182,37 +273,227 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.AdminCreation'
+          $ref: '#/definitions/Kurajj_internal_models.AdminCreation'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.CreationResponse'
+            $ref: '#/definitions/Kurajj_internal_models.CreationResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "408":
           description: Request Timeout
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Create a new admin
       tags:
       - Admin
+  /api/events/proposal/accept:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Update proposal event transaction's status to models.InProcess state
+      tags:
+      - Proposal Event
+  /api/events/proposal/comment:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models.CommentCreateRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.CreationResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Create new comment in proposal event
+      tags:
+      - Proposal Event
+  /api/events/proposal/comment/{id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Update proposal event comment
+      tags:
+      - Proposal Event
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models.CommentUpdateRequest'
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Update proposal event comment
+      tags:
+      - Proposal Event
+  /api/events/proposal/comments/id:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.Comments'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Take all comments in proposal event by its id
+      tags:
+      - Proposal Event
   /api/events/proposal/create:
     post:
       consumes:
@@ -223,34 +504,34 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.ProposalEventRequestCreate'
+          $ref: '#/definitions/Kurajj_internal_models.ProposalEventRequestCreate'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.CreationResponse'
+            $ref: '#/definitions/Kurajj_internal_models.CreationResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "408":
           description: Request Timeout
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Create a new proposal event
       tags:
       - Proposal Event
@@ -268,27 +549,27 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "408":
           description: Request Timeout
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Delete proposal event
       tags:
       - Proposal Event
@@ -302,27 +583,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ProposalEvents'
+            $ref: '#/definitions/Kurajj_internal_models.ProposalEvents'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "408":
           description: Request Timeout
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Get all proposal events
       tags:
       - Proposal Event
@@ -336,27 +617,27 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ProposalEvents'
+            $ref: '#/definitions/Kurajj_internal_models.ProposalEvents'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "408":
           description: Request Timeout
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Get all proposal events created by user requester id
       tags:
       - Proposal Event
@@ -376,28 +657,140 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.ProposalEventGetResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ProposalEventGetResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "408":
           description: Request Timeout
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Get proposal event by id
+      tags:
+      - Proposal Event
+  /api/events/proposal/response:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Create new transaction with waiting status for the proposal event if
+        slot is available
+      tags:
+      - Proposal Event
+  /api/events/proposal/transactions/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.TransactionsExport'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Update proposal event comment
+      tags:
+      - Proposal Event
+  /api/events/proposal/update-status/{id}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Update proposal event transaction's status to to one of models.Status
+        state
       tags:
       - Proposal Event
   /api/events/proposal/update/{id}:
@@ -410,7 +803,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.ProposalEventRequestUpdate'
+          $ref: '#/definitions/Kurajj_internal_models.ProposalEventRequestUpdate'
       - description: ID
         in: path
         name: id
@@ -420,27 +813,27 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "408":
           description: Request Timeout
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Update proposal event
       tags:
       - Proposal Event
@@ -458,27 +851,27 @@ paths:
       - application/json
       responses:
         "200":
-          description: ""
+          description: OK
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "408":
           description: Request Timeout
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Updates user's status to activated.
       tags:
       - Auth
@@ -492,34 +885,34 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.SignInEntity'
+          $ref: '#/definitions/Kurajj_internal_models.SignInEntity'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.SignedInUser'
+            $ref: '#/definitions/Kurajj_internal_models.SignedInUser'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "408":
           description: Request Timeout
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Signs In a user
       tags:
       - Auth
@@ -533,34 +926,34 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.SignInEntity'
+          $ref: '#/definitions/Kurajj_internal_models.SignInEntity'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.SignedInUser'
+            $ref: '#/definitions/Kurajj_internal_models.SignedInUser'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "408":
           description: Request Timeout
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Signs In a user
       tags:
       - Auth
@@ -574,30 +967,30 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.SignUpUser'
+          $ref: '#/definitions/Kurajj_internal_models.SignUpUser'
       produces:
       - application/json
       responses:
         "201":
           description: Created
           schema:
-            $ref: '#/definitions/models.CreationResponse'
+            $ref: '#/definitions/Kurajj_internal_models.CreationResponse'
         "401":
           description: Unauthorized
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "403":
           description: Forbidden
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "404":
           description: Not Found
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
         "500":
           description: Internal Server Error
           schema:
-            $ref: '#/definitions/models.ErrResponse'
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Signs Up new user
       tags:
       - Auth

@@ -18,4 +18,4 @@ services:
     environment:
       - POSTGRES_PASSWORD=rootroot
       - POSTGRES_DB=kurajj
-      - POSTGRES_USER=posgres
+      - POSTGRES_USER=postgres

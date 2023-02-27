@@ -8,18 +8,19 @@ import (
 )
 
 type ProposalEvent struct {
-	ID                    uint         `gorm:"primaryKey"`
-	Title                 string       `gorm:"column:title"`
-	Description           string       `gorm:"column:description"`
-	CreationDate          time.Time    `gorm:"column:creation_date"`
-	CompetitionDate       sql.NullTime `gorm:"column:competition_date"`
-	AuthorID              uint         `gorm:"column:author_id"`
-	Category              string       `gorm:"column:category"`
-	MaxConcurrentRequests uint         `gorm:"column:max_concurrent_requests"`
-	RemainingHelps        int          `gorm:"column:remaining_helps"`
-	Status                Status       `gorm:"column:status"`
-	Comments              []Comment
-	Transactions          []Transaction
+	ID                    uint          `gorm:"primaryKey"`
+	Title                 string        `gorm:"column:title"`
+	Description           string        `gorm:"column:description"`
+	CreationDate          time.Time     `gorm:"column:creation_date"`
+	CompetitionDate       sql.NullTime  `gorm:"column:competition_date"`
+	AuthorID              uint          `gorm:"column:author_id"`
+	Category              string        `gorm:"column:category"`
+	Status                Status        `gorm:"column:status"`
+	MaxConcurrentRequests uint          `gorm:"column:max_concurrent_requests"`
+	RemainingHelps        int           `gorm:"column:remaining_helps"`
+	IsDeleted             bool          `gorm:"column:is_deleted"`
+	Comments              []Comment     `gorm:"-"`
+	Transactions          []Transaction `gorm:"-"`
 }
 
 func (p ProposalEvent) TableName() string {
@@ -60,13 +61,4 @@ func (p ProposalEvent) GetValuesToUpdate() map[string]any {
 	}
 
 	return updateValues
-}
-
-type Comment struct {
-	ID           uint `gorm:"primaryKey"`
-	EventID      uint
-	EventType    EventType
-	Text         string
-	UserID       uint
-	CreationDate time.Time
 }
