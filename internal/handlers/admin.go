@@ -24,7 +24,7 @@ import (
 // @Router       /auth/sign-in-admin [post]
 func (h *Handler) AdminSignIn(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	admin, err := models.UnmarshalSignInEntity(r)
+	admin, err := models.UnmarshalSignInEntity(&r.Body)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -93,7 +93,7 @@ func (h *Handler) AdminSignIn(w http.ResponseWriter, r *http.Request) {
 // @Router       /api/admin/create [post]
 func (h *Handler) CreateNewAdmin(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	admin, err := models.UnmarshalCreateAdmin(r)
+	admin, err := models.UnmarshalCreateAdmin(&r.Body)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return

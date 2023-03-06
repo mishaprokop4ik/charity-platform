@@ -39,7 +39,7 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
 		return
 	}
-	event, err := models.UnmarshalProposalEventCreate(r)
+	event, err := models.UnmarshalProposalEventCreate(&r.Body)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -54,6 +54,7 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 			Title:                 event.Title,
 			Description:           event.Description,
 			CreationDate:          time.Now(),
+			Status:                models.Active,
 			MaxConcurrentRequests: uint(event.MaxConcurrentRequests),
 			RemainingHelps:        event.MaxConcurrentRequests,
 		})
@@ -101,7 +102,7 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 // @Router       /api/events/proposal/update/{id} [put]
 func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	event, err := models.UnmarshalProposalEventUpdate(r)
+	event, err := models.UnmarshalProposalEventUpdate(&r.Body)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -179,7 +180,7 @@ func (h *Handler) DeleteProposalEvent(w http.ResponseWriter, r *http.Request) {
 		id, ok := mux.Vars(r)["id"]
 		parsedID, err := strconv.Atoi(id)
 		if !ok || err != nil {
-			response := "there is no id for delete in URL"
+			response := "there is no id in URL"
 			if err != nil {
 				response = err.Error()
 			}
@@ -273,11 +274,6 @@ func (h *Handler) GetProposalEvent(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type getProposalEvents struct {
-	proposalEvents models.ProposalEvents
-	err            error
-}
-
 // GetProposalEvents gets all proposal events
 // @Summary      Get all proposal events
 // @Tags         Proposal Event
@@ -291,8 +287,6 @@ type getProposalEvents struct {
 // @Failure      500  {object}  models.ErrResponse
 // @Router       /api/events/proposal/get [get]
 func (h *Handler) GetProposalEvents(w http.ResponseWriter, r *http.Request) {
-	// TODO add filters
-	// TODO add sorts
 	defer r.Body.Close()
 
 	eventch := make(chan getProposalEvents)
@@ -386,9 +380,7 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 
 }
 
-// TODO add comment CRUD
 // TODO add report CRUD
-// TODO add Transaction logic
 
 // ResponseProposalEvent creates new transaction with waiting status for the proposal event if slot is available
 // @Summary      Create new transaction with waiting status for the proposal event if slot is available
@@ -550,7 +542,7 @@ func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r 
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user transactionID isn't in context")
 		return
 	}
-	s, err := models.UnmarshalStatusExport(r)
+	s, err := models.UnmarshalStatusExport(&r.Body)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -606,7 +598,7 @@ func (h *Handler) WriteCommentInProposalEvent(w http.ResponseWriter, r *http.Req
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user transactionID isn't in context")
 		return
 	}
-	comment, err := models.UnmarshalCommentCreateRequest(r)
+	comment, err := models.UnmarshalCommentCreateRequest(&r.Body)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -646,11 +638,6 @@ func (h *Handler) WriteCommentInProposalEvent(w http.ResponseWriter, r *http.Req
 		commentResponse := models.CreationResponse{ID: resp.id}
 		_ = httpHelper.SendHTTPResponse(w, commentResponse)
 	}
-}
-
-type commentsResponse struct {
-	comments []models.Comment
-	err      error
 }
 
 // GetCommentsInProposalEvent takes all comments in proposal event by its id
@@ -758,7 +745,7 @@ func (h *Handler) UpdateProposalEventComment(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	comment, err := models.UnmarshalCommentUpdateRequest(r)
+	comment, err := models.UnmarshalCommentUpdateRequest(&r.Body)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -859,11 +846,6 @@ func (h *Handler) DeleteProposalEventComment(w http.ResponseWriter, r *http.Requ
 	}
 }
 
-type transactionsResponse struct {
-	transactions []models.Transaction
-	err          error
-}
-
 // GetProposalEventTransactions gets all proposal event transactions
 // @Param        id   path int  true  "ID"
 // @Summary      Get all proposal event transactions(finished, in process, etc)
@@ -942,11 +924,6 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 	}
 }
 
-type proposalEventsResponse struct {
-	events    []models.ProposalEvent
-	respError error
-}
-
 // SearchProposalEvents gets models.ProposalEvents by given order and filter values
 // @Param        id   path int  true  "ID"
 // @Summary      Return proposal events by given order and filter values
@@ -963,7 +940,7 @@ type proposalEventsResponse struct {
 func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
-	searchValues, err := search.UnmarshalAllEventsSearch(r)
+	searchValues, err := search.UnmarshalAllEventsSearch(&r.Body)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return

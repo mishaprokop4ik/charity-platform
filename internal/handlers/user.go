@@ -16,7 +16,7 @@ type userSignInResponse struct {
 	err  error
 }
 
-// UserSignIn godoc
+// UserSignIn signs in user into system
 // @Summary      Signs In a user
 // @Tags         Auth
 // @Accept       json
@@ -31,7 +31,7 @@ type userSignInResponse struct {
 // @Router       /auth/sign-in [post]
 func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	user, err := models.UnmarshalSignInEntity(r)
+	user, err := models.UnmarshalSignInEntity(&r.Body)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -80,16 +80,7 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-type idResponse struct {
-	err error
-	id  int
-}
-
-type errResponse struct {
-	err error
-}
-
-// UserSignUp godoc
+// UserSignUp creates a new user
 // @Summary      Signs Up new user
 // @Tags         Auth
 // @Accept       json
@@ -103,7 +94,7 @@ type errResponse struct {
 // @Router       /auth/sign-up [post]
 func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-	user, err := models.UnmarshalSignUpUser(r)
+	user, err := models.UnmarshalSignUpUser(&r.Body)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -163,8 +154,8 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// ConfirmEmail godoc
-// @Summary      Updates user's status to activated.
+// ConfirmEmail confirms that user's email is real and user has access to it
+// @Summary      Updates user's status to 'activated'.
 // @Tags         Auth
 // @Accept       json
 // @Produce      json

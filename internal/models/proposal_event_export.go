@@ -2,7 +2,7 @@ package models
 
 import (
 	"encoding/json"
-	"net/http"
+	"io"
 	"time"
 )
 
@@ -12,9 +12,9 @@ type ProposalEventRequestCreate struct {
 	MaxConcurrentRequests int    `json:"maxConcurrentRequests,omitempty"`
 }
 
-func UnmarshalProposalEventCreate(r *http.Request) (ProposalEventRequestCreate, error) {
+func UnmarshalProposalEventCreate(r *io.ReadCloser) (ProposalEventRequestCreate, error) {
 	e := ProposalEventRequestCreate{}
-	err := json.NewDecoder(r.Body).Decode(&e)
+	err := json.NewDecoder(*r).Decode(&e)
 	return e, err
 }
 
@@ -81,8 +81,8 @@ type ProposalEventRequestUpdate struct {
 	Category        string    `json:"category,omitempty"`
 }
 
-func UnmarshalProposalEventUpdate(r *http.Request) (ProposalEventRequestUpdate, error) {
+func UnmarshalProposalEventUpdate(r *io.ReadCloser) (ProposalEventRequestUpdate, error) {
 	e := ProposalEventRequestUpdate{}
-	err := json.NewDecoder(r.Body).Decode(&e)
+	err := json.NewDecoder(*r).Decode(&e)
 	return e, err
 }

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/samber/lo"
-	"net/http"
+	"io"
 	"regexp"
 )
 
@@ -89,9 +89,9 @@ type SignInEntity struct {
 	IsAdmin  bool   `json:"-"`
 }
 
-func UnmarshalSignUpUser(r *http.Request) (SignUpUser, error) {
+func UnmarshalSignUpUser(r *io.ReadCloser) (SignUpUser, error) {
 	user := SignUpUser{}
-	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+	if err := json.NewDecoder(*r).Decode(&user); err != nil {
 		return SignUpUser{}, fmt.Errorf("cound not decode user: %s", err)
 	}
 
@@ -99,9 +99,9 @@ func UnmarshalSignUpUser(r *http.Request) (SignUpUser, error) {
 }
 
 // UnmarshalSignInEntity gets an SignInEntity from http Request
-func UnmarshalSignInEntity(r *http.Request) (SignInEntity, error) {
+func UnmarshalSignInEntity(r *io.ReadCloser) (SignInEntity, error) {
 	e := SignInEntity{}
-	err := json.NewDecoder(r.Body).Decode(&e)
+	err := json.NewDecoder(*r).Decode(&e)
 	if err != nil {
 		return SignInEntity{}, err
 	}
@@ -145,9 +145,9 @@ func (r CreationResponse) Bytes() []byte {
 	return encoded
 }
 
-func UnmarshalCreateAdmin(r *http.Request) (AdminCreation, error) {
+func UnmarshalCreateAdmin(r *io.ReadCloser) (AdminCreation, error) {
 	admin := AdminCreation{}
-	if err := json.NewDecoder(r.Body).Decode(&admin); err != nil {
+	if err := json.NewDecoder(*r).Decode(&admin); err != nil {
 		return AdminCreation{}, fmt.Errorf("cound not decode user: %s", err)
 	}
 

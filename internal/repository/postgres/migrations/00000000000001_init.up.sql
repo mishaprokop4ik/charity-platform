@@ -28,7 +28,7 @@ CREATE TABLE propositional_event (
     description varchar,
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     competition_date timestamp,
-    status event_status DEFAULT 'active',
+    status event_status DEFAULT 'inactive',
     max_concurrent_requests integer NOT NULL,
     remaining_helps integer NOT NULL,
     author_id bigint,

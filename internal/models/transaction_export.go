@@ -2,7 +2,7 @@ package models
 
 import (
 	"encoding/json"
-	"net/http"
+	"io"
 	"time"
 )
 
@@ -30,8 +30,8 @@ func (t TransactionsExport) Bytes() []byte {
 	return bytes
 }
 
-func UnmarshalStatusExport(r *http.Request) (StatusExport, error) {
+func UnmarshalStatusExport(r *io.ReadCloser) (StatusExport, error) {
 	s := StatusExport{}
-	err := json.NewDecoder(r.Body).Decode(&s)
+	err := json.NewDecoder(*r).Decode(&s)
 	return s, err
 }
