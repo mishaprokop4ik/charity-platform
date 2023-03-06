@@ -9,7 +9,9 @@ import (
 type Transactioner interface {
 	UpdateTransactionByEvent(ctx context.Context, eventID uint, eventType models.EventType, toUpdate map[string]any) error
 	UpdateTransactionByID(ctx context.Context, id uint, toUpdate map[string]any) error
-	GetCurrentEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
+	GetCurrentEventTransactions(ctx context.Context,
+		eventID uint,
+		eventType models.EventType) ([]models.Transaction, error)
 	UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.Status) error
 	GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
 	CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error)
@@ -75,7 +77,9 @@ func (t *Transaction) UpdateAllNotFinishedTransactions(ctx context.Context, even
 		Error
 }
 
-func (t *Transaction) GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error) {
+func (t *Transaction) GetAllEventTransactions(ctx context.Context,
+	eventID uint,
+	eventType models.EventType) ([]models.Transaction, error) {
 	transactions := []models.Transaction{}
 	err := t.DBConnector.DB.
 		Find(&transactions).

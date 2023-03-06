@@ -8,7 +8,9 @@ import (
 
 type Transactioner interface {
 	UpdateTransaction(ctx context.Context, transaction models.Transaction) error
-	GetCurrentEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
+	GetCurrentEventTransactions(ctx context.Context,
+		eventID uint,
+		eventType models.EventType) ([]models.Transaction, error)
 	UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.Status) error
 	GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
 	CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error)
@@ -32,18 +34,27 @@ func (t *Transaction) UpdateTransaction(ctx context.Context, transaction models.
 		return t.repo.Transaction.UpdateTransactionByID(ctx, transaction.ID, transaction.GetValuesToUpdate())
 	}
 
-	return t.repo.Transaction.UpdateTransactionByEvent(ctx, transaction.EventID, transaction.EventType, transaction.GetValuesToUpdate())
+	return t.repo.Transaction.UpdateTransactionByEvent(ctx, transaction.EventID,
+		transaction.EventType,
+		transaction.GetValuesToUpdate())
 }
 
-func (t *Transaction) GetCurrentEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error) {
+func (t *Transaction) GetCurrentEventTransactions(ctx context.Context,
+	eventID uint,
+	eventType models.EventType) ([]models.Transaction, error) {
 	return t.repo.Transaction.GetCurrentEventTransactions(ctx, eventID, eventType)
 }
 
-func (t *Transaction) UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.Status) error {
+func (t *Transaction) UpdateAllNotFinishedTransactions(ctx context.Context,
+	eventID uint,
+	eventType models.EventType,
+	newStatus models.Status) error {
 	return t.repo.Transaction.UpdateAllNotFinishedTransactions(ctx, eventID, eventType, newStatus)
 }
 
-func (t *Transaction) GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error) {
+func (t *Transaction) GetAllEventTransactions(ctx context.Context,
+	eventID uint,
+	eventType models.EventType) ([]models.Transaction, error) {
 	return t.repo.Transaction.GetAllEventTransactions(ctx, eventID, eventType)
 }
 

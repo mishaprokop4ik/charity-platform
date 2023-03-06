@@ -45,7 +45,12 @@ func (h *Handler) AdminSignIn(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		user, err := h.services.Authentication.SignIn(ctx, models.User{Email: string(admin.Email), Password: admin.Password, IsAdmin: true})
+		user, err := h.services.Authentication.SignIn(ctx,
+			models.User{
+				Email:    string(admin.Email),
+				Password: admin.Password,
+				IsAdmin:  true,
+			})
 		userch <- userSignInResponse{
 			resp: user,
 			err:  err,
@@ -60,7 +65,7 @@ func (h *Handler) AdminSignIn(w http.ResponseWriter, r *http.Request) {
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -126,7 +131,7 @@ func (h *Handler) CreateNewAdmin(w http.ResponseWriter, r *http.Request) {
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())

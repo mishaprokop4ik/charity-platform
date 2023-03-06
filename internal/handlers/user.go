@@ -67,7 +67,7 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -147,7 +147,7 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -202,7 +202,7 @@ func (h *Handler) ConfirmEmail(w http.ResponseWriter, r *http.Request) {
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())

@@ -131,7 +131,7 @@ type SignedInUser struct {
 	SecondName  string    `json:"secondName,omitempty"`
 	Telephone   Telephone `json:"telephone,omitempty"`
 	CompanyName string    `json:"companyName,omitempty"`
-	Address     Address   `json:"address" json:"address"`
+	Address     Address   `json:"address"`
 	Token       string    `json:"token,omitempty"`
 }
 

@@ -71,7 +71,7 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -143,7 +143,7 @@ func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -200,7 +200,7 @@ func (h *Handler) DeleteProposalEvent(w http.ResponseWriter, r *http.Request) {
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -260,13 +260,16 @@ func (h *Handler) GetProposalEvent(w http.ResponseWriter, r *http.Request) {
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
 			return
 		}
-		httpHelper.SendHTTPResponse(w, resp.proposalEvent)
+		err := httpHelper.SendHTTPResponse(w, resp.proposalEvent)
+		if err != nil {
+			zlog.Log.Error(err, "got an error")
+		}
 	}
 }
 
@@ -311,13 +314,16 @@ func (h *Handler) GetProposalEvents(w http.ResponseWriter, r *http.Request) {
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
 			return
 		}
-		httpHelper.SendHTTPResponse(w, resp.proposalEvents)
+		err := httpHelper.SendHTTPResponse(w, resp.proposalEvents)
+		if err != nil {
+			zlog.Log.Error(err, "got an error")
+		}
 	}
 }
 
@@ -359,13 +365,16 @@ func (h *Handler) GetUsersProposalEvents(w http.ResponseWriter, r *http.Request)
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
 			return
 		}
-		httpHelper.SendHTTPResponse(w, resp.proposalEvents)
+		err := httpHelper.SendHTTPResponse(w, resp.proposalEvents)
+		if err != nil {
+			zlog.Log.Error(err, "got an error")
+		}
 	}
 }
 
@@ -437,7 +446,7 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -490,7 +499,7 @@ func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Req
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -559,13 +568,15 @@ func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r 
 	}()
 	select {
 	case <-ctx.Done():
-		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, fmt.Sprintf("updating proposal event transaction wtih transactionID - %d took too long", parsedTransactionID))
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout,
+			fmt.Sprintf("updating proposal event transaction with transactionID - %d took too long",
+				parsedTransactionID))
 		return
 	case resp := <-eventch:
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -626,7 +637,7 @@ func (h *Handler) WriteCommentInProposalEvent(w http.ResponseWriter, r *http.Req
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -680,13 +691,15 @@ func (h *Handler) GetCommentsInProposalEvent(w http.ResponseWriter, r *http.Requ
 	}()
 	select {
 	case <-ctx.Done():
-		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, fmt.Sprintf("updating proposal event transaction wtih eventID - %d took too long", parsedEventID))
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout,
+			fmt.Sprintf("updating proposal event transaction with eventID - %d took too long",
+				parsedEventID))
 		return
 	case resp := <-eventch:
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -699,7 +712,10 @@ func (h *Handler) GetCommentsInProposalEvent(w http.ResponseWriter, r *http.Requ
 		for i, c := range resp.comments {
 			user, err := h.services.Authentication.GetUserShortInfo(ctx, c.UserID)
 			if err != nil {
-				httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, fmt.Sprintf("can not get user info, proposal event %s", err))
+				httpHelper.SendErrorResponse(w,
+					http.StatusRequestTimeout,
+					fmt.Sprintf("can not get user info, proposal event %s",
+						err))
 				return
 			}
 			responseComments.Comments[i] = models.CommentResponse{
@@ -769,13 +785,15 @@ func (h *Handler) UpdateProposalEventComment(w http.ResponseWriter, r *http.Requ
 	}()
 	select {
 	case <-ctx.Done():
-		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, fmt.Sprintf("updating proposal event transaction wtih commentID - %d took too long", parsedCommentID))
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout,
+			fmt.Sprintf("updating proposal event transaction with commentID - %d took too long",
+				parsedCommentID))
 		return
 	case resp := <-eventch:
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -822,13 +840,16 @@ func (h *Handler) DeleteProposalEventComment(w http.ResponseWriter, r *http.Requ
 	}()
 	select {
 	case <-ctx.Done():
-		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, fmt.Sprintf("updating proposal event transaction wtih commentID - %d took too long", parsedCommentID))
+		httpHelper.SendErrorResponse(w,
+			http.StatusRequestTimeout,
+			fmt.Sprintf("updating proposal event transaction with commentID - %d took too long",
+				parsedCommentID))
 		return
 	case resp := <-eventch:
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -887,7 +908,7 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 		if resp.err != nil {
 			status := 500
 			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			case models.ErrNotFound.Error():
 				status = 404
 			}
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
@@ -922,8 +943,8 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 }
 
 type proposalEventsResponse struct {
-	events []models.ProposalEvent
-	err    error
+	events    []models.ProposalEvent
+	respError error
 }
 
 // SearchProposalEvents gets models.ProposalEvents by given order and filter values
@@ -959,11 +980,11 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		events, err := h.services.ProposalEvent.GetProposalEventBySearch(ctx, searchValuesInternal)
+		events, respError := h.services.ProposalEvent.GetProposalEventBySearch(ctx, searchValuesInternal)
 
 		eventch <- proposalEventsResponse{
-			events: events,
-			err:    err,
+			events:    events,
+			respError: respError,
 		}
 	}()
 	select {
@@ -971,13 +992,13 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "getting all transactions for proposal event took too long")
 		return
 	case resp := <-eventch:
-		if resp.err != nil {
+		if resp.respError != nil {
 			status := 500
-			switch resp.err.Error() {
-			case models.NotFoundError.Error():
+			switch resp.respError.Error() {
+			case models.ErrNotFound.Error():
 				status = 404
 			}
-			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			httpHelper.SendErrorResponse(w, uint(status), resp.respError.Error())
 			return
 		}
 
@@ -1006,8 +1027,4 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 			zlog.Log.Error(err, "could not send proposal events")
 		}
 	}
-}
-
-func boolRef(b bool) *bool {
-	return &b
 }

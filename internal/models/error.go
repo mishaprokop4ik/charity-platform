@@ -4,7 +4,7 @@ import (
 	"errors"
 )
 
-var NotFoundError = errors.New("no such entity")
+var ErrNotFound = errors.New("no such entity")
 
 type ErrResponse struct {
 	Error string `json:"error"`
