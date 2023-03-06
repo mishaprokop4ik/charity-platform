@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"Kurajj/internal/models"
+	"Kurajj/internal/models/search"
 	httpHelper "Kurajj/pkg/http"
 	zlog "Kurajj/pkg/logger"
 	"context"
@@ -916,6 +917,86 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 		err = httpHelper.SendHTTPResponse(w, transactions)
 		if err != nil {
 			zlog.Log.Error(err, "could not send proposal event transaction")
+		}
+	}
+}
+
+type proposalEventsResponse struct {
+	events []models.ProposalEvent
+	err    error
+}
+
+// AllEventsSearch gets models.ProposalEvents by given order and filter values
+// @Param        id   path int  true  "ID"
+// @Summary      Return proposal events by given order and filter values
+// @Param request body search.AllEventsSearch true "query params"
+// @Tags         Proposal Event
+// @Accept       json
+// @Success      200  {object}  models.ProposalEvents
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/search [post]
+func (h *Handler) AllEventsSearch(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	searchValues, err := search.UnmarshalAllEventsSearch(r)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	eventch := make(chan proposalEventsResponse)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		events, err := h.services.ProposalEvent.GetProposalEventBySearch(ctx, searchValues.GetSearchValues())
+
+		eventch <- proposalEventsResponse{
+			events: events,
+			err:    err,
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "getting all transactions for proposal event took too long")
+		return
+	case resp := <-eventch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.NotFoundError.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+
+		proposalEvents := models.ProposalEvents{ProposalEvents: make([]models.ProposalEventGetResponse, len(resp.events))}
+		for i := range resp.events {
+			competitionDate := ""
+			if resp.events[i].CompetitionDate.Valid {
+				competitionDate = resp.events[i].CompetitionDate.Time.String()
+			}
+			proposalEvents.ProposalEvents[i] = models.ProposalEventGetResponse{
+				ID:                    resp.events[i].ID,
+				Title:                 resp.events[i].Title,
+				Description:           resp.events[i].Description,
+				CreationDate:          resp.events[i].CreationDate.String(),
+				MaxConcurrentRequests: resp.events[i].MaxConcurrentRequests,
+				AvailableHelps:        uint(resp.events[i].RemainingHelps),
+				CompetitionDate:       competitionDate,
+				Status:                models.EventStatus(resp.events[i].Status),
+				AuthorID:              resp.events[i].AuthorID,
+				Category:              resp.events[i].Category,
+			}
+		}
+		w.WriteHeader(http.StatusOK)
+		err = httpHelper.SendHTTPResponse(w, proposalEvents)
+		if err != nil {
+			zlog.Log.Error(err, "could not send proposal events")
 		}
 	}
 }

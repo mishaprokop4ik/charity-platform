@@ -23,3 +23,7 @@ const (
 	Canceled    Status = "canceled"
 	Waiting     Status = "waiting"
 )
+
+type Eventer interface {
+	Serialize() ([]byte, error)
+}

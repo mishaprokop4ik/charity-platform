@@ -52,6 +52,21 @@ CREATE TABLE help_event (
     CONSTRAINT author_fk FOREIGN KEY(author_id) REFERENCES members(id)
 );
 
+
+CREATE TABLE IF NOT EXISTS tag (
+    id bigserial PRIMARY KEY,
+    title varchar(255),
+    event_id bigint,
+    event_type event
+);
+
+CREATE TABLE IF NOT EXISTS tag_value (
+    id bigserial PRIMARY KEY,
+    tag_id bigint,
+    value varchar(255),
+    CONSTRAINT tag_id FOREIGN KEY(tag_id) REFERENCES tag(id)
+);
+
 CREATE TABLE report (
     id bigserial PRIMARY KEY,
     s3_path varchar,
