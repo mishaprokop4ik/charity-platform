@@ -975,7 +975,7 @@ const docTemplate = `{
                 "tags": [
                     "Auth"
                 ],
-                "summary": "Updates user's status to activated.",
+                "summary": "Updates user's status to 'activated'.",
                 "parameters": [
                     {
                         "type": "string",
@@ -1277,7 +1277,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "updateTime": {
-                    "$ref": "#/definitions/sql.NullTime"
+                    "type": "string"
                 },
                 "username": {
                     "type": "string"
@@ -1344,6 +1344,29 @@ const docTemplate = `{
                 "ProposalEventType"
             ]
         },
+        "Kurajj_internal_models.Location": {
+            "type": "object",
+            "properties": {
+                "area": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "country": {
+                    "type": "string"
+                },
+                "district": {
+                    "type": "string"
+                },
+                "home": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                }
+            }
+        },
         "Kurajj_internal_models.ProposalEventGetResponse": {
             "type": "object",
             "properties": {
@@ -1374,6 +1397,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "location": {
+                    "$ref": "#/definitions/Kurajj_internal_models.Location"
+                },
                 "maxConcurrentRequests": {
                     "type": "integer"
                 },
@@ -1396,6 +1422,9 @@ const docTemplate = `{
             "properties": {
                 "description": {
                     "type": "string"
+                },
+                "location": {
+                    "$ref": "#/definitions/Kurajj_internal_models.Location"
                 },
                 "maxConcurrentRequests": {
                     "type": "integer"
@@ -1585,14 +1614,20 @@ const docTemplate = `{
         "Kurajj_internal_models_search.AllEventsSearch": {
             "type": "object",
             "properties": {
+                "location": {
+                    "$ref": "#/definitions/Kurajj_internal_models.Location"
+                },
                 "name": {
                     "type": "string"
                 },
                 "sortField": {
                     "type": "string"
                 },
-                "statusState": {
-                    "$ref": "#/definitions/Kurajj_internal_models.EventStatus"
+                "statusStates": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.EventStatus"
+                    }
                 },
                 "tags": {
                     "type": "array",
@@ -1601,18 +1636,6 @@ const docTemplate = `{
                     }
                 },
                 "takingPart": {
-                    "type": "boolean"
-                }
-            }
-        },
-        "sql.NullTime": {
-            "type": "object",
-            "properties": {
-                "time": {
-                    "type": "string"
-                },
-                "valid": {
-                    "description": "Valid is true if Time is not NULL",
                     "type": "boolean"
                 }
             }

@@ -46,7 +46,7 @@ definitions:
       text:
         type: string
       updateTime:
-        $ref: '#/definitions/sql.NullTime'
+        type: string
       username:
         type: string
     type: object
@@ -90,6 +90,21 @@ definitions:
     type: string
     x-enum-varnames:
     - ProposalEventType
+  Kurajj_internal_models.Location:
+    properties:
+      area:
+        type: string
+      city:
+        type: string
+      country:
+        type: string
+      district:
+        type: string
+      home:
+        type: string
+      street:
+        type: string
+    type: object
   Kurajj_internal_models.ProposalEventGetResponse:
     properties:
       authorID:
@@ -110,6 +125,8 @@ definitions:
         type: string
       id:
         type: integer
+      location:
+        $ref: '#/definitions/Kurajj_internal_models.Location'
       maxConcurrentRequests:
         type: integer
       status:
@@ -125,6 +142,8 @@ definitions:
     properties:
       description:
         type: string
+      location:
+        $ref: '#/definitions/Kurajj_internal_models.Location'
       maxConcurrentRequests:
         type: integer
       title:
@@ -250,25 +269,21 @@ definitions:
     type: object
   Kurajj_internal_models_search.AllEventsSearch:
     properties:
+      location:
+        $ref: '#/definitions/Kurajj_internal_models.Location'
       name:
         type: string
       sortField:
         type: string
-      statusState:
-        $ref: '#/definitions/Kurajj_internal_models.EventStatus'
+      statusStates:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.EventStatus'
+        type: array
       tags:
         items:
           $ref: '#/definitions/Kurajj_internal_models.TagRequest'
         type: array
       takingPart:
-        type: boolean
-    type: object
-  sql.NullTime:
-    properties:
-      time:
-        type: string
-      valid:
-        description: Valid is true if Time is not NULL
         type: boolean
     type: object
 host: localhost:8080
@@ -937,7 +952,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-      summary: Updates user's status to activated.
+      summary: Updates user's status to 'activated'.
       tags:
       - Auth
   /auth/sign-in:
