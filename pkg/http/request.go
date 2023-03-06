@@ -33,17 +33,3 @@ func SendHTTPResponse(w http.ResponseWriter, resp Byter) error {
 	// TODO add tries when w.Write did not send all bytes
 	return nil
 }
-
-func createErrorResponse(message string) ([]byte, error) {
-	response := struct {
-		ErrorMessage string `json:"errorMessage"`
-	}{
-		ErrorMessage: message,
-	}
-	encodedResponse, err := json.Marshal(response)
-	if err != nil {
-		return []byte{}, fmt.Errorf("cound not encode error response: %s", err)
-	}
-
-	return encodedResponse, nil
-}

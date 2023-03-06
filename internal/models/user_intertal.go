@@ -34,7 +34,9 @@ type User struct {
 func (u User) getAddress() (Address, error) {
 	fullAddress := strings.Split(u.Address, "|")
 	if len(fullAddress) != DecodedAddressLength {
-		return Address{}, fmt.Errorf("something went wrong. the size of address is incorrect. want %d; got: %d", DecodedAddressLength, len(fullAddress))
+		return Address{},
+			fmt.Errorf("something went wrong. the size of address is incorrect. want %d; got: %d",
+				DecodedAddressLength, len(fullAddress))
 	}
 
 	return Address{
@@ -98,3 +100,5 @@ func (u User) GetUserFullResponse(token string) SignedInUser {
 func (User) TableName() string {
 	return "members"
 }
+
+const MemberIDContextKey = "id"

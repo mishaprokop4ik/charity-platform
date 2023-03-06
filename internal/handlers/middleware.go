@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"Kurajj/internal/models"
 	httpHelper "Kurajj/pkg/http"
 	zlog "Kurajj/pkg/logger"
 	"context"
@@ -29,7 +30,7 @@ func (h *Handler) Authentication(next http.Handler) http.Handler {
 			return
 		}
 		ctx := r.Context()
-		req := r.WithContext(context.WithValue(ctx, "id", id))
+		req := r.WithContext(context.WithValue(ctx, models.MemberIDContextKey, id))
 		*r = *req
 		next.ServeHTTP(w, r)
 	})

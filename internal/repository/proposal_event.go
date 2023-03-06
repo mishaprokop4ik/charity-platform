@@ -16,7 +16,8 @@ const defaultSortField = "creation_date"
 type ProposalEventer interface {
 	proposalEventCRUDer
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
-	GetEventsWithSearchAndSort(ctx context.Context, searchValues models.ProposalEventSearchInternal) ([]models.ProposalEvent, error)
+	GetEventsWithSearchAndSort(ctx context.Context,
+		searchValues models.ProposalEventSearchInternal) ([]models.ProposalEvent, error)
 }
 
 type proposalEventCRUDer interface {
@@ -31,7 +32,8 @@ type ProposalEvent struct {
 	DBConnector *Connector
 }
 
-func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context, searchValues models.ProposalEventSearchInternal) ([]models.ProposalEvent, error) {
+func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
+	searchValues models.ProposalEventSearchInternal) ([]models.ProposalEvent, error) {
 	events := []models.ProposalEvent{}
 	searchValues = p.removeEmptySearchValues(searchValues)
 	query := p.DBConnector.DB.Order(searchValues.SortField).Where("status IN (?)", searchValues.State)
@@ -68,7 +70,8 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context, searchVa
 		} else {
 			subQuery := p.DBConnector.DB.Table("tag").Select("event_id").
 				Joins("JOIN tag_value ON tag.id = tag_value.tag_id").
-				Where("LOWER(tag.title) IN (?) AND LOWER(tag_value.value) IN (?) AND tag.event_type = ?", searchValues.GetTagsTitle(), searchValues.GetTagsValues(), models.ProposalEventType)
+				Where("LOWER(tag.title) IN (?) AND LOWER(tag_value.value) IN (?) AND tag.event_type = ?",
+					searchValues.GetTagsTitle(), searchValues.GetTagsValues(), models.ProposalEventType)
 
 			query = query.Where("id IN (?)", subQuery)
 		}
