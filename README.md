@@ -6,6 +6,7 @@
 * Go version >= 1.18
 * `configs` folder with all configs data
 * gradle >= 7.4 
+* [migrate](https://github.com/golang-migrate/migrate/tree/master/cmd/migrate)
 
 ## About
 
@@ -21,6 +22,7 @@ In docs folder you are able to see swagger documentation for API.
 * `docker login` - put your credentials here
 * `./gradlew serverDockerBuild`
 * `./gradlew dc-up`
+* `./gradlew migrateUp`
 
 Now api is available locally on localhost:8080/ URL
 
