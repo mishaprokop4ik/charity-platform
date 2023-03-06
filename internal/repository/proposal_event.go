@@ -36,6 +36,7 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	searchValues models.ProposalEventSearchInternal) ([]models.ProposalEvent, error) {
 	events := []models.ProposalEvent{}
 	searchValues = p.removeEmptySearchValues(searchValues)
+	fmt.Println(*searchValues.Location)
 	query := p.DBConnector.DB.Order(searchValues.SortField).Where("status IN (?)", searchValues.State)
 	if searchValues.GetOwn != nil {
 		if *searchValues.GetOwn {
@@ -76,6 +77,33 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 			query = query.Where("id IN (?)", subQuery)
 		}
 	}
+	if searchValues.Location != nil {
+		location := *searchValues.Location
+		subQuery := p.DBConnector.DB.Table("location").Select("event_id").
+			Where("event_type = ?", models.ProposalEventType)
+
+		if location.Country != "" {
+			subQuery = subQuery.Where("LOWER(country) LIKE ?", "%"+location.Country+"%")
+		}
+		if location.Area != "" {
+			subQuery = subQuery.Where("LOWER(area) LIKE ?", "%"+location.Area+"%")
+		}
+		if location.City != "" {
+			subQuery = subQuery.Where("LOWER(city) LIKE ?", "%"+location.City+"%")
+		}
+		if location.District != "" {
+			subQuery = subQuery.Where("LOWER(district) LIKE ?", "%"+location.District+"%")
+		}
+		if location.Street != "" {
+			subQuery = subQuery.Where("LOWER(street) LIKE ?", "%"+location.Street+"%")
+		}
+		if location.Home != "" {
+			subQuery = subQuery.Where("LOWER(home) LIKE ?", "%"+location.Home+"%")
+		}
+
+		query = query.Where("id IN (?)", subQuery)
+	}
+
 	err := query.Find(&events).WithContext(ctx).Error
 	return events, err
 }
@@ -120,16 +148,33 @@ func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEven
 		newSearchValues.State = searchValues.State
 	}
 
+	newSearchValues.Location = searchValues.Location
+
 	return newSearchValues
 }
 
 func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error) {
+	tx := p.DBConnector.DB.Begin()
 	err := p.DBConnector.DB.
 		Create(&event).
 		WithContext(ctx).
 		Error
 
-	return event.ID, err
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+
+	err = p.DBConnector.DB.
+		Create(&event.Location).
+		WithContext(ctx).
+		Error
+
+	if err != nil {
+		tx.Rollback()
+		return 0, err
+	}
+	return event.ID, tx.Commit().Error
 }
 
 func (p *ProposalEvent) GetEvent(ctx context.Context, id uint) (models.ProposalEvent, error) {
@@ -143,6 +188,59 @@ func (p *ProposalEvent) GetEvent(ctx context.Context, id uint) (models.ProposalE
 	if errors.Is(resp.Error, gorm.ErrRecordNotFound) {
 		return models.ProposalEvent{}, fmt.Errorf("cound not get proposal event by id %d", id)
 	}
+	transactions := make([]models.Transaction, 0)
+
+	err := p.DBConnector.DB.
+		Where("event_type = ?", models.ProposalEventType).
+		Where("event_id = ?", id).
+		Find(&transactions).
+		WithContext(ctx).
+		Error
+	if err != nil {
+		return models.ProposalEvent{}, err
+	}
+
+	event.Transactions = transactions
+
+	comments := make([]models.Comment, 0)
+	err = p.DBConnector.DB.
+		Where("event_type = ?", models.ProposalEventType).
+		Where("event_id = ?", id).
+		Find(&comments).
+		WithContext(ctx).
+		Error
+	if err != nil {
+		return models.ProposalEvent{}, err
+	}
+	for i := range comments {
+		userValues := models.User{}
+		err = p.DBConnector.DB.
+			Where("id = ?", comments[i].UserID).
+			First(&userValues).
+			WithContext(ctx).
+			Error
+		comments[i].UserValues = models.UserComment{
+			AuthorID:        userValues.ID,
+			Username:        userValues.FullName,
+			ProfileImageURL: userValues.AvatarImagePath,
+		}
+		if err != nil {
+			return models.ProposalEvent{}, err
+		}
+	}
+	event.Comments = comments
+
+	location := models.Location{}
+	err = p.DBConnector.DB.
+		Where("event_type = ?", models.ProposalEventType).
+		Where("event_id = ?", id).
+		First(&location).
+		WithContext(ctx).
+		Error
+	if err != nil {
+		return models.ProposalEvent{}, err
+	}
+	event.Location = location
 
 	return event, resp.Error
 }

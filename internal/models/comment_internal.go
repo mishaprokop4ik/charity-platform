@@ -17,6 +17,7 @@ type Comment struct {
 	IsUpdated    bool         `gorm:"column:is_updated"`
 	UpdatedAt    sql.NullTime `gorm:"column:updated_at"`
 	IsDeleted    bool         `gorm:"column:is_deleted"`
+	UserValues   UserComment  `gorm:"-"`
 }
 
 func (Comment) TableName() string {
