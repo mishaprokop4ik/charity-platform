@@ -3,7 +3,7 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
-	"net/http"
+	"io"
 	"time"
 )
 
@@ -35,14 +35,14 @@ type CommentUpdateRequest struct {
 	Text string `json:"text,omitempty"`
 }
 
-func UnmarshalCommentUpdateRequest(r *http.Request) (CommentUpdateRequest, error) {
+func UnmarshalCommentUpdateRequest(r *io.ReadCloser) (CommentUpdateRequest, error) {
 	c := CommentUpdateRequest{}
-	err := json.NewDecoder(r.Body).Decode(&c)
+	err := json.NewDecoder(*r).Decode(&c)
 	return c, err
 }
 
-func UnmarshalCommentCreateRequest(r *http.Request) (CommentCreateRequest, error) {
+func UnmarshalCommentCreateRequest(r *io.ReadCloser) (CommentCreateRequest, error) {
 	c := CommentCreateRequest{}
-	err := json.NewDecoder(r.Body).Decode(&c)
+	err := json.NewDecoder(*r).Decode(&c)
 	return c, err
 }

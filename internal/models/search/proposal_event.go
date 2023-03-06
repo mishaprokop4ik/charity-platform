@@ -3,7 +3,7 @@ package search
 import (
 	"Kurajj/internal/models"
 	"encoding/json"
-	"net/http"
+	"io"
 	"strings"
 )
 
@@ -15,9 +15,9 @@ type AllEventsSearch struct {
 	StatusState []models.EventStatus `json:"statusStates,omitempty"`
 }
 
-func UnmarshalAllEventsSearch(r *http.Request) (AllEventsSearch, error) {
+func UnmarshalAllEventsSearch(r *io.ReadCloser) (AllEventsSearch, error) {
 	search := AllEventsSearch{}
-	err := json.NewDecoder(r.Body).Decode(&search)
+	err := json.NewDecoder(*r).Decode(&search)
 	return search, err
 }
 
