@@ -717,6 +717,73 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/events/proposal/search": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Proposal Event"
+                ],
+                "summary": "Return proposal events by given order and filter values",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models_search.AllEventsSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ProposalEvents"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/events/proposal/transactions/{id}": {
             "get": {
                 "consumes": [
@@ -725,7 +792,7 @@ const docTemplate = `{
                 "tags": [
                     "Proposal Event"
                 ],
-                "summary": "Get all proposal event transactions(finished, in proccess, etc)",
+                "summary": "Get all proposal event transactions(finished, in process, etc)",
                 "parameters": [
                     {
                         "type": "integer",
@@ -1177,38 +1244,6 @@ const docTemplate = `{
                 }
             }
         },
-        "Kurajj_internal_models.Comment": {
-            "type": "object",
-            "properties": {
-                "creationDate": {
-                    "type": "string"
-                },
-                "eventID": {
-                    "type": "integer"
-                },
-                "eventType": {
-                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "isDeleted": {
-                    "type": "boolean"
-                },
-                "isUpdated": {
-                    "type": "boolean"
-                },
-                "text": {
-                    "type": "string"
-                },
-                "updatedAt": {
-                    "$ref": "#/definitions/sql.NullTime"
-                },
-                "userID": {
-                    "type": "integer"
-                }
-            }
-        },
         "Kurajj_internal_models.CommentCreateRequest": {
             "type": "object",
             "properties": {
@@ -1324,7 +1359,7 @@ const docTemplate = `{
                 "comments": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/Kurajj_internal_models.Comment"
+                        "$ref": "#/definitions/Kurajj_internal_models.CommentResponse"
                     }
                 },
                 "competitionDate": {
@@ -1484,6 +1519,29 @@ const docTemplate = `{
                 "Waiting"
             ]
         },
+        "Kurajj_internal_models.TagRequest": {
+            "type": "object",
+            "properties": {
+                "eventID": {
+                    "type": "integer"
+                },
+                "eventType": {
+                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "Kurajj_internal_models.TransactionResponse": {
             "type": "object",
             "properties": {
@@ -1520,6 +1578,26 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/Kurajj_internal_models.TransactionResponse"
+                    }
+                }
+            }
+        },
+        "Kurajj_internal_models_search.AllEventsSearch": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "sortField": {
+                    "type": "string"
+                },
+                "statusState": {
+                    "$ref": "#/definitions/Kurajj_internal_models.EventStatus"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.TagRequest"
                     }
                 }
             }

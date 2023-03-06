@@ -24,27 +24,6 @@ definitions:
       telephone:
         type: string
     type: object
-  Kurajj_internal_models.Comment:
-    properties:
-      creationDate:
-        type: string
-      eventID:
-        type: integer
-      eventType:
-        $ref: '#/definitions/Kurajj_internal_models.EventType'
-      id:
-        type: integer
-      isDeleted:
-        type: boolean
-      isUpdated:
-        type: boolean
-      text:
-        type: string
-      updatedAt:
-        $ref: '#/definitions/sql.NullTime'
-      userID:
-        type: integer
-    type: object
   Kurajj_internal_models.CommentCreateRequest:
     properties:
       eventId:
@@ -121,7 +100,7 @@ definitions:
         type: string
       comments:
         items:
-          $ref: '#/definitions/Kurajj_internal_models.Comment'
+          $ref: '#/definitions/Kurajj_internal_models.CommentResponse'
         type: array
       competitionDate:
         type: string
@@ -228,6 +207,21 @@ definitions:
     - Interrupted
     - Canceled
     - Waiting
+  Kurajj_internal_models.TagRequest:
+    properties:
+      eventID:
+        type: integer
+      eventType:
+        $ref: '#/definitions/Kurajj_internal_models.EventType'
+      id:
+        type: integer
+      title:
+        type: string
+      values:
+        items:
+          type: string
+        type: array
+    type: object
   Kurajj_internal_models.TransactionResponse:
     properties:
       comment:
@@ -252,6 +246,19 @@ definitions:
       transactions:
         items:
           $ref: '#/definitions/Kurajj_internal_models.TransactionResponse'
+        type: array
+    type: object
+  Kurajj_internal_models_search.AllEventsSearch:
+    properties:
+      name:
+        type: string
+      sortField:
+        type: string
+      statusState:
+        $ref: '#/definitions/Kurajj_internal_models.EventStatus'
+      tags:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.TagRequest'
         type: array
     type: object
   sql.NullTime:
@@ -730,6 +737,50 @@ paths:
         slot is available
       tags:
       - Proposal Event
+  /api/events/proposal/search:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models_search.AllEventsSearch'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ProposalEvents'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Return proposal events by given order and filter values
+      tags:
+      - Proposal Event
   /api/events/proposal/transactions/{id}:
     get:
       consumes:
@@ -765,7 +816,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-      summary: Get all proposal event transactions(finished, in proccess, etc)
+      summary: Get all proposal event transactions(finished, in process, etc)
       tags:
       - Proposal Event
   /api/events/proposal/update-status/{id}:
