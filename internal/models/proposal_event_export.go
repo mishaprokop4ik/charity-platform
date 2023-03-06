@@ -29,7 +29,7 @@ type ProposalEventGetResponse struct {
 	Status                EventStatus           `json:"status,omitempty"`
 	AuthorID              uint                  `json:"authorID,omitempty"`
 	Category              string                `json:"category,omitempty"`
-	Comments              []Comment             `json:"comments,omitempty"`
+	Comments              []CommentResponse     `json:"comments,omitempty"`
 	Transactions          []TransactionResponse `json:"transactions,omitempty"`
 }
 

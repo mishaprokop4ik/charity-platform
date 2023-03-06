@@ -2,6 +2,7 @@ package models
 
 import (
 	"database/sql"
+	"encoding/json"
 	"reflect"
 	"strings"
 	"time"
@@ -61,4 +62,53 @@ func (p ProposalEvent) GetValuesToUpdate() map[string]any {
 	}
 
 	return updateValues
+}
+
+type ProposalEventsInternal struct {
+	ProposalEvents []ProposalEventGetResponse `json:"proposalEvents,omitempty"`
+}
+
+func (p ProposalEventsInternal) Serialize() ([]byte, error) {
+	decodedEvent, err := json.Marshal(p)
+	return decodedEvent, err
+}
+
+type ProposalEventSearchInternal struct {
+	Name       *string
+	GetOwn     *bool
+	Tags       *[]Tag
+	SortField  string
+	SearcherID uint
+	State      []EventStatus
+	TakingPart *bool
+}
+
+func (i ProposalEventSearchInternal) GetTagsValues() []string {
+	if i.Tags == nil {
+		return []string{}
+	}
+
+	values := make([]string, 0)
+	for _, tag := range *i.Tags {
+		tagValues := tag.Values
+		for _, tagValue := range tagValues {
+			values = append(values, tagValue.Value)
+		}
+	}
+
+	return values
+}
+
+func (i ProposalEventSearchInternal) GetTagsTitle() []string {
+	if i.Tags == nil {
+		return []string{}
+	}
+
+	titles := make([]string, 0)
+	for _, tag := range *i.Tags {
+		tagTitle := tag.Title
+		titles = append(titles, tagTitle)
+	}
+
+	return titles
 }

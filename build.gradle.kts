@@ -54,7 +54,7 @@ tasks.register("addMigration") {
     description = "Create new SQL migration"
 
     val fileLength: String by extra { properties.getOrDefault("length", "14") as String }
-    val name: String by extra { properties.get("migrationName") as String }
+    val name: String by extra { properties.getOrDefault("migrationName", "default") as String }
     val savePath: String by extra { properties.getOrDefault("savePath", "internal/repository/postgres/migrations") as String }
     doLast {
         exec {
