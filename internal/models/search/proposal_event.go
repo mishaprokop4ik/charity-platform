@@ -13,6 +13,7 @@ type AllEventsSearch struct {
 	SortField   string               `json:"sortField,omitempty"`
 	TakingPart  bool                 `json:"takingPart,omitempty"`
 	StatusState []models.EventStatus `json:"statusStates,omitempty"`
+	Location    models.Location      `json:"location,omitempty"`
 }
 
 func UnmarshalAllEventsSearch(r *io.ReadCloser) (AllEventsSearch, error) {
@@ -30,6 +31,14 @@ func (s AllEventsSearch) GetSearchValues() models.ProposalEventSearchInternal {
 		TakingPart: &s.TakingPart,
 		State:      s.StatusState,
 		SortField:  s.SortField,
+		Location: &models.Location{
+			Country:  strings.ToLower(s.Location.Country),
+			Area:     strings.ToLower(s.Location.Area),
+			City:     strings.ToLower(s.Location.City),
+			District: strings.ToLower(s.Location.District),
+			Street:   strings.ToLower(s.Location.Street),
+			Home:     strings.ToLower(s.Location.Home),
+		},
 	}
 }
 

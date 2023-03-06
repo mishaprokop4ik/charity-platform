@@ -179,3 +179,7 @@ type UserComment struct {
 	Username        string `json:"username,omitempty"`
 	ProfileImageURL string `json:"profileImageURL,omitempty"`
 }
+
+func (u UserComment) TableName() string {
+	return "members"
+}

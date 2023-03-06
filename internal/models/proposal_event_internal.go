@@ -22,6 +22,7 @@ type ProposalEvent struct {
 	IsDeleted             bool          `gorm:"column:is_deleted"`
 	Comments              []Comment     `gorm:"-"`
 	Transactions          []Transaction `gorm:"-"`
+	Location              Location      `gorm:"-"`
 }
 
 func (p ProposalEvent) TableName() string {
@@ -81,6 +82,7 @@ type ProposalEventSearchInternal struct {
 	SearcherID uint
 	State      []EventStatus
 	TakingPart *bool
+	Location   *Location
 }
 
 func (i ProposalEventSearchInternal) GetTagsValues() []string {

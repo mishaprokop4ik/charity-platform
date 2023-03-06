@@ -705,12 +705,16 @@ func (h *Handler) GetCommentsInProposalEvent(w http.ResponseWriter, r *http.Requ
 						err))
 				return
 			}
+			updatedAt := ""
+			if c.UpdatedAt.Valid {
+				updatedAt = c.UpdatedAt.Time.String()
+			}
 			responseComments.Comments[i] = models.CommentResponse{
 				ID:           c.ID,
 				Text:         c.Text,
 				CreationDate: c.CreationDate,
 				IsUpdated:    c.IsUpdated,
-				UpdateTime:   c.UpdatedAt,
+				UpdateTime:   updatedAt,
 				UserComment:  user,
 			}
 		}
@@ -953,6 +957,7 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 	}
 	searchValuesInternal := searchValues.GetSearchValues()
 	searchValuesInternal.SearcherID = userID.(uint)
+	fmt.Println(searchValuesInternal.Location, "there")
 	eventch := make(chan proposalEventsResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()

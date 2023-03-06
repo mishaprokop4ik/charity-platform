@@ -58,7 +58,7 @@ tasks.register("addMigration") {
     val savePath: String by extra { properties.getOrDefault("savePath", "internal/repository/postgres/migrations") as String }
     doLast {
         exec {
-            commandLine = listOf("migrate", "create", "-ext", "sql", "-dir", "${savePath}", "-seq", "-digits", "${fileLength}", "${name}")
+            commandLine = listOf("migrate", "create", "-ext", "sql", "-dir", savePath, "-seq", "-digits", fileLength, name)
         }
     }
 }

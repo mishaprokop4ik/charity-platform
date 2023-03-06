@@ -7,9 +7,23 @@ import (
 )
 
 type ProposalEventRequestCreate struct {
-	Title                 string `json:"title,omitempty"`
-	Description           string `json:"description,omitempty"`
-	MaxConcurrentRequests int    `json:"maxConcurrentRequests,omitempty"`
+	Title                 string   `json:"title,omitempty"`
+	Description           string   `json:"description,omitempty"`
+	MaxConcurrentRequests int      `json:"maxConcurrentRequests,omitempty"`
+	Location              Location `json:"location,omitempty"`
+}
+
+type Location struct {
+	Country  string `json:"country,omitempty"`
+	Area     string `json:"area,omitempty"`
+	City     string `json:"city,omitempty"`
+	District string `json:"district,omitempty"`
+	Street   string `json:"street,omitempty"`
+	Home     string `json:"home,omitempty"`
+}
+
+func (Location) TableName() string {
+	return "location"
 }
 
 func UnmarshalProposalEventCreate(r *io.ReadCloser) (ProposalEventRequestCreate, error) {
@@ -31,6 +45,7 @@ type ProposalEventGetResponse struct {
 	Category              string                `json:"category,omitempty"`
 	Comments              []CommentResponse     `json:"comments,omitempty"`
 	Transactions          []TransactionResponse `json:"transactions,omitempty"`
+	Location              Location              `json:"location,omitempty"`
 }
 
 func (p ProposalEventGetResponse) Bytes() []byte {
@@ -43,6 +58,40 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 	if event.CompetitionDate.Valid {
 		completionDate = event.CompetitionDate.Time.String()
 	}
+	comments := make([]CommentResponse, len(event.Comments))
+	for i, comment := range event.Comments {
+		updatedTime := ""
+		if comment.UpdatedAt.Valid {
+			updatedTime = comment.UpdatedAt.Time.String()
+		}
+		comments[i] = CommentResponse{
+			ID:           comment.ID,
+			Text:         comment.Text,
+			CreationDate: comment.CreationDate,
+			IsUpdated:    comment.IsUpdated,
+			UpdateTime:   updatedTime,
+			UserComment: UserComment{
+				AuthorID: comment.UserID,
+			},
+		}
+	}
+
+	transactions := make([]TransactionResponse, len(event.Transactions))
+	for i, t := range event.Transactions {
+		transaction := TransactionResponse{
+			ID:                t.ID,
+			CreatorID:         t.CreatorID,
+			EventID:           t.EventID,
+			Comment:           t.Comment,
+			EventType:         t.EventType,
+			TransactionStatus: t.TransactionStatus,
+			ResponderStatus:   t.ResponderStatus,
+		}
+		if t.CompetitionDate.Valid {
+			transaction.CompetitionDate = t.CompetitionDate.Time
+		}
+		transactions[i] = transaction
+	}
 	return ProposalEventGetResponse{
 		ID:              event.ID,
 		Title:           event.Title,
@@ -51,8 +100,9 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 		CompetitionDate: completionDate,
 		AuthorID:        event.AuthorID,
 		Category:        event.Category,
-		//Comments:        event.Comments,
-		//Transactions:    event.Transactions,
+		Comments:        comments,
+		Transactions:    transactions,
+		Location:        event.Location,
 	}
 }
 
