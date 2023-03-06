@@ -260,6 +260,8 @@ definitions:
         items:
           $ref: '#/definitions/Kurajj_internal_models.TagRequest'
         type: array
+      takingPart:
+        type: boolean
     type: object
   sql.NullTime:
     properties:

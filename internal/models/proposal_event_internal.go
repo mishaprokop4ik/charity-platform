@@ -79,6 +79,8 @@ type ProposalEventSearchInternal struct {
 	Tags       *[]Tag
 	SortField  string
 	SearcherID uint
+	State      []EventStatus
+	TakingPart *bool
 }
 
 func (i ProposalEventSearchInternal) GetTagsValues() []string {

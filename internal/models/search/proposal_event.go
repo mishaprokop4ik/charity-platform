@@ -8,10 +8,11 @@ import (
 )
 
 type AllEventsSearch struct {
-	Name        string              `json:"name,omitempty"`
-	Tags        []models.TagRequest `json:"tags,omitempty"`
-	SortField   string              `json:"sortField,omitempty"`
-	StatusState models.EventStatus  `json:"statusState,omitempty"`
+	Name        string               `json:"name,omitempty"`
+	Tags        []models.TagRequest  `json:"tags,omitempty"`
+	SortField   string               `json:"sortField,omitempty"`
+	TakingPart  bool                 `json:"takingPart,omitempty"`
+	StatusState []models.EventStatus `json:"statusStates,omitempty"`
 }
 
 func UnmarshalAllEventsSearch(r *http.Request) (AllEventsSearch, error) {
@@ -24,9 +25,11 @@ func (s AllEventsSearch) GetSearchValues() models.ProposalEventSearchInternal {
 	tags := s.convertTagsRequestToInternal()
 	name := strings.ToLower(s.Name)
 	return models.ProposalEventSearchInternal{
-		Name:      &name,
-		Tags:      &tags,
-		SortField: s.SortField,
+		Name:       &name,
+		Tags:       &tags,
+		TakingPart: &s.TakingPart,
+		State:      s.StatusState,
+		SortField:  s.SortField,
 	}
 }
 
@@ -54,16 +57,4 @@ func (s AllEventsSearch) getTagFromStrings(tagID uint, values ...string) []model
 	}
 
 	return tagValues
-}
-
-type OwnEventsSearch struct {
-	Name        string             `json:"name,omitempty"`
-	StatusState models.EventStatus `json:"statusState,omitempty"`
-	SortField   string             `json:"sortField,omitempty"`
-}
-
-type TakingPartEventsSearch struct {
-	Name        string             `json:"name,omitempty"`
-	StatusState models.EventStatus `json:"statusState,omitempty"`
-	SortField   string             `json:"sortField,omitempty"`
 }

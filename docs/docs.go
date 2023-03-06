@@ -1599,6 +1599,9 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/Kurajj_internal_models.TagRequest"
                     }
+                },
+                "takingPart": {
+                    "type": "boolean"
                 }
             }
         },

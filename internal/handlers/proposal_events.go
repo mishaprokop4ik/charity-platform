@@ -926,7 +926,7 @@ type proposalEventsResponse struct {
 	err    error
 }
 
-// AllEventsSearch gets models.ProposalEvents by given order and filter values
+// SearchProposalEvents gets models.ProposalEvents by given order and filter values
 // @Param        id   path int  true  "ID"
 // @Summary      Return proposal events by given order and filter values
 // @Param request body search.AllEventsSearch true "query params"
@@ -939,7 +939,7 @@ type proposalEventsResponse struct {
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
 // @Router       /api/events/proposal/search [post]
-func (h *Handler) AllEventsSearch(w http.ResponseWriter, r *http.Request) {
+func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	searchValues, err := search.UnmarshalAllEventsSearch(r)
@@ -948,11 +948,18 @@ func (h *Handler) AllEventsSearch(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID := r.Context().Value("id")
+	if userID == "" {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user transactionID isn't in context")
+		return
+	}
+	searchValuesInternal := searchValues.GetSearchValues()
+	searchValuesInternal.SearcherID = userID.(uint)
 	eventch := make(chan proposalEventsResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		events, err := h.services.ProposalEvent.GetProposalEventBySearch(ctx, searchValues.GetSearchValues())
+		events, err := h.services.ProposalEvent.GetProposalEventBySearch(ctx, searchValuesInternal)
 
 		eventch <- proposalEventsResponse{
 			events: events,
@@ -999,4 +1006,8 @@ func (h *Handler) AllEventsSearch(w http.ResponseWriter, r *http.Request) {
 			zlog.Log.Error(err, "could not send proposal events")
 		}
 	}
+}
+
+func boolRef(b bool) *bool {
+	return &b
 }
