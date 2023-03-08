@@ -717,73 +717,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/events/proposal/search": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Proposal Event"
-                ],
-                "summary": "Return proposal events by given order and filter values",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "query params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models_search.AllEventsSearch"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ProposalEvents"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "408": {
-                        "description": "Request Timeout",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/events/proposal/transactions/{id}": {
             "get": {
                 "consumes": [
@@ -1192,6 +1125,73 @@ const docTemplate = `{
                     },
                     "404": {
                         "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/open-api/proposal-search": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Proposal Event"
+                ],
+                "summary": "Return proposal events by given order and filter values",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models_search.AllEventsSearch"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ProposalEvents"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
                         "schema": {
                             "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
                         }

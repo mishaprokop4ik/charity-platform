@@ -754,50 +754,6 @@ paths:
         slot is available
       tags:
       - Proposal Event
-  /api/events/proposal/search:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: query params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/Kurajj_internal_models_search.AllEventsSearch'
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ProposalEvents'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "408":
-          description: Request Timeout
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-      summary: Return proposal events by given order and filter values
-      tags:
-      - Proposal Event
   /api/events/proposal/transactions/{id}:
     get:
       consumes:
@@ -1074,6 +1030,50 @@ paths:
       summary: Signs Up new user
       tags:
       - Auth
+  /open-api/proposal-search:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models_search.AllEventsSearch'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ProposalEvents'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Return proposal events by given order and filter values
+      tags:
+      - Proposal Event
 securityDefinitions:
   BasicAuth:
     type: basic
