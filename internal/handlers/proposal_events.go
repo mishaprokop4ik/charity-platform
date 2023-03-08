@@ -940,7 +940,7 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/events/proposal/search [post]
+// @Router       /open-api/proposal-search [post]
 func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 

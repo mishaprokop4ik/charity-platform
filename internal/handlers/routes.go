@@ -21,6 +21,10 @@ func (h *Handler) InitRoutes() http.Handler {
 
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
+	openAPI := r.PathPrefix("/open-api").Subrouter()
+	openAPI.HandleFunc("/proposal-search", h.SearchProposalEvents).
+		Methods(http.MethodPost)
+
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(h.Authentication)
 
@@ -72,9 +76,6 @@ func (h *Handler) InitRoutes() http.Handler {
 	proposalEventSubRouter.HandleFunc("/accept/{id}", h.AcceptProposalEventResponse).
 		Methods(http.MethodPost)
 	proposalEventSubRouter.HandleFunc("/update-status/{id}", h.UpdateProposalEventTransactionStatus).
-		Methods(http.MethodPost)
-
-	proposalEventSubRouter.HandleFunc("/search", h.SearchProposalEvents).
 		Methods(http.MethodPost)
 
 	return r
