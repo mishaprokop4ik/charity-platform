@@ -74,6 +74,13 @@ type EmailCheck struct {
 
 func (a *Authentication) SignUp(ctx context.Context, user models.User) (uint, error) {
 	user.Password = GeneratePasswordHash(user.Password, a.authConfig.Salt)
+	//isEmailTaken, err := a.repo.User.IsEmailTaken(ctx, user.Email)
+	//if err != nil {
+	//	return 0, err
+	//}
+	//if isEmailTaken {
+	//	return 0, fmt.Errorf("email %s is taken", user.Email)
+	//}
 	id, err := a.repo.User.CreateUser(ctx, user)
 	if err != nil {
 		return 0, err

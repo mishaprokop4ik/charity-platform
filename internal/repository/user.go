@@ -17,6 +17,7 @@ type Userer interface {
 	DeleteUser(ctx context.Context, id uint) error
 	UpsertUser(ctx context.Context, values map[string]any) error
 	UpdateUserByEmail(ctx context.Context, email string, values map[string]any) error
+	IsEmailTaken(ctx context.Context, email string) (bool, error)
 }
 
 type User struct {
@@ -42,6 +43,17 @@ func (u *User) GetUserInfo(ctx context.Context, id uint) (models.User, error) {
 
 func NewUser(DBConnector *Connector) *User {
 	return &User{DBConnector: DBConnector}
+}
+
+func (u *User) IsEmailTaken(ctx context.Context, email string) (bool, error) {
+	var exists bool
+	err := u.DBConnector.DB.Model(&models.User{}).
+		Select("count(*) > 0").
+		Where("email = ?", email).
+		Find(&exists).
+		Error
+
+	return exists, err
 }
 
 func (u *User) CreateUser(ctx context.Context, user models.User) (uint, error) {
