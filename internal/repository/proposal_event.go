@@ -262,8 +262,8 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 func (p *ProposalEvent) UpdateEvent(ctx context.Context, id uint, toUpdate map[string]any) error {
 	return p.DBConnector.DB.
 		Model(&models.ProposalEvent{}).
-		Where("id = ?", id).
 		Select(lo.Keys(toUpdate)).
+		Where("id = ?", id).
 		Updates(toUpdate).
 		WithContext(ctx).
 		Error

@@ -140,8 +140,8 @@ func (u *User) UpsertUser(ctx context.Context, values map[string]any) error {
 func (u *User) UpdateUserByEmail(ctx context.Context, email string, values map[string]any) error {
 	return u.DBConnector.DB.
 		Model(&models.User{}).
-		Where("email = ?", email).
 		Select(lo.Keys(values)).
+		Where("email = ?", email).
 		Updates(values).
 		Error
 }
