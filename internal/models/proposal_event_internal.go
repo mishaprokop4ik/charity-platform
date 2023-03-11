@@ -79,7 +79,7 @@ type ProposalEventSearchInternal struct {
 	GetOwn     *bool
 	Tags       *[]Tag
 	SortField  string
-	SearcherID uint
+	SearcherID *uint
 	State      []EventStatus
 	TakingPart *bool
 	Location   *Location
