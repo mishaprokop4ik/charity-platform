@@ -59,7 +59,7 @@ func (t *Transaction) GetCurrentEventTransactions(ctx context.Context, eventID u
 	err := t.DBConnector.DB.
 		Where("event_id = ?", eventID).
 		Where("event_type = ?", eventType).
-		Not("status IN ?", models.Completed, models.Interrupted, models.Canceled).
+		Not("status IN (?)", []models.Status{models.Completed, models.Interrupted, models.Canceled}).
 		Find(&transactions).WithContext(ctx).
 		Error
 
@@ -71,8 +71,8 @@ func (t *Transaction) UpdateAllNotFinishedTransactions(ctx context.Context, even
 		Model(&models.Transaction{}).
 		Where("event_id = ?", eventID).
 		Where("event_type = ?", eventType).
-		Not("status IN ?", models.Completed, models.Interrupted, models.Canceled).
-		Update("status = ?", newStatus).
+		Not("status IN (?)", []models.Status{models.Completed, models.Interrupted, models.Canceled}).
+		Update("status", newStatus).
 		WithContext(ctx).
 		Error
 }

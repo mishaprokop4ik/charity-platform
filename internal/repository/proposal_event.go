@@ -297,8 +297,8 @@ func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 		Model(&models.Transaction{}).
 		Where("event_id = ?", id).
 		Where("event_type = ?", models.ProposalEventType).
-		Not("status IN ?", models.Completed, models.Interrupted, models.Canceled).
-		Update("status = ?", models.Canceled).
+		Not("status IN (?)", []models.Status{models.Completed, models.Interrupted, models.Canceled}).
+		Update("status", models.Canceled).
 		WithContext(ctx).
 		Error
 	if err != nil {
@@ -309,7 +309,7 @@ func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 		Model(&models.Comment{}).
 		Where("event_id = ?", id).
 		Where("event_type = ?", models.ProposalEventType).
-		Update("is_deleted = ?", true).
+		Update("is_deleted", true).
 		WithContext(ctx).
 		Error
 	if err != nil {
