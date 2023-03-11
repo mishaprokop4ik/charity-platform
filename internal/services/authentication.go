@@ -21,6 +21,8 @@ type Authenticator interface {
 	SignUp(ctx context.Context, user models.User) (uint, error)
 	SignIn(ctx context.Context, user models.User) (models.SignedInUser, error)
 	ParseToken(accessToken string) (uint, error)
+	NewRefreshToken() (string, error)
+	RefreshTokens(ctx context.Context, refreshToken string) (models.Tokens, error)
 	ConfirmEmail(ctx context.Context, email string) error
 }
 
@@ -74,6 +76,13 @@ type EmailCheck struct {
 
 func (a *Authentication) SignUp(ctx context.Context, user models.User) (uint, error) {
 	user.Password = GeneratePasswordHash(user.Password, a.authConfig.Salt)
+	//isEmailTaken, err := a.repo.User.IsEmailTaken(ctx, user.Email)
+	//if err != nil {
+	//	return 0, err
+	//}
+	//if isEmailTaken {
+	//	return 0, fmt.Errorf("email %s is taken", user.Email)
+	//}
 	id, err := a.repo.User.CreateUser(ctx, user)
 	if err != nil {
 		return 0, err
@@ -114,18 +123,15 @@ func GeneratePasswordHash(password, salt string) string {
 	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
 }
 
-func (a *Authentication) generateToken(ctx context.Context, email, password string) (string, error) {
-	userID, err := a.repo.User.GetUserAuthentication(ctx, email, GeneratePasswordHash(password, a.authConfig.Salt))
-	if err != nil {
-		return "", err
-	}
-	expirationAfterHours := time.Duration(a.authConfig.TokenExpirationHours) * time.Hour
+func (a *Authentication) generateAccessToken(ctx context.Context, userID uint, isAdmin bool) (string, error) {
+	expirationAfterHours := a.authConfig.AccessTokenTTL
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, TokenClaims{
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(expirationAfterHours).Unix(),
 			IssuedAt:  time.Now().Unix(),
 		},
 		userID,
+		isAdmin,
 	})
 	resp, err := token.SignedString([]byte(a.authConfig.SigningKey))
 	return resp, err
@@ -146,23 +152,23 @@ func (a *Authentication) ParseToken(accessToken string) (uint, error) {
 
 	claims, ok := token.Claims.(*TokenClaims)
 	if !ok {
-		return 0, errors.New("token claims are not of type TokenClaims")
+		return 0, errors.New("token claims are incorrect")
 	}
 
 	return claims.ID, nil
 }
 
 func (a *Authentication) SignIn(ctx context.Context, user models.User) (models.SignedInUser, error) {
-	token, err := a.generateToken(ctx, user.Email, user.Password)
-	if err != nil {
-		return models.SignedInUser{}, err
-	}
 	user.Password = GeneratePasswordHash(user.Password, a.authConfig.Salt)
 	userInformation, err := a.repo.User.GetEntity(ctx, user.Email, user.Password, user.IsAdmin, false)
 	if err != nil {
 		return models.SignedInUser{}, err
 	}
-	return userInformation.GetUserFullResponse(token), nil
+	tokens, err := a.createSession(ctx, userInformation.ID, userInformation.IsAdmin)
+	if err != nil {
+		return models.SignedInUser{}, err
+	}
+	return userInformation.GetUserFullResponse(tokens), nil
 }
 
 func (a *Authentication) ConfirmEmail(ctx context.Context, email string) error {
@@ -174,7 +180,57 @@ func (a *Authentication) ConfirmEmail(ctx context.Context, email string) error {
 	return a.repo.User.UpdateUserByEmail(ctx, email, userValues)
 }
 
+func (a *Authentication) NewRefreshToken() (string, error) {
+	token := make([]byte, 32)
+
+	sourceSeeder := rand.NewSource(time.Now().Unix())
+	randomGenerator := rand.New(sourceSeeder)
+
+	_, err := randomGenerator.Read(token)
+	if err != nil {
+		return "", err
+	}
+
+	return fmt.Sprintf("%x", token), nil
+}
+
+func (a *Authentication) RefreshTokens(ctx context.Context, refreshToken string) (models.Tokens, error) {
+	member, err := a.repo.User.GetByRefreshToken(ctx, refreshToken)
+	if err != nil {
+		return models.Tokens{}, err
+	}
+	zlog.Log.Info("got member", "id", member.ID)
+	return a.createSession(ctx, member.ID, member.IsAdmin)
+}
+
+func (a *Authentication) createSession(ctx context.Context, userID uint, isAdmin bool) (models.Tokens, error) {
+	var (
+		res models.Tokens
+		err error
+	)
+
+	res.Access, err = a.generateAccessToken(ctx, userID, isAdmin)
+	if err != nil {
+		return res, err
+	}
+
+	res.Refresh, err = a.NewRefreshToken()
+	if err != nil {
+		return res, err
+	}
+
+	session := models.MemberSession{
+		RefreshToken: res.Refresh,
+		ExpiresAt:    time.Now().Add(a.authConfig.RefreshTokenTTL),
+	}
+
+	err = a.repo.User.SetSession(ctx, userID, session)
+
+	return res, err
+}
+
 type TokenClaims struct {
 	jwt.StandardClaims
-	ID uint `json:"id"`
+	ID      uint `json:"id"`
+	IsAdmin bool `json:"isAdmin"`
 }

@@ -248,8 +248,8 @@ func (p *ProposalEvent) GetEvent(ctx context.Context, id uint) (models.ProposalE
 func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, error) {
 	events := []models.ProposalEvent{}
 	resp := p.DBConnector.DB.
-		Find(&events).
 		Where("is_deleted = ?", false).
+		Find(&events).
 		WithContext(ctx)
 
 	if errors.Is(resp.Error, gorm.ErrRecordNotFound) {
@@ -297,8 +297,8 @@ func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 		Model(&models.Transaction{}).
 		Where("event_id = ?", id).
 		Where("event_type = ?", models.ProposalEventType).
-		Not("status IN ?", models.Completed, models.Interrupted, models.Canceled).
-		Update("status = ?", models.Canceled).
+		Not("status IN (?)", []models.Status{models.Completed, models.Interrupted, models.Canceled}).
+		Update("status", models.Canceled).
 		WithContext(ctx).
 		Error
 	if err != nil {
@@ -309,7 +309,7 @@ func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 		Model(&models.Comment{}).
 		Where("event_id = ?", id).
 		Where("event_type = ?", models.ProposalEventType).
-		Update("is_deleted = ?", true).
+		Update("is_deleted", true).
 		WithContext(ctx).
 		Error
 	if err != nil {
@@ -323,9 +323,9 @@ func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error) {
 	events := []models.ProposalEvent{}
 	resp := p.DBConnector.DB.
-		Find(&events).
 		Where("author_id = ?", userID).
 		Where("is_deleted", false).
+		Find(&events).
 		WithContext(ctx)
 
 	if errors.Is(resp.Error, gorm.ErrRecordNotFound) {

@@ -1,3 +1,4 @@
 salt: sldafjasdnfmasn
 signingKey: afsdknfmn3j4nn
-tokenExpirationHours: 24
+accessTokenTTL: 24h
+refreshTokenTTL: 720h

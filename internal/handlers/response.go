@@ -1,6 +1,8 @@
 package handlers
 
-import "Kurajj/internal/models"
+import (
+	"Kurajj/internal/models"
+)
 
 type idResponse struct {
 	err error
@@ -9,6 +11,11 @@ type idResponse struct {
 
 type errResponse struct {
 	err error
+}
+
+type refreshTokenResponse struct {
+	tokens models.Tokens
+	err    error
 }
 
 type getProposalEvents struct {

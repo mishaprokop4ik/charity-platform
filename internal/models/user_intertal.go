@@ -71,7 +71,7 @@ func (u User) GetValuesToUpdate() map[string]any {
 	return updateValues
 }
 
-func (u User) GetUserFullResponse(token string) SignedInUser {
+func (u User) GetUserFullResponse(tokens Tokens) SignedInUser {
 	var (
 		firstName  = ""
 		secondName = ""
@@ -90,10 +90,11 @@ func (u User) GetUserFullResponse(token string) SignedInUser {
 		FirstName:  firstName,
 		SecondName: secondName,
 		//TODO add telephone validation
-		Telephone:   Telephone(u.Telephone),
-		CompanyName: u.CompanyName,
-		Address:     address,
-		Token:       token,
+		Telephone:    Telephone(u.Telephone),
+		CompanyName:  u.CompanyName,
+		Address:      address,
+		AccessToken:  tokens.Access,
+		RefreshToken: tokens.Refresh,
 	}
 }
 

@@ -36,6 +36,7 @@ func (h *Handler) InitRoutes() http.Handler {
 	auth.HandleFunc("/confirm/{email}", h.ConfirmEmail)
 	auth.HandleFunc("/sign-in-admin", h.AdminSignIn).
 		Methods(http.MethodPost)
+	auth.HandleFunc("/refresh-token", h.RefreshTokens).Methods(http.MethodPost)
 
 	adminSubRouter := apiRouter.PathPrefix("/admin").Subrouter()
 	adminSubRouter.HandleFunc("/create", h.CreateNewAdmin)

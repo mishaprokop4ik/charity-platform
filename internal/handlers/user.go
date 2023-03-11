@@ -201,3 +201,62 @@ func (h *Handler) ConfirmEmail(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+// RefreshTokens updates access token expiration date and returns access and refresh tokens
+// @Summary      Update access token expiration date
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param request body models.RefreshTokenInput true "query params"
+// @Success      200  {object}  models.TokensResponse
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /auth/refresh-token [post]
+func (h *Handler) RefreshTokens(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	token, err := models.ParseRefresh(&r.Body)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	refreshch := make(chan refreshTokenResponse)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		tokens, err := h.services.Authentication.RefreshTokens(ctx, token.RefreshToken)
+		refreshch <- refreshTokenResponse{
+			tokens: tokens,
+			err:    err,
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "confirming email took too long")
+		return
+	case resp := <-refreshch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.ErrNotFound.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+
+		tokenResponse := models.TokensResponse{
+			AccessToken:  resp.tokens.Access,
+			RefreshToken: resp.tokens.Refresh,
+		}
+
+		err := httpHelper.SendHTTPResponse(w, tokenResponse)
+		if err != nil {
+			zlog.Log.Error(err, "could not send response")
+			return
+		}
+	}
+}
