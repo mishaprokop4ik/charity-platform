@@ -50,8 +50,8 @@ func (c *Comment) GetCommentByID(ctx context.Context, id uint) (models.Comment, 
 func (c *Comment) UpdateComment(ctx context.Context, id uint, toUpdate map[string]any) error {
 	return c.DBConnector.DB.
 		Model(&models.Comment{}).
-		Select(lo.Keys(toUpdate)).
 		Where("id = ?", id).
+		Select(lo.Keys(toUpdate)).
 		Updates(toUpdate).
 		WithContext(ctx).
 		Error
