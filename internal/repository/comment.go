@@ -26,10 +26,10 @@ func NewComment(DBConnector *Connector) *Comment {
 func (c *Comment) GetAllCommentsInEvent(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Comment, error) {
 	comments := make([]models.Comment, 0)
 	err := c.DBConnector.DB.
-		Find(&comments).
 		Where("event_id = ?", eventID).
 		Where("event_type = ?", eventType).
 		Where("is_deleted = ?", false).
+		Find(&comments).
 		WithContext(ctx).
 		Error
 	return comments, err
@@ -38,9 +38,9 @@ func (c *Comment) GetAllCommentsInEvent(ctx context.Context, eventID uint, event
 func (c *Comment) GetCommentByID(ctx context.Context, id uint) (models.Comment, error) {
 	comment := models.Comment{}
 	err := c.DBConnector.DB.
-		First(&comment).
 		Where("id = ?", id).
 		Where("is_deleted = ?", false).
+		First(&comment).
 		WithContext(ctx).
 		Error
 

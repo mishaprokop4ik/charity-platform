@@ -248,8 +248,8 @@ func (p *ProposalEvent) GetEvent(ctx context.Context, id uint) (models.ProposalE
 func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, error) {
 	events := []models.ProposalEvent{}
 	resp := p.DBConnector.DB.
-		Find(&events).
 		Where("is_deleted = ?", false).
+		Find(&events).
 		WithContext(ctx)
 
 	if errors.Is(resp.Error, gorm.ErrRecordNotFound) {
@@ -323,9 +323,9 @@ func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error) {
 	events := []models.ProposalEvent{}
 	resp := p.DBConnector.DB.
-		Find(&events).
 		Where("author_id = ?", userID).
 		Where("is_deleted", false).
+		Find(&events).
 		WithContext(ctx)
 
 	if errors.Is(resp.Error, gorm.ErrRecordNotFound) {
