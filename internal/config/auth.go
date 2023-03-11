@@ -3,12 +3,14 @@ package config
 import (
 	"gopkg.in/yaml.v3"
 	"os"
+	"time"
 )
 
 type AuthenticationConfig struct {
-	Salt                 string `yaml:"salt"`
-	SigningKey           string `yaml:"signingKey"`
-	TokenExpirationHours uint   `yaml:"tokenExpirationHours"`
+	Salt            string        `yaml:"salt"`
+	SigningKey      string        `yaml:"signingKey"`
+	AccessTokenTTL  time.Duration `yaml:"accessTokenTTL"`
+	RefreshTokenTTL time.Duration `yaml:"refreshTokenTTL"`
 }
 
 func NewAuthenticationConfigFromFile(filename string) (AuthenticationConfig, error) {

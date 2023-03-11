@@ -125,14 +125,15 @@ type CreationResponse struct {
 }
 
 type SignedInUser struct {
-	ID          int       `json:"id,omitempty"`
-	Email       Email     `json:"email,omitempty"`
-	FirstName   string    `json:"firstName,omitempty"`
-	SecondName  string    `json:"secondName,omitempty"`
-	Telephone   Telephone `json:"telephone,omitempty"`
-	CompanyName string    `json:"companyName,omitempty"`
-	Address     Address   `json:"address"`
-	Token       string    `json:"token,omitempty"`
+	ID           int       `json:"id,omitempty"`
+	Email        Email     `json:"email,omitempty"`
+	FirstName    string    `json:"firstName,omitempty"`
+	SecondName   string    `json:"secondName,omitempty"`
+	Telephone    Telephone `json:"telephone,omitempty"`
+	CompanyName  string    `json:"companyName,omitempty"`
+	Address      Address   `json:"address"`
+	AccessToken  string    `json:"token,omitempty"`
+	RefreshToken string    `json:"refreshToken,omitempty"`
 }
 
 func (s SignedInUser) Bytes() []byte {

@@ -169,6 +169,11 @@ definitions:
           $ref: '#/definitions/Kurajj_internal_models.ProposalEventGetResponse'
         type: array
     type: object
+  Kurajj_internal_models.RefreshTokenInput:
+    properties:
+      refreshToken:
+        type: string
+    type: object
   Kurajj_internal_models.SignInEntity:
     properties:
       email:
@@ -205,6 +210,8 @@ definitions:
         type: string
       id:
         type: integer
+      refreshToken:
+        type: string
       secondName:
         type: string
       telephone:
@@ -240,6 +247,13 @@ definitions:
         items:
           type: string
         type: array
+    type: object
+  Kurajj_internal_models.TokensResponse:
+    properties:
+      accessToken:
+        type: string
+      refreshToken:
+        type: string
     type: object
   Kurajj_internal_models.TransactionResponse:
     properties:
@@ -909,6 +923,47 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Updates user's status to 'activated'.
+      tags:
+      - Auth
+  /auth/refresh-token:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models.RefreshTokenInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.TokensResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Update access token expiration date
       tags:
       - Auth
   /auth/sign-in:

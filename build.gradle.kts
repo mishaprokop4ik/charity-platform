@@ -76,7 +76,7 @@ tasks.register("migrateUp") {
     }
 }
 
-tasks.register("dc-up") {
+tasks.register("dcUp") {
     group = "docker"
     description = "Docker compose up"
 
@@ -87,7 +87,7 @@ tasks.register("dc-up") {
     }
 }
 
-tasks.register("dc-down") {
+tasks.register("dcDown") {
     group = "docker"
     description = "Docker compose down"
 
@@ -98,7 +98,7 @@ tasks.register("dc-down") {
     }
 }
 
-tasks.register("init-doc") {
+tasks.register("upsertSwagger") {
     group = "doc"
     description = "Create swagger documentation for http API"
 
