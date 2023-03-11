@@ -956,8 +956,14 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	searchValuesInternal := searchValues.GetSearchValues()
-	searchValuesInternal.SearcherID = userID.(uint)
-	fmt.Println(searchValuesInternal.Location, "there")
+	if userID != nil && userID != "" && userID != 0 {
+		userIDParsed, ok := userID.(uint)
+		if !ok {
+			httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user transactionID isn't in context")
+			return
+		}
+		searchValuesInternal.SearcherID = &userIDParsed
+	}
 	eventch := make(chan proposalEventsResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()

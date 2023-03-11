@@ -52,6 +52,13 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Status, 
 }
 
 func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responderID uint) error {
+	//transaction, err := p.repo.ProposalEvent.GetEvent(ctx, proposalEventID)
+	//if err != nil {
+	//	return err
+	//}
+	//if transaction.AuthorID == responderID {
+	//	return fmt.Errorf("event creator cannot response his/her own events")
+	//}
 	_, err := p.CreateTransaction(ctx, models.Transaction{
 		CreatorID:         responderID,
 		EventID:           proposalEventID,

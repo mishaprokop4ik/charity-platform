@@ -36,9 +36,8 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	searchValues models.ProposalEventSearchInternal) ([]models.ProposalEvent, error) {
 	events := []models.ProposalEvent{}
 	searchValues = p.removeEmptySearchValues(searchValues)
-	fmt.Println(*searchValues.Location)
 	query := p.DBConnector.DB.Order(searchValues.SortField).Where("status IN (?)", searchValues.State)
-	if searchValues.GetOwn != nil {
+	if searchValues.GetOwn != nil && searchValues.SearcherID != nil {
 		if *searchValues.GetOwn {
 			query = query.Where("author_id = ?", searchValues.SearcherID)
 		} else {
