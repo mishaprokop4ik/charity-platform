@@ -4,6 +4,7 @@ import (
 	"Kurajj/internal/models"
 	"Kurajj/internal/repository"
 	"context"
+	"fmt"
 )
 
 type ProposalEventer interface {
@@ -52,7 +53,14 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Status, 
 }
 
 func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responderID uint) error {
-	_, err := p.CreateTransaction(ctx, models.Transaction{
+	transaction, err := p.repo.ProposalEvent.GetEvent(ctx, proposalEventID)
+	if err != nil {
+		return err
+	}
+	if transaction.AuthorID == responderID {
+		return fmt.Errorf("event creator cannot response his/her own events")
+	}
+	_, err = p.CreateTransaction(ctx, models.Transaction{
 		CreatorID:         responderID,
 		EventID:           proposalEventID,
 		EventType:         models.ProposalEventType,
