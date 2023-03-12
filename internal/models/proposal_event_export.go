@@ -7,22 +7,56 @@ import (
 )
 
 type ProposalEventRequestCreate struct {
-	Title                 string   `json:"title,omitempty"`
-	Description           string   `json:"description,omitempty"`
-	MaxConcurrentRequests int      `json:"maxConcurrentRequests,omitempty"`
-	Location              Location `json:"location,omitempty"`
+	Title                 string       `json:"title,omitempty"`
+	Description           string       `json:"description,omitempty"`
+	MaxConcurrentRequests int          `json:"maxConcurrentRequests,omitempty"`
+	Tags                  []TagRequest `json:"tags,omitempty"`
 }
 
-type Location struct {
-	Country  string `json:"country,omitempty"`
-	Area     string `json:"area,omitempty"`
-	City     string `json:"city,omitempty"`
-	District string `json:"district,omitempty"`
-	Street   string `json:"street,omitempty"`
-	Home     string `json:"home,omitempty"`
+func (p *ProposalEventRequestCreate) TagsInternal() []Tag {
+	tags := make([]Tag, len(p.Tags))
+	for i, tag := range p.Tags {
+		tagValues := make([]TagValue, len(tag.Values))
+		for _, tagValue := range tag.Values {
+			tagValues[i] = TagValue{
+				Value: tagValue,
+			}
+		}
+		tags[i] = Tag{
+			Title:     tag.Title,
+			EventType: ProposalEventType,
+			Values:    tagValues,
+		}
+	}
+	return tags
 }
 
-func (Location) TableName() string {
+func (p *ProposalEventRequestCreate) InternalValue(userID uint) ProposalEvent {
+	location := Address{}
+	for i, t := range p.Tags {
+		if t.Title == "location" && len(t.Values) >= DecodedAddressLength {
+			location.Region = t.Values[0]
+			location.City = t.Values[1]
+			location.District = t.Values[2]
+			location.HomeLocation = t.Values[3]
+			location.EventType = ProposalEventType
+			p.Tags = append(p.Tags[:i], p.Tags[i+1:]...)
+		}
+	}
+	return ProposalEvent{
+		AuthorID:              userID,
+		Title:                 p.Title,
+		Description:           p.Description,
+		Location:              location,
+		CreationDate:          time.Now(),
+		Status:                Active,
+		MaxConcurrentRequests: uint(p.MaxConcurrentRequests),
+		RemainingHelps:        p.MaxConcurrentRequests,
+		Tags:                  p.TagsInternal(),
+	}
+}
+
+func (Address) TableName() string {
 	return "location"
 }
 
@@ -41,11 +75,10 @@ type ProposalEventGetResponse struct {
 	AvailableHelps        uint                  `json:"availableHelps,omitempty"`
 	CompetitionDate       string                `json:"competitionDate,omitempty"`
 	Status                EventStatus           `json:"status,omitempty"`
-	AuthorID              uint                  `json:"authorID,omitempty"`
-	Category              string                `json:"category,omitempty"`
+	User                  UserShortInfo         `json:"authorInfo,omitempty"`
 	Comments              []CommentResponse     `json:"comments,omitempty"`
 	Transactions          []TransactionResponse `json:"transactions,omitempty"`
-	Location              Location              `json:"location,omitempty"`
+	Tags                  []TagResponse         `json:"tags,omitempty"`
 }
 
 func (p ProposalEventGetResponse) Bytes() []byte {
@@ -70,11 +103,39 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 			CreationDate: comment.CreationDate,
 			IsUpdated:    comment.IsUpdated,
 			UpdateTime:   updatedTime,
-			UserComment: UserComment{
-				AuthorID: comment.UserID,
+			UserShortInfo: UserShortInfo{
+				ID: comment.UserID,
 			},
 		}
 	}
+
+	tags := make([]TagResponse, len(event.Tags))
+	for i, tag := range event.Tags {
+		tags[i] = TagResponse{
+			ID:     tag.ID,
+			Title:  tag.Title,
+			Values: tag.GetTagValuesResponse(),
+		}
+	}
+
+	tags = append(tags, TagResponse{
+		ID:    event.Location.ID,
+		Title: "location",
+		Values: []TagValueResponse{
+			{
+				Value: event.Location.Region,
+			},
+			{
+				Value: event.Location.City,
+			},
+			{
+				Value: event.Location.District,
+			},
+			{
+				Value: event.Location.HomeLocation,
+			},
+		},
+	})
 
 	transactions := make([]TransactionResponse, len(event.Transactions))
 	for i, t := range event.Transactions {
@@ -84,10 +145,13 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 			EventID:           t.EventID,
 			Comment:           t.Comment,
 			EventType:         t.EventType,
+			CreationDate:      t.CreationDate,
 			TransactionStatus: t.TransactionStatus,
 			ResponderStatus:   t.ResponderStatus,
+			Creator:           t.Creator.ToShortInfo(),
+			Responder:         t.Responder.ToShortInfo(),
 		}
-		if t.CompetitionDate.Valid {
+		if t.CompetitionDate.Valid && !t.CompetitionDate.Time.IsZero() {
 			transaction.CompetitionDate = t.CompetitionDate.Time
 		}
 		transactions[i] = transaction
@@ -98,11 +162,15 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 		Description:     event.Description,
 		CreationDate:    event.CreationDate.String(),
 		CompetitionDate: completionDate,
-		AuthorID:        event.AuthorID,
-		Category:        event.Category,
-		Comments:        comments,
-		Transactions:    transactions,
-		Location:        event.Location,
+		User: UserShortInfo{
+			ID:              event.AuthorID,
+			Username:        event.User.FullName,
+			ProfileImageURL: event.User.AvatarImagePath,
+			PhoneNumber:     Telephone(event.User.Telephone),
+		},
+		Comments:     comments,
+		Transactions: transactions,
+		Tags:         tags,
 	}
 }
 
@@ -128,7 +196,6 @@ type ProposalEventRequestUpdate struct {
 	Title           string    `json:"title,omitempty"`
 	Description     string    `json:"description,omitempty"`
 	CompetitionDate time.Time `json:"competitionDate,omitempty"`
-	Category        string    `json:"category,omitempty"`
 }
 
 func UnmarshalProposalEventUpdate(r *io.ReadCloser) (ProposalEventRequestUpdate, error) {

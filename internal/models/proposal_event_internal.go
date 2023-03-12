@@ -15,14 +15,15 @@ type ProposalEvent struct {
 	CreationDate          time.Time     `gorm:"column:creation_date"`
 	CompetitionDate       sql.NullTime  `gorm:"column:competition_date"`
 	AuthorID              uint          `gorm:"column:author_id"`
-	Category              string        `gorm:"column:category"`
 	Status                EventStatus   `gorm:"column:status"`
 	MaxConcurrentRequests uint          `gorm:"column:max_concurrent_requests"`
 	RemainingHelps        int           `gorm:"column:remaining_helps"`
 	IsDeleted             bool          `gorm:"column:is_deleted"`
 	Comments              []Comment     `gorm:"-"`
 	Transactions          []Transaction `gorm:"-"`
-	Location              Location      `gorm:"-"`
+	Tags                  []Tag         `gorm:"-"`
+	Location              Address       `gorm:"-"`
+	User                  User          `gorm:"-"`
 }
 
 func (p ProposalEvent) TableName() string {
@@ -74,15 +75,23 @@ func (p ProposalEventsInternal) Serialize() ([]byte, error) {
 	return decodedEvent, err
 }
 
+type Order string
+
+var (
+	AscendingOrder Order = "ASC"
+	DecreaseOrder  Order = "DESC"
+)
+
 type ProposalEventSearchInternal struct {
 	Name       *string
 	GetOwn     *bool
 	Tags       *[]Tag
 	SortField  string
+	Order      *Order
 	SearcherID *uint
 	State      []EventStatus
 	TakingPart *bool
-	Location   *Location
+	Location   *Address
 }
 
 func (i ProposalEventSearchInternal) GetTagsValues() []string {

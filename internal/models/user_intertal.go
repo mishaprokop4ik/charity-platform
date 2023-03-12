@@ -31,6 +31,15 @@ type User struct {
 	//ProposalEvents []ProposalEvent `gorm:"foreignKey:AuthorID"`
 }
 
+func (u User) ToShortInfo() UserShortInfo {
+	return UserShortInfo{
+		ID:              u.ID,
+		Username:        u.FullName,
+		ProfileImageURL: u.AvatarImagePath,
+		PhoneNumber:     Telephone(u.Telephone),
+	}
+}
+
 func (u User) getAddress() (Address, error) {
 	fullAddress := strings.Split(u.Address, "|")
 	if len(fullAddress) != DecodedAddressLength {

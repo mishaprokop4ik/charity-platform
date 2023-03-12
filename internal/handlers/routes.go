@@ -28,6 +28,8 @@ func (h *Handler) InitRoutes() http.Handler {
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(h.Authentication)
 
+	apiRouter.HandleFunc("/refresh-user-data", h.RefreshUserData)
+
 	auth := r.PathPrefix("/auth").Subrouter()
 	auth.HandleFunc("/sign-up", h.UserSignUp).
 		Methods(http.MethodPost)

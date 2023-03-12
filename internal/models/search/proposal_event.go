@@ -8,12 +8,12 @@ import (
 )
 
 type AllEventsSearch struct {
-	Name        string               `json:"name,omitempty"`
-	Tags        []models.TagRequest  `json:"tags,omitempty"`
-	SortField   string               `json:"sortField,omitempty"`
-	TakingPart  bool                 `json:"takingPart,omitempty"`
-	StatusState []models.EventStatus `json:"statusStates,omitempty"`
-	Location    models.Location      `json:"location,omitempty"`
+	Name        string              `json:"name,omitempty"`
+	Tags        []models.TagRequest `json:"tags,omitempty"`
+	SortField   string              `json:"sortField,omitempty"`
+	Order       models.Order        `json:"order,omitempty"`
+	TakingPart  bool                `json:"takingPart,omitempty"`
+	StatusState models.EventStatus  `json:"statusStates,omitempty"`
 }
 
 func UnmarshalAllEventsSearch(r *io.ReadCloser) (AllEventsSearch, error) {
@@ -22,23 +22,37 @@ func UnmarshalAllEventsSearch(r *io.ReadCloser) (AllEventsSearch, error) {
 	return search, err
 }
 
-func (s AllEventsSearch) GetSearchValues() models.ProposalEventSearchInternal {
+func (s AllEventsSearch) Internal() models.ProposalEventSearchInternal {
 	tags := s.convertTagsRequestToInternal()
 	name := strings.ToLower(s.Name)
+	if s.Order == "" {
+		s.Order = models.AscendingOrder
+	}
+	location := models.Address{}
+	for i, tag := range tags {
+		if strings.ToLower(tag.Title) == "location" ||
+			strings.ToLower(tag.Title) == "place" &&
+				len(tag.Values) >= models.DecodedAddressLength {
+			location.Region = tag.Values[0].Value
+			location.City = tag.Values[1].Value
+			location.District = tag.Values[2].Value
+			location.HomeLocation = tag.Values[3].Value
+			tags = append(tags[:i], tags[i+1:]...)
+		}
+	}
+	if s.StatusState == "" {
+		s.StatusState = models.Active
+	}
 	return models.ProposalEventSearchInternal{
 		Name:       &name,
 		Tags:       &tags,
 		TakingPart: &s.TakingPart,
-		State:      s.StatusState,
-		SortField:  s.SortField,
-		Location: &models.Location{
-			Country:  strings.ToLower(s.Location.Country),
-			Area:     strings.ToLower(s.Location.Area),
-			City:     strings.ToLower(s.Location.City),
-			District: strings.ToLower(s.Location.District),
-			Street:   strings.ToLower(s.Location.Street),
-			Home:     strings.ToLower(s.Location.Home),
+		State: []models.EventStatus{
+			s.StatusState,
 		},
+		Order:     &s.Order,
+		SortField: s.SortField,
+		Location:  &location,
 	}
 }
 

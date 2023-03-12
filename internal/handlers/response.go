@@ -37,3 +37,8 @@ type proposalEventsResponse struct {
 	events    []models.ProposalEvent
 	respError error
 }
+
+type getProposalEvent struct {
+	proposalEvent models.ProposalEventGetResponse
+	err           error
+}
