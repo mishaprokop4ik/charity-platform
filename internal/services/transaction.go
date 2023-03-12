@@ -11,7 +11,7 @@ type Transactioner interface {
 	GetCurrentEventTransactions(ctx context.Context,
 		eventID uint,
 		eventType models.EventType) ([]models.Transaction, error)
-	UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.Status) error
+	UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.TransactionStatus) error
 	GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
 	CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error)
 	GetTransactionByID(ctx context.Context, id uint) (models.Transaction, error)
@@ -48,7 +48,7 @@ func (t *Transaction) GetCurrentEventTransactions(ctx context.Context,
 func (t *Transaction) UpdateAllNotFinishedTransactions(ctx context.Context,
 	eventID uint,
 	eventType models.EventType,
-	newStatus models.Status) error {
+	newStatus models.TransactionStatus) error {
 	return t.repo.Transaction.UpdateAllNotFinishedTransactions(ctx, eventID, eventType, newStatus)
 }
 

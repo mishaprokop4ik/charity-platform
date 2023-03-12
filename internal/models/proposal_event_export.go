@@ -2,33 +2,44 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"time"
 )
 
 type ProposalEventRequestCreate struct {
-	Title                 string   `json:"title,omitempty"`
-	Description           string   `json:"description,omitempty"`
-	MaxConcurrentRequests int      `json:"maxConcurrentRequests,omitempty"`
-	Location              Location `json:"location,omitempty"`
+	Title                 string       `json:"title,omitempty"`
+	Description           string       `json:"description,omitempty"`
+	MaxConcurrentRequests int          `json:"maxConcurrentRequests,omitempty"`
+	Location              Address      `json:"-"`
+	Tags                  []TagRequest `json:"tags,omitempty"`
 }
 
-type Location struct {
-	Country  string `json:"country,omitempty"`
-	Area     string `json:"area,omitempty"`
-	City     string `json:"city,omitempty"`
-	District string `json:"district,omitempty"`
-	Street   string `json:"street,omitempty"`
-	Home     string `json:"home,omitempty"`
-}
-
-func (Location) TableName() string {
+func (Address) TableName() string {
 	return "location"
 }
 
 func UnmarshalProposalEventCreate(r *io.ReadCloser) (ProposalEventRequestCreate, error) {
 	e := ProposalEventRequestCreate{}
 	err := json.NewDecoder(*r).Decode(&e)
+	if err != nil {
+		return ProposalEventRequestCreate{}, err
+	}
+	for i, tag := range e.Tags {
+		if tag.Title == "location" {
+			if len(tag.Values) != 4 {
+				return ProposalEventRequestCreate{}, fmt.Errorf("location tag is incorrect")
+			}
+			locationValues := tag.Values
+			e.Location = Address{
+				Region:       locationValues[0],
+				City:         locationValues[1],
+				District:     locationValues[2],
+				HomeLocation: locationValues[3],
+			}
+			e.Tags = append(e.Tags[:i], e.Tags[i+1:]...)
+		}
+	}
 	return e, err
 }
 
@@ -41,11 +52,10 @@ type ProposalEventGetResponse struct {
 	AvailableHelps        uint                  `json:"availableHelps,omitempty"`
 	CompetitionDate       string                `json:"competitionDate,omitempty"`
 	Status                EventStatus           `json:"status,omitempty"`
-	AuthorID              uint                  `json:"authorID,omitempty"`
+	User                  UserShortInfo         `json:"authorInfo,omitempty"`
 	Category              string                `json:"category,omitempty"`
 	Comments              []CommentResponse     `json:"comments,omitempty"`
 	Transactions          []TransactionResponse `json:"transactions,omitempty"`
-	Location              Location              `json:"location,omitempty"`
 }
 
 func (p ProposalEventGetResponse) Bytes() []byte {
@@ -70,8 +80,8 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 			CreationDate: comment.CreationDate,
 			IsUpdated:    comment.IsUpdated,
 			UpdateTime:   updatedTime,
-			UserComment: UserComment{
-				AuthorID: comment.UserID,
+			UserShortInfo: UserShortInfo{
+				ID: comment.UserID,
 			},
 		}
 	}
@@ -98,11 +108,15 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 		Description:     event.Description,
 		CreationDate:    event.CreationDate.String(),
 		CompetitionDate: completionDate,
-		AuthorID:        event.AuthorID,
-		Category:        event.Category,
-		Comments:        comments,
-		Transactions:    transactions,
-		Location:        event.Location,
+		User: UserShortInfo{
+			ID:              event.AuthorID,
+			Username:        event.User.FullName,
+			ProfileImageURL: event.User.AvatarImagePath,
+			PhoneNumber:     Telephone(event.User.Telephone),
+		},
+		Category:     event.Category,
+		Comments:     comments,
+		Transactions: transactions,
 	}
 }
 

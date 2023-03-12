@@ -12,7 +12,7 @@ type Transactioner interface {
 	GetCurrentEventTransactions(ctx context.Context,
 		eventID uint,
 		eventType models.EventType) ([]models.Transaction, error)
-	UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.Status) error
+	UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.TransactionStatus) error
 	GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
 	CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error)
 	GetTransactionByID(ctx context.Context, id uint) (models.Transaction, error)
@@ -59,19 +59,19 @@ func (t *Transaction) GetCurrentEventTransactions(ctx context.Context, eventID u
 	err := t.DBConnector.DB.
 		Where("event_id = ?", eventID).
 		Where("event_type = ?", eventType).
-		Not("status IN (?)", []models.Status{models.Completed, models.Interrupted, models.Canceled}).
+		Not("status IN (?)", []models.TransactionStatus{models.Completed, models.Interrupted, models.Canceled}).
 		Find(&transactions).WithContext(ctx).
 		Error
 
 	return transactions, err
 }
 
-func (t *Transaction) UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.Status) error {
+func (t *Transaction) UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.TransactionStatus) error {
 	return t.DBConnector.DB.
 		Model(&models.Transaction{}).
 		Where("event_id = ?", eventID).
 		Where("event_type = ?", eventType).
-		Not("status IN (?)", []models.Status{models.Completed, models.Interrupted, models.Canceled}).
+		Not("status IN (?)", []models.TransactionStatus{models.Completed, models.Interrupted, models.Canceled}).
 		Update("status", newStatus).
 		WithContext(ctx).
 		Error

@@ -1,19 +1,5 @@
 package models
 
-//CREATE TABLE IF NOT EXISTS tag (
-//    id bigserial PRIMARY KEY,
-//    title varchar(255),
-//    event_id bigint,
-//    event_type event
-//);
-//
-//CREATE TABLE IF NOT EXISTS tag_value (
-//    id bigserial PRIMARY KEY,
-//    tag_id bigint,
-//    value varchar(255),
-//    CONSTRAINT tag_id FOREIGN KEY(tag_id) REFERENCES tag(id)
-//);
-
 type Tag struct {
 	ID        uint      `gorm:"primaryKey"`
 	Title     string    `gorm:"column:title"`
@@ -28,6 +14,11 @@ type TagRequest struct {
 	EventID   uint      `json:"eventID,omitempty"`
 	EventType EventType `json:"eventType,omitempty"`
 	Values    []string  `json:"values,omitempty"`
+}
+
+type TagRequestCreate struct {
+	Title  string   `json:"title,omitempty"`
+	Values []string `json:"values,omitempty"`
 }
 
 type TagValueRequest struct {
@@ -48,4 +39,15 @@ type TagValue struct {
 
 func (TagValue) TableName() string {
 	return "tag_value"
+}
+
+type TagValueResponse struct {
+	ID    uint   `json:"id,omitempty"`
+	Value string `json:"value,omitempty"`
+}
+
+type TagResponse struct {
+	ID     uint               `json:"id,omitempty"`
+	Title  string             `json:"title,omitempty"`
+	Values []TagValueResponse `json:"values,omitempty"`
 }

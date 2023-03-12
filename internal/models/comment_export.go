@@ -12,7 +12,7 @@ type CommentResponse struct {
 	CreationDate time.Time `json:"creationDate"`
 	IsUpdated    bool      `json:"isUpdated,omitempty"`
 	UpdateTime   string    `json:"updateTime"`
-	UserComment
+	UserShortInfo
 }
 
 type Comments struct {

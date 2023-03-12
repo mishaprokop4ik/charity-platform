@@ -513,8 +513,8 @@ func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, t
 	return nil
 }
 
-// UpdateProposalEventTransactionStatus updates proposal event transaction's status to one of models.Status state
-// @Summary      Update proposal event transaction's status to to one of models.Status state
+// UpdateProposalEventTransactionStatus updates proposal event transaction's status to one of models.TransactionStatus state
+// @Summary      Update proposal event transaction's status to to one of models.TransactionStatus state
 // @Tags         Proposal Event
 // @Accept       json
 // @Param        id   path int  true  "ID"
@@ -710,12 +710,12 @@ func (h *Handler) GetCommentsInProposalEvent(w http.ResponseWriter, r *http.Requ
 				updatedAt = c.UpdatedAt.Time.String()
 			}
 			responseComments.Comments[i] = models.CommentResponse{
-				ID:           c.ID,
-				Text:         c.Text,
-				CreationDate: c.CreationDate,
-				IsUpdated:    c.IsUpdated,
-				UpdateTime:   updatedAt,
-				UserComment:  user,
+				ID:            c.ID,
+				Text:          c.Text,
+				CreationDate:  c.CreationDate,
+				IsUpdated:     c.IsUpdated,
+				UpdateTime:    updatedAt,
+				UserShortInfo: user,
 			}
 		}
 
@@ -1005,8 +1005,13 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 				AvailableHelps:        uint(resp.events[i].RemainingHelps),
 				CompetitionDate:       competitionDate,
 				Status:                models.EventStatus(resp.events[i].Status),
-				AuthorID:              resp.events[i].AuthorID,
 				Category:              resp.events[i].Category,
+			}
+			proposalEvents.ProposalEvents[i].User = models.UserShortInfo{
+				ID:              resp.events[i].AuthorID,
+				Username:        resp.events[i].User.FullName,
+				ProfileImageURL: resp.events[i].User.AvatarImagePath,
+				PhoneNumber:     models.Telephone(resp.events[i].User.Telephone),
 			}
 		}
 		w.WriteHeader(http.StatusOK)

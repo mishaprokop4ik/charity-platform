@@ -66,10 +66,12 @@ func containsOnlyDigits(s string) bool {
 }
 
 type Address struct {
-	Region       string `json:"region,omitempty"`
-	City         string `json:"city,omitempty"`
-	District     string `json:"district,omitempty"`
-	HomeLocation string `json:"homeLocation,omitempty"`
+	Region       string `json:"region,omitempty" gorm:"column:area"`
+	City         string `json:"city,omitempty" gorm:"column:city"`
+	District     string `json:"district,omitempty" gorm:"column:district"`
+	HomeLocation string `json:"homeLocation,omitempty" gorm:"column:home"`
+	Street       string `json:"-" gorm:"column:street"`
+	Country      string `json:"-" gorm:"column:country"`
 }
 
 func (a Address) String() string {
@@ -175,12 +177,13 @@ func (a AdminCreation) CreateUser() User {
 	}
 }
 
-type UserComment struct {
-	AuthorID        uint   `json:"authorId,omitempty"`
-	Username        string `json:"username,omitempty"`
-	ProfileImageURL string `json:"profileImageURL,omitempty"`
+type UserShortInfo struct {
+	ID              uint      `json:"id,omitempty"`
+	Username        string    `json:"username,omitempty"`
+	ProfileImageURL string    `json:"profileImageURL,omitempty"`
+	PhoneNumber     Telephone `json:"phoneNumber,omitempty"`
 }
 
-func (u UserComment) TableName() string {
+func (u UserShortInfo) TableName() string {
 	return "members"
 }

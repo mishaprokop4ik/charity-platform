@@ -10,7 +10,7 @@ type ProposalEventer interface {
 	ProposalEventCRUDer
 	Response(ctx context.Context, proposalEventID, responderID uint) error
 	Accept(ctx context.Context, transactionID uint) error
-	UpdateStatus(ctx context.Context, status models.Status, transactionID, userID uint) error
+	UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint) error
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
 	GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) ([]models.ProposalEvent, error)
 }
@@ -37,7 +37,7 @@ func (p *ProposalEvent) GetProposalEventBySearch(ctx context.Context, search mod
 	return p.repo.ProposalEvent.GetEventsWithSearchAndSort(ctx, search)
 }
 
-func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Status, transactionID, userID uint) error {
+func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint) error {
 	transaction, err := p.GetTransactionByID(ctx, transactionID)
 	if err != nil {
 		return err

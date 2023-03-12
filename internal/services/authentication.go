@@ -17,7 +17,7 @@ import (
 )
 
 type Authenticator interface {
-	GetUserShortInfo(ctx context.Context, id uint) (models.UserComment, error)
+	GetUserShortInfo(ctx context.Context, id uint) (models.UserShortInfo, error)
 	SignUp(ctx context.Context, user models.User) (uint, error)
 	SignIn(ctx context.Context, user models.User) (models.SignedInUser, error)
 	GetUserByRefreshToken(ctx context.Context, token string) (models.User, error)
@@ -33,14 +33,14 @@ type Authentication struct {
 	emailSender Sender
 }
 
-func (a *Authentication) GetUserShortInfo(ctx context.Context, id uint) (models.UserComment, error) {
+func (a *Authentication) GetUserShortInfo(ctx context.Context, id uint) (models.UserShortInfo, error) {
 	fullUser, err := a.repo.User.GetUserInfo(ctx, id)
 	if err != nil {
-		return models.UserComment{}, err
+		return models.UserShortInfo{}, err
 	}
 
-	user := models.UserComment{
-		AuthorID:        fullUser.ID,
+	user := models.UserShortInfo{
+		ID:              fullUser.ID,
 		Username:        fullUser.FullName,
 		ProfileImageURL: fullUser.AvatarImagePath,
 	}

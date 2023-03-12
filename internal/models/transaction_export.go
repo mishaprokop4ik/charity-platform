@@ -7,18 +7,18 @@ import (
 )
 
 type TransactionResponse struct {
-	ID                uint      `json:"id,omitempty"`
-	CreatorID         uint      `json:"creatorID,omitempty"`
-	CompetitionDate   time.Time `json:"competitionDate"`
-	EventID           uint      `json:"eventID,omitempty"`
-	EventType         EventType `json:"eventType,omitempty"`
-	Comment           string    `json:"comment"`
-	TransactionStatus Status    `json:"transactionStatus,omitempty"`
-	ResponderStatus   Status    `json:"responderStatus,omitempty"`
+	ID                uint              `json:"id,omitempty"`
+	CreatorID         uint              `json:"creatorID,omitempty"`
+	CompetitionDate   time.Time         `json:"competitionDate"`
+	EventID           uint              `json:"eventID,omitempty"`
+	EventType         EventType         `json:"eventType,omitempty"`
+	Comment           string            `json:"comment"`
+	TransactionStatus TransactionStatus `json:"transactionStatus,omitempty"`
+	ResponderStatus   TransactionStatus `json:"responderStatus,omitempty"`
 }
 
 type StatusExport struct {
-	Status Status `json:"status,omitempty"`
+	Status TransactionStatus `json:"status,omitempty"`
 }
 
 type TransactionsExport struct {

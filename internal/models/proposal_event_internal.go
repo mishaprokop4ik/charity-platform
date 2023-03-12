@@ -22,7 +22,8 @@ type ProposalEvent struct {
 	IsDeleted             bool          `gorm:"column:is_deleted"`
 	Comments              []Comment     `gorm:"-"`
 	Transactions          []Transaction `gorm:"-"`
-	Location              Location      `gorm:"-"`
+	Location              Address       `gorm:"-"`
+	User                  User          `gorm:"-"`
 }
 
 func (p ProposalEvent) TableName() string {
@@ -74,15 +75,23 @@ func (p ProposalEventsInternal) Serialize() ([]byte, error) {
 	return decodedEvent, err
 }
 
+type Order string
+
+var (
+	AscendingOrder Order = "ASC"
+	DecreaseOrder  Order = "DESC"
+)
+
 type ProposalEventSearchInternal struct {
 	Name       *string
 	GetOwn     *bool
 	Tags       *[]Tag
 	SortField  string
+	Order      *Order
 	SearcherID *uint
 	State      []EventStatus
 	TakingPart *bool
-	Location   *Location
+	Location   *Address
 }
 
 func (i ProposalEventSearchInternal) GetTagsValues() []string {
