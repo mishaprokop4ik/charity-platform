@@ -11,6 +11,18 @@ import (
 	"time"
 )
 
+// UpsertTags   deletes all previous tags and their values and creates new by input
+// @Summary      Delete all previous tags and their values and create new by input
+// @Tags         Tag
+// @Accept       json
+// @Param request body models.TagGroupRequestCreate true "query params"
+// @Success      200
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/tags/upsert [post]
 func (h *Handler) UpsertTags(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
