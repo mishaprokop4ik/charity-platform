@@ -23,6 +23,10 @@ type getProposalEvents struct {
 	err            error
 }
 
+type getTagsResponse struct {
+	tags []models.Tag
+	err  error
+}
 type commentsResponse struct {
 	comments []models.Comment
 	err      error

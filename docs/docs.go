@@ -783,7 +783,7 @@ const docTemplate = `{
                 "tags": [
                     "Proposal Event"
                 ],
-                "summary": "Update proposal event transaction's status to to one of models.Status state",
+                "summary": "Update proposal event transaction's status to to one of models.TransactionStatus state",
                 "parameters": [
                     {
                         "type": "integer",
@@ -858,6 +858,126 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/refresh-user-data": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Return user data",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.RefreshTokenInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.SignedInUser"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/tags/upsert": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Delete all previous tags and their values and create new by input",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.TagGroupRequestCreate"
+                        }
                     }
                 ],
                 "responses": {
@@ -1321,9 +1441,6 @@ const docTemplate = `{
         "Kurajj_internal_models.CommentResponse": {
             "type": "object",
             "properties": {
-                "authorId": {
-                    "type": "integer"
-                },
                 "creationDate": {
                     "type": "string"
                 },
@@ -1332,6 +1449,9 @@ const docTemplate = `{
                 },
                 "isUpdated": {
                     "type": "boolean"
+                },
+                "phoneNumber": {
+                    "type": "string"
                 },
                 "profileImageURL": {
                     "type": "string"
@@ -1390,12 +1510,14 @@ const docTemplate = `{
             "enum": [
                 "active",
                 "inactive",
-                "done"
+                "done",
+                "blocked"
             ],
             "x-enum-varnames": [
                 "Active",
                 "InActive",
-                "Done"
+                "Done",
+                "Blocked"
             ]
         },
         "Kurajj_internal_models.EventType": {
@@ -1407,40 +1529,14 @@ const docTemplate = `{
                 "ProposalEventType"
             ]
         },
-        "Kurajj_internal_models.Location": {
-            "type": "object",
-            "properties": {
-                "area": {
-                    "type": "string"
-                },
-                "city": {
-                    "type": "string"
-                },
-                "country": {
-                    "type": "string"
-                },
-                "district": {
-                    "type": "string"
-                },
-                "home": {
-                    "type": "string"
-                },
-                "street": {
-                    "type": "string"
-                }
-            }
-        },
         "Kurajj_internal_models.ProposalEventGetResponse": {
             "type": "object",
             "properties": {
-                "authorID": {
-                    "type": "integer"
+                "authorInfo": {
+                    "$ref": "#/definitions/Kurajj_internal_models.UserShortInfo"
                 },
                 "availableHelps": {
                     "type": "integer"
-                },
-                "category": {
-                    "type": "string"
                 },
                 "comments": {
                     "type": "array",
@@ -1460,14 +1556,17 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "location": {
-                    "$ref": "#/definitions/Kurajj_internal_models.Location"
-                },
                 "maxConcurrentRequests": {
                     "type": "integer"
                 },
                 "status": {
                     "$ref": "#/definitions/Kurajj_internal_models.EventStatus"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.TagResponse"
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -1486,11 +1585,14 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
-                "location": {
-                    "$ref": "#/definitions/Kurajj_internal_models.Location"
-                },
                 "maxConcurrentRequests": {
                     "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.TagRequest"
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -1500,9 +1602,6 @@ const docTemplate = `{
         "Kurajj_internal_models.ProposalEventRequestUpdate": {
             "type": "object",
             "properties": {
-                "category": {
-                    "type": "string"
-                },
                 "competitionDate": {
                     "type": "string"
                 },
@@ -1605,22 +1704,22 @@ const docTemplate = `{
                 }
             }
         },
-        "Kurajj_internal_models.Status": {
-            "type": "string",
-            "enum": [
-                "in_process",
-                "completed",
-                "interrupted",
-                "canceled",
-                "waiting"
-            ],
-            "x-enum-varnames": [
-                "InProcess",
-                "Completed",
-                "Interrupted",
-                "Canceled",
-                "Waiting"
-            ]
+        "Kurajj_internal_models.TagGroupRequestCreate": {
+            "type": "object",
+            "properties": {
+                "eventID": {
+                    "type": "integer"
+                },
+                "eventType": {
+                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.TagRequestCreate"
+                    }
+                }
+            }
         },
         "Kurajj_internal_models.TagRequest": {
             "type": "object",
@@ -1645,6 +1744,48 @@ const docTemplate = `{
                 }
             }
         },
+        "Kurajj_internal_models.TagRequestCreate": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "Kurajj_internal_models.TagResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.TagValueResponse"
+                    }
+                }
+            }
+        },
+        "Kurajj_internal_models.TagValueResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "Kurajj_internal_models.TokensResponse": {
             "type": "object",
             "properties": {
@@ -1665,6 +1806,12 @@ const docTemplate = `{
                 "competitionDate": {
                     "type": "string"
                 },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creator": {
+                    "$ref": "#/definitions/Kurajj_internal_models.UserShortInfo"
+                },
                 "creatorID": {
                     "type": "integer"
                 },
@@ -1677,13 +1824,33 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "responder": {
+                    "$ref": "#/definitions/Kurajj_internal_models.UserShortInfo"
+                },
                 "responderStatus": {
-                    "$ref": "#/definitions/Kurajj_internal_models.Status"
+                    "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
                 },
                 "transactionStatus": {
-                    "$ref": "#/definitions/Kurajj_internal_models.Status"
+                    "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
                 }
             }
+        },
+        "Kurajj_internal_models.TransactionStatus": {
+            "type": "string",
+            "enum": [
+                "in_process",
+                "completed",
+                "interrupted",
+                "canceled",
+                "waiting"
+            ],
+            "x-enum-varnames": [
+                "InProcess",
+                "Completed",
+                "Interrupted",
+                "Canceled",
+                "Waiting"
+            ]
         },
         "Kurajj_internal_models.TransactionsExport": {
             "type": "object",
@@ -1696,23 +1863,37 @@ const docTemplate = `{
                 }
             }
         },
+        "Kurajj_internal_models.UserShortInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "phoneNumber": {
+                    "type": "string"
+                },
+                "profileImageURL": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
         "Kurajj_internal_models_search.AllEventsSearch": {
             "type": "object",
             "properties": {
-                "location": {
-                    "$ref": "#/definitions/Kurajj_internal_models.Location"
-                },
                 "name": {
+                    "type": "string"
+                },
+                "order": {
                     "type": "string"
                 },
                 "sortField": {
                     "type": "string"
                 },
                 "statusStates": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/Kurajj_internal_models.EventStatus"
-                    }
+                    "$ref": "#/definitions/Kurajj_internal_models.EventStatus"
                 },
                 "tags": {
                     "type": "array",

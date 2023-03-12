@@ -33,14 +33,14 @@ definitions:
     type: object
   Kurajj_internal_models.CommentResponse:
     properties:
-      authorId:
-        type: integer
       creationDate:
         type: string
       id:
         type: integer
       isUpdated:
         type: boolean
+      phoneNumber:
+        type: string
       profileImageURL:
         type: string
       text:
@@ -79,40 +79,25 @@ definitions:
     - active
     - inactive
     - done
+    - blocked
     type: string
     x-enum-varnames:
     - Active
     - InActive
     - Done
+    - Blocked
   Kurajj_internal_models.EventType:
     enum:
     - proposal-event
     type: string
     x-enum-varnames:
     - ProposalEventType
-  Kurajj_internal_models.Location:
-    properties:
-      area:
-        type: string
-      city:
-        type: string
-      country:
-        type: string
-      district:
-        type: string
-      home:
-        type: string
-      street:
-        type: string
-    type: object
   Kurajj_internal_models.ProposalEventGetResponse:
     properties:
-      authorID:
-        type: integer
+      authorInfo:
+        $ref: '#/definitions/Kurajj_internal_models.UserShortInfo'
       availableHelps:
         type: integer
-      category:
-        type: string
       comments:
         items:
           $ref: '#/definitions/Kurajj_internal_models.CommentResponse'
@@ -125,12 +110,14 @@ definitions:
         type: string
       id:
         type: integer
-      location:
-        $ref: '#/definitions/Kurajj_internal_models.Location'
       maxConcurrentRequests:
         type: integer
       status:
         $ref: '#/definitions/Kurajj_internal_models.EventStatus'
+      tags:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.TagResponse'
+        type: array
       title:
         type: string
       transactions:
@@ -142,17 +129,17 @@ definitions:
     properties:
       description:
         type: string
-      location:
-        $ref: '#/definitions/Kurajj_internal_models.Location'
       maxConcurrentRequests:
         type: integer
+      tags:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.TagRequest'
+        type: array
       title:
         type: string
     type: object
   Kurajj_internal_models.ProposalEventRequestUpdate:
     properties:
-      category:
-        type: string
       competitionDate:
         type: string
       description:
@@ -219,20 +206,17 @@ definitions:
       token:
         type: string
     type: object
-  Kurajj_internal_models.Status:
-    enum:
-    - in_process
-    - completed
-    - interrupted
-    - canceled
-    - waiting
-    type: string
-    x-enum-varnames:
-    - InProcess
-    - Completed
-    - Interrupted
-    - Canceled
-    - Waiting
+  Kurajj_internal_models.TagGroupRequestCreate:
+    properties:
+      eventID:
+        type: integer
+      eventType:
+        $ref: '#/definitions/Kurajj_internal_models.EventType'
+      tags:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.TagRequestCreate'
+        type: array
+    type: object
   Kurajj_internal_models.TagRequest:
     properties:
       eventID:
@@ -248,6 +232,33 @@ definitions:
           type: string
         type: array
     type: object
+  Kurajj_internal_models.TagRequestCreate:
+    properties:
+      title:
+        type: string
+      values:
+        items:
+          type: string
+        type: array
+    type: object
+  Kurajj_internal_models.TagResponse:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      values:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.TagValueResponse'
+        type: array
+    type: object
+  Kurajj_internal_models.TagValueResponse:
+    properties:
+      id:
+        type: integer
+      value:
+        type: string
+    type: object
   Kurajj_internal_models.TokensResponse:
     properties:
       accessToken:
@@ -261,6 +272,10 @@ definitions:
         type: string
       competitionDate:
         type: string
+      creationDate:
+        type: string
+      creator:
+        $ref: '#/definitions/Kurajj_internal_models.UserShortInfo'
       creatorID:
         type: integer
       eventID:
@@ -269,11 +284,27 @@ definitions:
         $ref: '#/definitions/Kurajj_internal_models.EventType'
       id:
         type: integer
+      responder:
+        $ref: '#/definitions/Kurajj_internal_models.UserShortInfo'
       responderStatus:
-        $ref: '#/definitions/Kurajj_internal_models.Status'
+        $ref: '#/definitions/Kurajj_internal_models.TransactionStatus'
       transactionStatus:
-        $ref: '#/definitions/Kurajj_internal_models.Status'
+        $ref: '#/definitions/Kurajj_internal_models.TransactionStatus'
     type: object
+  Kurajj_internal_models.TransactionStatus:
+    enum:
+    - in_process
+    - completed
+    - interrupted
+    - canceled
+    - waiting
+    type: string
+    x-enum-varnames:
+    - InProcess
+    - Completed
+    - Interrupted
+    - Canceled
+    - Waiting
   Kurajj_internal_models.TransactionsExport:
     properties:
       transactions:
@@ -281,18 +312,27 @@ definitions:
           $ref: '#/definitions/Kurajj_internal_models.TransactionResponse'
         type: array
     type: object
+  Kurajj_internal_models.UserShortInfo:
+    properties:
+      id:
+        type: integer
+      phoneNumber:
+        type: string
+      profileImageURL:
+        type: string
+      username:
+        type: string
+    type: object
   Kurajj_internal_models_search.AllEventsSearch:
     properties:
-      location:
-        $ref: '#/definitions/Kurajj_internal_models.Location'
       name:
+        type: string
+      order:
         type: string
       sortField:
         type: string
       statusStates:
-        items:
-          $ref: '#/definitions/Kurajj_internal_models.EventStatus'
-        type: array
+        $ref: '#/definitions/Kurajj_internal_models.EventStatus'
       tags:
         items:
           $ref: '#/definitions/Kurajj_internal_models.TagRequest'
@@ -839,7 +879,7 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-      summary: Update proposal event transaction's status to to one of models.Status
+      summary: Update proposal event transaction's status to to one of models.TransactionStatus
         state
       tags:
       - Proposal Event
@@ -887,6 +927,84 @@ paths:
       summary: Update proposal event
       tags:
       - Proposal Event
+  /api/refresh-user-data:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models.RefreshTokenInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.SignedInUser'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Return user data
+      tags:
+      - User
+  /api/tags/upsert:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models.TagGroupRequestCreate'
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Delete all previous tags and their values and create new by input
+      tags:
+      - Tag
   /auth/confirm/{email}:
     post:
       consumes:

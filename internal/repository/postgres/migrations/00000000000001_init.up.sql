@@ -64,6 +64,7 @@ CREATE TABLE IF NOT EXISTS tag_value (
     tag_id bigint,
     value varchar(255),
     CONSTRAINT tag_id FOREIGN KEY(tag_id) REFERENCES tag(id)
+        ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 CREATE TABLE report (
