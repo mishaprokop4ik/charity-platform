@@ -50,7 +50,6 @@ func (u *User) GetByRefreshToken(ctx context.Context, token string) (models.User
 	fmt.Println("userId", session.MemberID)
 	member := models.User{}
 	err = u.DBConnector.DB.First(&member, session.MemberID).WithContext(ctx).Error
-	fmt.Println("member", member)
 	return member, err
 }
 

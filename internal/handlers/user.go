@@ -260,3 +260,62 @@ func (h *Handler) RefreshTokens(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+// RefreshUserData returns user data
+// @Summary      Return user data
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Param request body models.RefreshTokenInput true "query params"
+// @Success      201  {object}  models.SignedInUser
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/refresh-user-data [post]
+func (h *Handler) RefreshUserData(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	userch := make(chan userSignInResponse)
+	userID := r.Context().Value("id")
+	if userID == "" {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user transactionID isn't in context")
+		return
+	}
+	token, err := models.ParseRefresh(&r.Body)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		member, err := h.services.Authentication.GetUserByRefreshToken(ctx, token.RefreshToken)
+		userResponse := member.GetUserFullResponse(models.Tokens{})
+		userch <- userSignInResponse{
+			resp: userResponse,
+			err:  err,
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "signing up new admin took too long")
+		return
+	case resp := <-userch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.ErrNotFound.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+		err := httpHelper.SendHTTPResponse(w, resp.resp)
+		if err != nil {
+			return
+		}
+	}
+}
