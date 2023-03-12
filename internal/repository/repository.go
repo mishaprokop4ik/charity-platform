@@ -6,6 +6,7 @@ type Repository struct {
 	ProposalEvent ProposalEventer
 	Transaction   Transactioner
 	Comment       Commenter
+	Tag           Tagger
 }
 
 func New(dbConnector *Connector) *Repository {
@@ -15,5 +16,6 @@ func New(dbConnector *Connector) *Repository {
 		ProposalEvent: NewProposalEvent(dbConnector),
 		Transaction:   NewTransaction(dbConnector),
 		Comment:       NewComment(dbConnector),
+		Tag:           NewTag(dbConnector),
 	}
 }

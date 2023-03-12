@@ -11,6 +11,7 @@ type Service struct {
 	ProposalEvent  ProposalEventer
 	Transaction    Transactioner
 	Comment        Commenter
+	Tag            Tagger
 }
 
 func New(repo *repository.Repository,
@@ -22,5 +23,6 @@ func New(repo *repository.Repository,
 		ProposalEvent:  NewProposalEvent(repo),
 		Transaction:    NewTransaction(repo),
 		Comment:        NewComment(repo),
+		Tag:            NewTag(repo),
 	}
 }
