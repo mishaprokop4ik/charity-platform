@@ -25,7 +25,38 @@ type Transaction struct {
 func (t *Transaction) GetTransactionByID(ctx context.Context, id uint) (models.Transaction, error) {
 	transaction := models.Transaction{}
 	err := t.DBConnector.DB.Where("id = ?", id).First(&transaction).WithContext(ctx).Error
-	return transaction, err
+	if err != nil {
+		return models.Transaction{}, err
+	}
+
+	return t.updateTransactionUsers(ctx, transaction)
+}
+
+func (t *Transaction) updateTransactionUsers(ctx context.Context, transaction models.Transaction) (models.Transaction, error) {
+	creatorInfo := models.User{}
+	err := t.DBConnector.DB.Where("id = ?", transaction.CreatorID).First(&creatorInfo).WithContext(ctx).Error
+	if err != nil {
+		return models.Transaction{}, err
+	}
+
+	transaction.Creator = creatorInfo
+
+	rootEvent := models.ProposalEvent{}
+
+	err = t.DBConnector.DB.Where("id = ?", transaction.EventID).First(&rootEvent).WithContext(ctx).Error
+	if err != nil {
+		return models.Transaction{}, err
+	}
+
+	responderInfo := models.User{}
+	err = t.DBConnector.DB.Where("id = ?", rootEvent.AuthorID).First(&responderInfo).WithContext(ctx).Error
+	if err != nil {
+		return models.Transaction{}, err
+	}
+
+	transaction.Responder = responderInfo
+
+	return transaction, nil
 }
 
 func (t *Transaction) UpdateTransactionByEvent(ctx context.Context, eventID uint, eventType models.EventType, toUpdate map[string]any) error {
@@ -87,8 +118,18 @@ func (t *Transaction) GetAllEventTransactions(ctx context.Context,
 		Where("event_type = ?", eventType).
 		WithContext(ctx).
 		Error
+	if err != nil {
+		return []models.Transaction{}, err
+	}
+	for i, transaction := range transactions {
+		newTransaction, err := t.updateTransactionUsers(ctx, transaction)
+		if err != nil {
+			return nil, err
+		}
+		transactions[i] = newTransaction
+	}
 
-	return transactions, err
+	return transactions, nil
 }
 
 func NewTransaction(DBConnector *Connector) *Transaction {

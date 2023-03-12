@@ -4,6 +4,7 @@ import (
 	"Kurajj/internal/models"
 	"Kurajj/internal/repository"
 	"context"
+	"fmt"
 )
 
 type Transactioner interface {
@@ -30,6 +31,7 @@ func (t *Transaction) CreateTransaction(ctx context.Context, transaction models.
 }
 
 func (t *Transaction) UpdateTransaction(ctx context.Context, transaction models.Transaction) error {
+	fmt.Println(transaction)
 	if transaction.ID != 0 {
 		return t.repo.Transaction.UpdateTransactionByID(ctx, transaction.ID, transaction.GetValuesToUpdate())
 	}

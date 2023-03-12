@@ -49,15 +49,7 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		id, err := h.services.ProposalEvent.CreateEvent(ctx, models.ProposalEvent{
-			AuthorID:              userID.(uint),
-			Title:                 event.Title,
-			Description:           event.Description,
-			CreationDate:          time.Now(),
-			Status:                models.Active,
-			MaxConcurrentRequests: uint(event.MaxConcurrentRequests),
-			RemainingHelps:        event.MaxConcurrentRequests,
-		})
+		id, err := h.services.ProposalEvent.CreateEvent(ctx, event.InternalValue(userID.(uint)))
 
 		eventch <- proposalEventCreateResponse{
 			id:  id,
@@ -129,7 +121,6 @@ func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 			CompetitionDate: sql.NullTime{
 				Time: event.CompetitionDate,
 			},
-			Category: event.Category,
 		})
 
 		eventch <- errResponse{
@@ -209,11 +200,6 @@ func (h *Handler) DeleteProposalEvent(w http.ResponseWriter, r *http.Request) {
 		}
 		w.WriteHeader(http.StatusOK)
 	}
-}
-
-type getProposalEvent struct {
-	proposalEvent models.ProposalEventGetResponse
-	err           error
 }
 
 // GetProposalEvent gets proposal event by id
@@ -914,6 +900,8 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 				EventType:         t.EventType,
 				TransactionStatus: t.TransactionStatus,
 				ResponderStatus:   t.ResponderStatus,
+				Creator:           t.Creator.ToShortInfo(),
+				Responder:         t.Responder.ToShortInfo(),
 			}
 			if t.CompetitionDate.Valid {
 				transaction.CompetitionDate = t.CompetitionDate.Time
@@ -955,7 +943,7 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user transactionID isn't in context")
 		return
 	}
-	searchValuesInternal := searchValues.GetSearchValues()
+	searchValuesInternal := searchValues.Internal()
 	if userID != nil && userID != "" && userID != 0 {
 		userIDParsed, ok := userID.(uint)
 		if !ok {
@@ -964,15 +952,15 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 		}
 		searchValuesInternal.SearcherID = &userIDParsed
 	}
-	eventch := make(chan proposalEventsResponse)
+	eventch := make(chan getProposalEvents)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
 		events, respError := h.services.ProposalEvent.GetProposalEventBySearch(ctx, searchValuesInternal)
 
-		eventch <- proposalEventsResponse{
-			events:    events,
-			respError: respError,
+		eventch <- getProposalEvents{
+			proposalEvents: models.GetProposalEvents(events...),
+			err:            respError,
 		}
 	}()
 	select {
@@ -980,42 +968,18 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "getting all transactions for proposal event took too long")
 		return
 	case resp := <-eventch:
-		if resp.respError != nil {
+		if resp.err != nil {
 			status := 500
-			switch resp.respError.Error() {
+			switch resp.err.Error() {
 			case models.ErrNotFound.Error():
 				status = 404
 			}
-			httpHelper.SendErrorResponse(w, uint(status), resp.respError.Error())
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
 			return
 		}
 
-		proposalEvents := models.ProposalEvents{ProposalEvents: make([]models.ProposalEventGetResponse, len(resp.events))}
-		for i := range resp.events {
-			competitionDate := ""
-			if resp.events[i].CompetitionDate.Valid {
-				competitionDate = resp.events[i].CompetitionDate.Time.String()
-			}
-			proposalEvents.ProposalEvents[i] = models.ProposalEventGetResponse{
-				ID:                    resp.events[i].ID,
-				Title:                 resp.events[i].Title,
-				Description:           resp.events[i].Description,
-				CreationDate:          resp.events[i].CreationDate.String(),
-				MaxConcurrentRequests: resp.events[i].MaxConcurrentRequests,
-				AvailableHelps:        uint(resp.events[i].RemainingHelps),
-				CompetitionDate:       competitionDate,
-				Status:                models.EventStatus(resp.events[i].Status),
-				Category:              resp.events[i].Category,
-			}
-			proposalEvents.ProposalEvents[i].User = models.UserShortInfo{
-				ID:              resp.events[i].AuthorID,
-				Username:        resp.events[i].User.FullName,
-				ProfileImageURL: resp.events[i].User.AvatarImagePath,
-				PhoneNumber:     models.Telephone(resp.events[i].User.Telephone),
-			}
-		}
 		w.WriteHeader(http.StatusOK)
-		err = httpHelper.SendHTTPResponse(w, proposalEvents)
+		err = httpHelper.SendHTTPResponse(w, resp.proposalEvents)
 		if err != nil {
 			zlog.Log.Error(err, "could not send proposal events")
 		}

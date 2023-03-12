@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
+	"strings"
 	"time"
 )
 
@@ -36,7 +37,9 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	searchValues models.ProposalEventSearchInternal) ([]models.ProposalEvent, error) {
 	events := []models.ProposalEvent{}
 	searchValues = p.removeEmptySearchValues(searchValues)
-	query := p.DBConnector.DB.Order(fmt.Sprintf("%s %s", searchValues.SortField, *searchValues.Order)).Where("status IN (?)", searchValues.State)
+	query := p.DBConnector.DB.
+		Order(fmt.Sprintf("%s %s", searchValues.SortField, strings.ToUpper(string(*searchValues.Order)))).
+		Where("status IN (?)", searchValues.State)
 	if searchValues.GetOwn != nil && searchValues.SearcherID != nil {
 		if *searchValues.GetOwn {
 			query = query.Where("author_id = ?", searchValues.SearcherID)
@@ -102,7 +105,20 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 		return nil, err
 	}
 
-	return p.insertUserInProposalEvents(ctx, events)
+	events, err = p.insertUserInProposalEvents(ctx, events)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, event := range events {
+		updatedEvent, err := p.updateMissingEventData(ctx, event)
+		if err != nil {
+			return nil, err
+		}
+		events[i] = updatedEvent
+	}
+
+	return events, nil
 }
 
 func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEventSearchInternal) models.ProposalEventSearchInternal {
@@ -165,7 +181,7 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 		tx.Rollback()
 		return 0, err
 	}
-
+	event.Location.EventID = event.ID
 	err = p.DBConnector.DB.
 		Create(&event.Location).
 		WithContext(ctx).
@@ -175,75 +191,46 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 		tx.Rollback()
 		return 0, err
 	}
+
+	for _, tag := range event.Tags {
+		tag.EventID = event.ID
+		err = p.DBConnector.DB.Create(&tag).WithContext(ctx).Error
+		if err != nil {
+			tx.Rollback()
+			return 0, err
+		}
+		for _, tagValue := range tag.Values {
+			tagValue.TagID = tag.ID
+			err = p.DBConnector.DB.Create(&tagValue).WithContext(ctx).Error
+			if err != nil {
+				tx.Rollback()
+				return 0, err
+			}
+		}
+	}
+
 	return event.ID, tx.Commit().Error
 }
 
 func (p *ProposalEvent) GetEvent(ctx context.Context, id uint) (models.ProposalEvent, error) {
 	event := models.ProposalEvent{}
-	resp := p.DBConnector.DB.
+	err := p.DBConnector.DB.
 		Where("id = ?", id).
 		First(&event).
 		Where("is_deleted = ?", false).
-		WithContext(ctx)
+		WithContext(ctx).
+		Error
 
-	if errors.Is(resp.Error, gorm.ErrRecordNotFound) {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return models.ProposalEvent{}, fmt.Errorf("cound not get proposal event by id %d", id)
-	} else if resp.Error != nil {
-		return models.ProposalEvent{}, resp.Error
-	}
-	transactions := make([]models.Transaction, 0)
-
-	err := p.DBConnector.DB.
-		Where("event_type = ?", models.ProposalEventType).
-		Where("event_id = ?", id).
-		Find(&transactions).
-		WithContext(ctx).
-		Error
-	if err != nil {
+	} else if err != nil {
 		return models.ProposalEvent{}, err
 	}
 
-	event.Transactions = transactions
-
-	comments := make([]models.Comment, 0)
-	err = p.DBConnector.DB.
-		Where("event_type = ?", models.ProposalEventType).
-		Where("event_id = ?", id).
-		Find(&comments).
-		WithContext(ctx).
-		Error
+	event, err = p.updateMissingEventData(ctx, event)
 	if err != nil {
-		return models.ProposalEvent{}, err
+		return models.ProposalEvent{}, nil
 	}
-	for i := range comments {
-		userValues := models.User{}
-		err = p.DBConnector.DB.
-			Where("id = ?", comments[i].UserID).
-			First(&userValues).
-			WithContext(ctx).
-			Error
-		comments[i].UserValues = models.UserShortInfo{
-			ID:              userValues.ID,
-			Username:        userValues.FullName,
-			ProfileImageURL: userValues.AvatarImagePath,
-		}
-		if err != nil {
-			return models.ProposalEvent{}, err
-		}
-	}
-	event.Comments = comments
-
-	location := models.Address{}
-	err = p.DBConnector.DB.
-		Where("event_type = ?", models.ProposalEventType).
-		Where("event_id = ?", id).
-		First(&location).
-		WithContext(ctx).
-		Error
-	if err != nil {
-		return models.ProposalEvent{}, err
-	}
-	event.Location = location
 
 	events, err := p.insertUserInProposalEvents(ctx, []models.ProposalEvent{
 		event,
@@ -267,7 +254,20 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 		return nil, resp.Error
 	}
 
-	return p.insertUserInProposalEvents(ctx, events)
+	events, err := p.insertUserInProposalEvents(ctx, events)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, event := range events {
+		newEvent, err := p.updateMissingEventData(ctx, event)
+		if err != nil {
+			return nil, err
+		}
+		events[i] = newEvent
+	}
+
+	return events, nil
 }
 
 func (p *ProposalEvent) UpdateEvent(ctx context.Context, id uint, toUpdate map[string]any) error {
@@ -345,7 +345,20 @@ func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) 
 		return nil, resp.Error
 	}
 
-	return p.insertUserInProposalEvents(ctx, events)
+	events, err := p.insertUserInProposalEvents(ctx, events)
+	if err != nil {
+		return nil, err
+	}
+
+	for i, event := range events {
+		newEvent, err := p.updateMissingEventData(ctx, event)
+		if err != nil {
+			return nil, err
+		}
+		events[i] = newEvent
+	}
+
+	return events, nil
 }
 
 func (p *ProposalEvent) insertUserInProposalEvents(ctx context.Context, events []models.ProposalEvent) ([]models.ProposalEvent, error) {
@@ -358,7 +371,128 @@ func (p *ProposalEvent) insertUserInProposalEvents(ctx context.Context, events [
 		}
 		events[i].User = member
 	}
+	fmt.Println(events)
 	return events, nil
+}
+
+func (p *ProposalEvent) getProposalEventTransactions(ctx context.Context, eventID uint) ([]models.Transaction, error) {
+	transactions := []models.Transaction{}
+	err := p.DBConnector.DB.
+		Find(&transactions).
+		Where("event_id = ?", eventID).
+		Where("event_type = ?", models.ProposalEventType).
+		WithContext(ctx).
+		Error
+	if err != nil {
+		return []models.Transaction{}, err
+	}
+	for i, transaction := range transactions {
+		newTransaction, err := p.updateTransactionUsers(ctx, transaction)
+		if err != nil {
+			return nil, err
+		}
+		transactions[i] = newTransaction
+	}
+	return transactions, err
+}
+
+func (p *ProposalEvent) updateTransactionUsers(ctx context.Context, transaction models.Transaction) (models.Transaction, error) {
+	creatorInfo := models.User{}
+	err := p.DBConnector.DB.Where("id = ?", transaction.CreatorID).First(&creatorInfo).WithContext(ctx).Error
+	if err != nil {
+		return models.Transaction{}, err
+	}
+
+	transaction.Creator = creatorInfo
+
+	rootEvent := models.ProposalEvent{}
+
+	err = p.DBConnector.DB.Where("id = ?", transaction.EventID).First(&rootEvent).WithContext(ctx).Error
+	if err != nil {
+		return models.Transaction{}, err
+	}
+
+	responderInfo := models.User{}
+	err = p.DBConnector.DB.Where("id = ?", rootEvent.AuthorID).First(&responderInfo).WithContext(ctx).Error
+	if err != nil {
+		return models.Transaction{}, err
+	}
+
+	transaction.Responder = responderInfo
+
+	return transaction, nil
+}
+
+func (p *ProposalEvent) getProposalEventComments(ctx context.Context, eventID uint) ([]models.Comment, error) {
+	comments := []models.Comment{}
+	err := p.DBConnector.DB.
+		Where("event_type = ?", models.ProposalEventType).
+		Where("event_id = ?", eventID).
+		Where("is_deleted = ?", false).
+		Find(&comments).
+		WithContext(ctx).
+		Error
+	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
+		return comments, nil
+	}
+	return comments, err
+}
+
+func (p *ProposalEvent) updateCommentUsers(ctx context.Context, comment models.Comment) (models.Comment, error) {
+	creatorInfo := models.User{}
+	err := p.DBConnector.DB.Where("id = ?", comment.UserID).First(&creatorInfo).WithContext(ctx).Error
+	if err != nil {
+		return models.Comment{}, err
+	}
+
+	comment.UserValues = models.UserShortInfo{
+		ID:              creatorInfo.ID,
+		Username:        creatorInfo.FullName,
+		ProfileImageURL: creatorInfo.AvatarImagePath,
+		PhoneNumber:     models.Telephone(creatorInfo.Telephone),
+	}
+
+	return comment, nil
+}
+
+func (p *ProposalEvent) updateMissingEventData(ctx context.Context, proposalEvent models.ProposalEvent) (models.ProposalEvent, error) {
+	comments, err := p.getProposalEventComments(ctx, proposalEvent.ID)
+	if err != nil {
+		return models.ProposalEvent{}, err
+	}
+	proposalEvent.Comments = comments
+	transactions, err := p.getProposalEventTransactions(ctx, proposalEvent.ID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.ProposalEvent{}, err
+	}
+	proposalEvent.Transactions = transactions
+	location := models.Address{}
+	err = p.DBConnector.DB.
+		Where("event_type = ?", models.ProposalEventType).
+		Where("event_id = ?", proposalEvent.ID).
+		First(&location).
+		WithContext(ctx).
+		Error
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.ProposalEvent{}, err
+	}
+	proposalEvent.Location = location
+
+	tags := []models.Tag{}
+	err = p.DBConnector.DB.
+		Where("event_type = ?", models.ProposalEventType).
+		Where("event_id = ?", proposalEvent.ID).
+		Find(&tags).
+		WithContext(ctx).
+		Error
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.ProposalEvent{}, err
+	}
+	proposalEvent.Tags = tags
+
+	return proposalEvent, nil
 }
 
 func NewProposalEvent(DBConnector *Connector) *ProposalEvent {

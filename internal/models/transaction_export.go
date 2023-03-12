@@ -9,9 +9,12 @@ import (
 type TransactionResponse struct {
 	ID                uint              `json:"id,omitempty"`
 	CreatorID         uint              `json:"creatorID,omitempty"`
+	Creator           UserShortInfo     `json:"creator,omitempty"`
+	CreationDate      time.Time         `json:"creationDate,omitempty"`
 	CompetitionDate   time.Time         `json:"competitionDate"`
 	EventID           uint              `json:"eventID,omitempty"`
 	EventType         EventType         `json:"eventType,omitempty"`
+	Responder         UserShortInfo     `json:"responder,omitempty"`
 	Comment           string            `json:"comment"`
 	TransactionStatus TransactionStatus `json:"transactionStatus,omitempty"`
 	ResponderStatus   TransactionStatus `json:"responderStatus,omitempty"`

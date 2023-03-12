@@ -1,11 +1,21 @@
 package models
 
 type Tag struct {
-	ID        uint      `gorm:"primaryKey"`
-	Title     string    `gorm:"column:title"`
-	EventID   uint      `gorm:"column:event_id"`
-	EventType EventType `gorm:"column:event_type"`
-	Values    []TagValue
+	ID        uint       `gorm:"primaryKey"`
+	Title     string     `gorm:"column:title"`
+	EventID   uint       `gorm:"column:event_id"`
+	EventType EventType  `gorm:"column:event_type"`
+	Values    []TagValue `gorm:"-"`
+}
+
+func (t Tag) GetTagValuesResponse() []TagValueResponse {
+	values := make([]TagValueResponse, len(t.Values))
+	for i := range values {
+		values[i].ID = t.Values[i].ID
+		values[i].Value = t.Values[i].Value
+	}
+
+	return values
 }
 
 type TagRequest struct {
@@ -43,7 +53,7 @@ func (TagValue) TableName() string {
 
 type TagValueResponse struct {
 	ID    uint   `json:"id,omitempty"`
-	Value string `json:"value,omitempty"`
+	Value string `json:"value"`
 }
 
 type TagResponse struct {

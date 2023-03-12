@@ -66,12 +66,15 @@ func containsOnlyDigits(s string) bool {
 }
 
 type Address struct {
-	Region       string `json:"region,omitempty" gorm:"column:area"`
-	City         string `json:"city,omitempty" gorm:"column:city"`
-	District     string `json:"district,omitempty" gorm:"column:district"`
-	HomeLocation string `json:"homeLocation,omitempty" gorm:"column:home"`
-	Street       string `json:"-" gorm:"column:street"`
-	Country      string `json:"-" gorm:"column:country"`
+	ID           uint      `json:"-" gorm:"column:id" gorm:"primaryKey"`
+	Region       string    `json:"region,omitempty" gorm:"column:area"`
+	City         string    `json:"city,omitempty" gorm:"column:city"`
+	District     string    `json:"district,omitempty" gorm:"column:district"`
+	HomeLocation string    `json:"homeLocation,omitempty" gorm:"column:home"`
+	Street       string    `json:"-" gorm:"column:street"`
+	Country      string    `json:"-" gorm:"column:country"`
+	EventType    EventType `json:"-" gorm:"column:event_type"`
+	EventID      uint      `json:"-" gorm:"column:event_id"`
 }
 
 func (a Address) String() string {

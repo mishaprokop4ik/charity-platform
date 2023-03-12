@@ -10,9 +10,12 @@ import (
 type Transaction struct {
 	ID                uint              `gorm:"primaryKey"`
 	CreatorID         uint              `gorm:"column:creator_id"`
+	Creator           User              `gorm:"-"`
+	Responder         User              `gorm:"-"`
 	CompetitionDate   sql.NullTime      `gorm:"column:completion_date"`
 	EventID           uint              `gorm:"column:event_id"`
 	Comment           string            `gorm:"column:last_comment"`
+	CreationDate      time.Time         `gorm:"column:creation_date"`
 	EventType         EventType         `gorm:"column:event_type"`
 	TransactionStatus TransactionStatus `gorm:"column:transaction_status"`
 	ResponderStatus   TransactionStatus `gorm:"column:responder_status"`

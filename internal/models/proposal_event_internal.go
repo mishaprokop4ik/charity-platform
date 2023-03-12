@@ -15,13 +15,13 @@ type ProposalEvent struct {
 	CreationDate          time.Time     `gorm:"column:creation_date"`
 	CompetitionDate       sql.NullTime  `gorm:"column:competition_date"`
 	AuthorID              uint          `gorm:"column:author_id"`
-	Category              string        `gorm:"column:category"`
 	Status                EventStatus   `gorm:"column:status"`
 	MaxConcurrentRequests uint          `gorm:"column:max_concurrent_requests"`
 	RemainingHelps        int           `gorm:"column:remaining_helps"`
 	IsDeleted             bool          `gorm:"column:is_deleted"`
 	Comments              []Comment     `gorm:"-"`
 	Transactions          []Transaction `gorm:"-"`
+	Tags                  []Tag         `gorm:"-"`
 	Location              Address       `gorm:"-"`
 	User                  User          `gorm:"-"`
 }

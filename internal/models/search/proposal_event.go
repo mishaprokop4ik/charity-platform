@@ -22,7 +22,7 @@ func UnmarshalAllEventsSearch(r *io.ReadCloser) (AllEventsSearch, error) {
 	return search, err
 }
 
-func (s AllEventsSearch) GetSearchValues() models.ProposalEventSearchInternal {
+func (s AllEventsSearch) Internal() models.ProposalEventSearchInternal {
 	tags := s.convertTagsRequestToInternal()
 	name := strings.ToLower(s.Name)
 	if s.Order == "" {
@@ -32,13 +32,13 @@ func (s AllEventsSearch) GetSearchValues() models.ProposalEventSearchInternal {
 	for i, tag := range tags {
 		if strings.ToLower(tag.Title) == "location" ||
 			strings.ToLower(tag.Title) == "place" &&
-				len(tag.Values) > 4 {
+				len(tag.Values) >= models.DecodedAddressLength {
 			location.Region = tag.Values[0].Value
 			location.City = tag.Values[1].Value
 			location.District = tag.Values[2].Value
 			location.HomeLocation = tag.Values[3].Value
+			tags = append(tags[:i], tags[i+1:]...)
 		}
-		tag.Values = append(tag.Values[:i], tag.Values[i+1:]...)
 	}
 	if s.StatusState == "" {
 		s.StatusState = models.Active

@@ -32,7 +32,6 @@ CREATE TABLE propositional_event (
     max_concurrent_requests integer NOT NULL,
     remaining_helps integer NOT NULL,
     author_id bigint,
-    category varchar,
     is_deleted bool,
     CONSTRAINT author_fk FOREIGN KEY(author_id) REFERENCES members(id)
 );
