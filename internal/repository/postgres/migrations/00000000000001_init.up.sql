@@ -87,10 +87,10 @@ CREATE TABLE comment (
     is_updated bool,
     is_deleted bool,
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
-                     -- Add user and event transaction
 );
 
-CREATE type status AS ENUM ('in_process', 'completed', 'interrupted', 'canceled', 'waiting');
+CREATE type responder_status AS ENUM ('not_started', 'in_progress', 'completed', 'aborted');
+CREATE type transaction_status AS ENUM ('waiting', 'in_process', 'completed', 'aborted', 'canceled');
 
 CREATE TABLE transaction (
     id bigserial PRIMARY KEY,
@@ -98,11 +98,10 @@ CREATE TABLE transaction (
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     completion_date timestamp,
     event_id bigint,
-    last_comment varchar(255),
-    status status,
+    responder_comment varchar(255),
     event_type event,
-    transaction_status status NOT NULL,
-    responder_status status NOT NULL,
+    transaction_status transaction_status NOT NULL,
+    owner_status responder_status NOT NULL DEFAULT 'not_started',
     CONSTRAINT creator_fk FOREIGN KEY(creator_id) REFERENCES members(id)
         ON DELETE SET NULL ON UPDATE SET DEFAULT
 );

@@ -77,6 +77,10 @@ type Address struct {
 	EventID      uint      `json:"-" gorm:"column:event_id"`
 }
 
+func (a Address) IsEmpty() bool {
+	return a.Region == "" && a.City == "" && a.District == "" && a.HomeLocation == ""
+}
+
 func (a Address) String() string {
 	return fmt.Sprintf("%s|%s|%s|%s", a.Region, a.City, a.District, a.HomeLocation)
 }
@@ -130,15 +134,16 @@ type CreationResponse struct {
 }
 
 type SignedInUser struct {
-	ID           int       `json:"id,omitempty"`
-	Email        Email     `json:"email,omitempty"`
-	FirstName    string    `json:"firstName,omitempty"`
-	SecondName   string    `json:"secondName,omitempty"`
-	Telephone    Telephone `json:"telephone,omitempty"`
-	CompanyName  string    `json:"companyName,omitempty"`
-	Address      Address   `json:"address"`
-	AccessToken  string    `json:"token,omitempty"`
-	RefreshToken string    `json:"refreshToken,omitempty"`
+	ID           int                   `json:"id"`
+	Email        Email                 `json:"email"`
+	FirstName    string                `json:"firstName"`
+	SecondName   string                `json:"secondName"`
+	Telephone    Telephone             `json:"telephone"`
+	CompanyName  string                `json:"companyName"`
+	Address      Address               `json:"address"`
+	AccessToken  string                `json:"token"`
+	RefreshToken string                `json:"refreshToken"`
+	SearchValues []SearchValueResponse `json:"searchValues"`
 }
 
 func (s SignedInUser) Bytes() []byte {

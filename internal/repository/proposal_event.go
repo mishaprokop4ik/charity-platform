@@ -2,6 +2,7 @@ package repository
 
 import (
 	"Kurajj/internal/models"
+	zlog "Kurajj/pkg/logger"
 	"context"
 	"database/sql"
 	"errors"
@@ -40,7 +41,9 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	query := p.DBConnector.DB.
 		Order(fmt.Sprintf("%s %s", searchValues.SortField, strings.ToUpper(string(*searchValues.Order)))).
 		Where("status IN (?)", searchValues.State)
+
 	if searchValues.GetOwn != nil && searchValues.SearcherID != nil {
+		fmt.Println("1")
 		if *searchValues.GetOwn {
 			query = query.Where("author_id = ?", searchValues.SearcherID)
 		} else {
@@ -49,10 +52,12 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	}
 
 	if searchValues.Name != nil && *searchValues.Name != "" {
+		fmt.Println("2")
 		query = query.Where("title = ?", *searchValues.Name)
 	}
 
 	if searchValues.TakingPart != nil {
+		fmt.Println("3")
 		if *searchValues.TakingPart {
 			query = query.Joins("JOIN transaction ON transaction.event_id = propositional_event.id").
 				Where("transaction.creator_id = ?", searchValues.SearcherID).
@@ -64,7 +69,8 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 		}
 	}
 
-	if searchValues.Tags != nil {
+	if searchValues.Tags != nil && len(*searchValues.Tags) > 0 {
+		fmt.Println("4")
 		if len(searchValues.GetTagsValues()) == 0 {
 			subQuery := p.DBConnector.DB.Table("tag").Select("event_id").
 				Where("LOWER(title) IN (?) AND event_type = ?", searchValues.GetTagsTitle(), models.ProposalEventType)
@@ -80,6 +86,7 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 		}
 	}
 	if searchValues.Location != nil {
+		fmt.Println("5")
 		location := *searchValues.Location
 		subQuery := p.DBConnector.DB.Table("location").Select("event_id").
 			Where("event_type = ?", models.ProposalEventType)
@@ -138,6 +145,8 @@ func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEven
 
 	if searchValues.Tags != nil {
 		newSearchValues.Tags = searchValues.Tags
+	} else {
+		newSearchValues.Tags = nil
 	}
 
 	if searchValues.GetOwn == nil {
@@ -161,7 +170,11 @@ func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEven
 		newSearchValues.State = searchValues.State
 	}
 
-	newSearchValues.Location = searchValues.Location
+	if searchValues.Location == nil {
+		newSearchValues.Location = nil
+	} else {
+		newSearchValues.Location = searchValues.Location
+	}
 	if newSearchValues.Order == nil {
 		newSearchValues.Order = &models.AscendingOrder
 	} else {
@@ -181,15 +194,18 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 		tx.Rollback()
 		return 0, err
 	}
-	event.Location.EventID = event.ID
-	err = p.DBConnector.DB.
-		Create(&event.Location).
-		WithContext(ctx).
-		Error
 
-	if err != nil {
-		tx.Rollback()
-		return 0, err
+	if !event.Location.IsEmpty() {
+		event.Location.EventID = event.ID
+		err = p.DBConnector.DB.
+			Create(&event.Location).
+			WithContext(ctx).
+			Error
+
+		if err != nil {
+			tx.Rollback()
+			return 0, err
+		}
 	}
 
 	for _, tag := range event.Tags {
@@ -491,6 +507,21 @@ func (p *ProposalEvent) updateMissingEventData(ctx context.Context, proposalEven
 		return models.ProposalEvent{}, err
 	}
 	proposalEvent.Tags = tags
+
+	for i, tag := range proposalEvent.Tags {
+		tagValues := []models.TagValue{}
+		err = p.DBConnector.DB.Where("tag_id = ?", tag.ID).
+			Find(&tagValues).
+			WithContext(ctx).
+			Error
+
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			zlog.Log.Error(err, "got error while getting tag values")
+			continue
+		}
+		proposalEvent.Tags[i].Values = tagValues
+		tag.Values = tagValues
+	}
 
 	return proposalEvent, nil
 }

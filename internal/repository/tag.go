@@ -56,6 +56,24 @@ func (t *Tag) UpsertTags(ctx context.Context, eventType models.EventType, eventI
 		return err
 	}
 	for _, tag := range tags {
+		if tag.Title == "location" {
+			if len(tag.Values) >= models.DecodedAddressLength {
+				location := models.Address{
+					Region:       tag.Values[0].Value,
+					City:         tag.Values[1].Value,
+					District:     tag.Values[2].Value,
+					HomeLocation: tag.Values[3].Value,
+					EventType:    eventType,
+					EventID:      eventID,
+				}
+				err = t.DBConnector.DB.Create(&location).WithContext(ctx).Error
+				if err != nil {
+					return err
+				}
+			}
+
+			continue
+		}
 		err = t.CreateTag(ctx, tag)
 		if err != nil {
 			tx.Rollback()
