@@ -67,7 +67,7 @@ func (p ProposalEvent) GetValuesToUpdate() map[string]any {
 }
 
 type ProposalEventsInternal struct {
-	ProposalEvents []ProposalEventGetResponse `json:"proposalEvents,omitempty"`
+	ProposalEvents []ProposalEventGetResponse `json:"proposalEvents"`
 }
 
 func (p ProposalEventsInternal) Serialize() ([]byte, error) {

@@ -24,18 +24,18 @@ func (t Tag) GetTagValuesResponse() []TagValueResponse {
 }
 
 type TagRequest struct {
-	ID        uint      `json:"id,omitempty"`
-	Title     string    `json:"title,omitempty"`
-	EventID   uint      `json:"eventID,omitempty"`
-	EventType EventType `json:"eventType,omitempty"`
-	Values    []string  `json:"values,omitempty"`
+	ID        uint      `json:"id"`
+	Title     string    `json:"title"`
+	EventID   uint      `json:"eventID"`
+	EventType EventType `json:"eventType"`
+	Values    []string  `json:"values"`
 }
 type TagsResponse struct {
-	ID        uint               `json:"id,omitempty"`
-	Title     string             `json:"title,omitempty"`
-	EventID   uint               `json:"eventID,omitempty"`
-	EventType EventType          `json:"eventType,omitempty"`
-	Values    []TagValueResponse `json:"values,omitempty"`
+	ID        uint               `json:"id"`
+	Title     string             `json:"title"`
+	EventID   uint               `json:"eventID"`
+	EventType EventType          `json:"eventType"`
+	Values    []TagValueResponse `json:"values"`
 }
 
 type Tags struct {
@@ -48,8 +48,8 @@ func (t Tags) Bytes() []byte {
 }
 
 type TagRequestCreate struct {
-	Title  string   `json:"title,omitempty"`
-	Values []string `json:"values,omitempty"`
+	Title  string   `json:"title"`
+	Values []string `json:"values"`
 }
 
 type TagGroupRequestCreate struct {
@@ -86,9 +86,9 @@ func UnmarshalTagGroupCreateRequest(r *io.ReadCloser) (TagGroupRequestCreate, er
 }
 
 type TagValueRequest struct {
-	ID    uint   `json:"id,omitempty"`
-	TagID uint   `json:"tagID,omitempty"`
-	Value string `json:"value,omitempty"`
+	ID    uint   `json:"id"`
+	TagID uint   `json:"tagID"`
+	Value string `json:"value"`
 }
 
 func (Tag) TableName() string {
@@ -106,12 +106,12 @@ func (TagValue) TableName() string {
 }
 
 type TagValueResponse struct {
-	ID    uint   `json:"id,omitempty"`
+	ID    uint   `json:"id"`
 	Value string `json:"value"`
 }
 
 type TagResponse struct {
-	ID     uint               `json:"id,omitempty"`
-	Title  string             `json:"title,omitempty"`
-	Values []TagValueResponse `json:"values,omitempty"`
+	ID     uint               `json:"id"`
+	Title  string             `json:"title"`
+	Values []TagValueResponse `json:"values"`
 }

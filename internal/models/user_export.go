@@ -13,11 +13,11 @@ const ukrainePhoneNumberPrefix = "+380"
 type Email string
 
 type defaultFields struct {
-	Email       Email     `json:"email,omitempty"`
-	FirstName   string    `json:"firstName,omitempty"`
-	SecondName  string    `json:"secondName,omitempty"`
-	Telephone   Telephone `json:"telephone,omitempty"`
-	CompanyName string    `json:"companyName,omitempty"`
+	Email       Email     `json:"email"`
+	FirstName   string    `json:"firstName"`
+	SecondName  string    `json:"secondName"`
+	Telephone   Telephone `json:"telephone"`
+	CompanyName string    `json:"companyName"`
 }
 
 func (e Email) Validate() (bool, error) {
@@ -67,10 +67,10 @@ func containsOnlyDigits(s string) bool {
 
 type Address struct {
 	ID           uint      `json:"-" gorm:"column:id" gorm:"primaryKey"`
-	Region       string    `json:"region,omitempty" gorm:"column:area"`
-	City         string    `json:"city,omitempty" gorm:"column:city"`
-	District     string    `json:"district,omitempty" gorm:"column:district"`
-	HomeLocation string    `json:"homeLocation,omitempty" gorm:"column:home"`
+	Region       string    `json:"region" gorm:"column:area"`
+	City         string    `json:"city" gorm:"column:city"`
+	District     string    `json:"district" gorm:"column:district"`
+	HomeLocation string    `json:"homeLocation" gorm:"column:home"`
 	Street       string    `json:"-" gorm:"column:street"`
 	Country      string    `json:"-" gorm:"column:country"`
 	EventType    EventType `json:"-" gorm:"column:event_type"`
@@ -88,13 +88,13 @@ func (a Address) String() string {
 type SignUpUser struct {
 	defaultFields
 	Address  Address `json:"address"`
-	Password string  `json:"password,omitempty"`
+	Password string  `json:"password"`
 }
 
 // SignInEntity represents default sign in structure.
 type SignInEntity struct {
-	Email    Email  `json:"email,omitempty"`
-	Password string `json:"password,omitempty"`
+	Email    Email  `json:"email"`
+	Password string `json:"password"`
 	IsAdmin  bool   `json:"-"`
 }
 
@@ -130,7 +130,7 @@ func (i SignUpUser) GetInternalUser() User {
 }
 
 type CreationResponse struct {
-	ID int `json:"id,omitempty"`
+	ID int `json:"id"`
 }
 
 type SignedInUser struct {
@@ -186,10 +186,10 @@ func (a AdminCreation) CreateUser() User {
 }
 
 type UserShortInfo struct {
-	ID              uint      `json:"id,omitempty"`
-	Username        string    `json:"username,omitempty"`
-	ProfileImageURL string    `json:"profileImageURL,omitempty"`
-	PhoneNumber     Telephone `json:"phoneNumber,omitempty"`
+	ID              uint      `json:"id"`
+	Username        string    `json:"username"`
+	ProfileImageURL string    `json:"profileImageURL"`
+	PhoneNumber     Telephone `json:"phoneNumber"`
 }
 
 func (u UserShortInfo) TableName() string {

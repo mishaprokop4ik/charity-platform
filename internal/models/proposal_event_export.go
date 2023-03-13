@@ -7,10 +7,10 @@ import (
 )
 
 type ProposalEventRequestCreate struct {
-	Title                 string       `json:"title,omitempty"`
-	Description           string       `json:"description,omitempty"`
-	MaxConcurrentRequests int          `json:"maxConcurrentRequests,omitempty"`
-	Tags                  []TagRequest `json:"tags,omitempty"`
+	Title                 string       `json:"title"`
+	Description           string       `json:"description"`
+	MaxConcurrentRequests int          `json:"maxConcurrentRequests"`
+	Tags                  []TagRequest `json:"tags"`
 }
 
 func (p *ProposalEventRequestCreate) TagsInternal() []Tag {
@@ -178,7 +178,7 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 }
 
 type ProposalEvents struct {
-	ProposalEvents []ProposalEventGetResponse `json:"proposalEvents,omitempty"`
+	ProposalEvents []ProposalEventGetResponse `json:"proposalEvents"`
 }
 
 func GetProposalEvents(events ...ProposalEvent) ProposalEvents {
@@ -195,10 +195,10 @@ func (l ProposalEvents) Bytes() []byte {
 }
 
 type ProposalEventRequestUpdate struct {
-	ID              uint      `json:"id,omitempty"`
-	Title           string    `json:"title,omitempty"`
-	Description     string    `json:"description,omitempty"`
-	CompetitionDate time.Time `json:"competitionDate,omitempty"`
+	ID              uint      `json:"id"`
+	Title           string    `json:"title"`
+	Description     string    `json:"description"`
+	CompetitionDate time.Time `json:"competitionDate"`
 }
 
 func UnmarshalProposalEventUpdate(r *io.ReadCloser) (ProposalEventRequestUpdate, error) {

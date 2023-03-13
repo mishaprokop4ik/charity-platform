@@ -7,25 +7,25 @@ import (
 )
 
 type TransactionResponse struct {
-	ID                uint              `json:"id,omitempty"`
-	CreatorID         uint              `json:"creatorID,omitempty"`
-	Creator           UserShortInfo     `json:"creator,omitempty"`
-	CreationDate      time.Time         `json:"creationDate,omitempty"`
+	ID                uint              `json:"id"`
+	CreatorID         uint              `json:"creatorID"`
+	Creator           UserShortInfo     `json:"creator"`
+	CreationDate      time.Time         `json:"creationDate"`
 	CompetitionDate   time.Time         `json:"competitionDate"`
-	EventID           uint              `json:"eventID,omitempty"`
-	EventType         EventType         `json:"eventType,omitempty"`
-	Responder         UserShortInfo     `json:"responder,omitempty"`
+	EventID           uint              `json:"eventID"`
+	EventType         EventType         `json:"eventType"`
+	Responder         UserShortInfo     `json:"responder"`
 	Comment           string            `json:"comment"`
-	TransactionStatus TransactionStatus `json:"transactionStatus,omitempty"`
-	ResponderStatus   TransactionStatus `json:"responderStatus,omitempty"`
+	TransactionStatus TransactionStatus `json:"transactionStatus"`
+	ResponderStatus   TransactionStatus `json:"responderStatus"`
 }
 
 type StatusExport struct {
-	Status TransactionStatus `json:"status,omitempty"`
+	Status TransactionStatus `json:"status"`
 }
 
 type TransactionsExport struct {
-	Transactions []TransactionResponse `json:"transactions,omitempty"`
+	Transactions []TransactionResponse `json:"transactions"`
 }
 
 func (t TransactionsExport) Bytes() []byte {

@@ -7,16 +7,16 @@ import (
 )
 
 type CommentResponse struct {
-	ID           uint      `json:"id,omitempty"`
-	Text         string    `json:"text,omitempty"`
+	ID           uint      `json:"id"`
+	Text         string    `json:"text"`
 	CreationDate time.Time `json:"creationDate"`
-	IsUpdated    bool      `json:"isUpdated,omitempty"`
+	IsUpdated    bool      `json:"isUpdated"`
 	UpdateTime   string    `json:"updateTime"`
 	UserShortInfo
 }
 
 type Comments struct {
-	Comments []CommentResponse `json:"comments,omitempty"`
+	Comments []CommentResponse `json:"comments"`
 }
 
 func (c Comments) Bytes() []byte {
@@ -25,13 +25,13 @@ func (c Comments) Bytes() []byte {
 }
 
 type CommentCreateRequest struct {
-	Text    string `json:"text,omitempty"`
-	EventID uint   `json:"eventId,omitempty"`
+	Text    string `json:"text"`
+	EventID uint   `json:"eventId"`
 }
 
 type CommentUpdateRequest struct {
-	ID   uint   `json:"id,omitempty"`
-	Text string `json:"text,omitempty"`
+	ID   uint   `json:"id"`
+	Text string `json:"text"`
 }
 
 func UnmarshalCommentUpdateRequest(r *io.ReadCloser) (CommentUpdateRequest, error) {

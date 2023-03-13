@@ -8,12 +8,12 @@ import (
 )
 
 type AllEventsSearch struct {
-	Name        string              `json:"name,omitempty"`
-	Tags        []models.TagRequest `json:"tags,omitempty"`
-	SortField   string              `json:"sortField,omitempty"`
-	Order       models.Order        `json:"order,omitempty"`
-	TakingPart  bool                `json:"takingPart,omitempty"`
-	StatusState models.EventStatus  `json:"statusStates,omitempty"`
+	Name        string              `json:"name"`
+	Tags        []models.TagRequest `json:"tags"`
+	SortField   string              `json:"sortField"`
+	Order       models.Order        `json:"order"`
+	TakingPart  bool                `json:"takingPart"`
+	StatusState models.EventStatus  `json:"statusStates"`
 }
 
 func UnmarshalAllEventsSearch(r *io.ReadCloser) (AllEventsSearch, error) {
