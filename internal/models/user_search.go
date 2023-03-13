@@ -43,9 +43,9 @@ func (s MemberSearch) GetTagValuesResponse() []MemberSearchValueResponse {
 }
 
 type SearchValueResponse struct {
-	ID     uint                        `json:"id,omitempty"`
-	Title  string                      `json:"title,omitempty"`
-	Values []MemberSearchValueResponse `json:"values,omitempty"`
+	ID     uint                        `json:"id"`
+	Title  string                      `json:"title"`
+	Values []MemberSearchValueResponse `json:"values"`
 }
 
 type SearchValuesResponse struct {
@@ -58,8 +58,8 @@ func (s SearchValuesResponse) Bytes() []byte {
 }
 
 type MemberSearchRequestCreate struct {
-	Title  string   `json:"title,omitempty"`
-	Values []string `json:"values,omitempty"`
+	Title  string   `json:"title"`
+	Values []string `json:"values"`
 }
 
 type MemberSearchValuesRequestCreate struct {
@@ -102,6 +102,6 @@ func (SearchValue) TableName() string {
 }
 
 type MemberSearchValueResponse struct {
-	ID    uint   `json:"id,omitempty"`
+	ID    uint   `json:"id"`
 	Value string `json:"value"`
 }
