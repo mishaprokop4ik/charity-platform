@@ -157,11 +157,13 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 		transactions[i] = transaction
 	}
 	return ProposalEventGetResponse{
-		ID:              event.ID,
-		Title:           event.Title,
-		Description:     event.Description,
-		CreationDate:    event.CreationDate.String(),
-		CompetitionDate: completionDate,
+		ID:                    event.ID,
+		Title:                 event.Title,
+		Description:           event.Description,
+		CreationDate:          event.CreationDate.String(),
+		CompetitionDate:       completionDate,
+		MaxConcurrentRequests: event.MaxConcurrentRequests,
+		AvailableHelps:        uint(event.RemainingHelps),
 		User: UserShortInfo{
 			ID:              event.AuthorID,
 			Username:        event.User.FullName,
