@@ -171,6 +171,7 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 		Comments:     comments,
 		Transactions: transactions,
 		Tags:         tags,
+		Status:       event.Status,
 	}
 }
 
