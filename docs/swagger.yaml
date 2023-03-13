@@ -92,6 +92,13 @@ definitions:
     type: string
     x-enum-varnames:
     - ProposalEventType
+  Kurajj_internal_models.MemberSearchValueResponse:
+    properties:
+      id:
+        type: integer
+      value:
+        type: string
+    type: object
   Kurajj_internal_models.ProposalEventGetResponse:
     properties:
       authorInfo:
@@ -161,6 +168,17 @@ definitions:
       refreshToken:
         type: string
     type: object
+  Kurajj_internal_models.SearchValueResponse:
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      values:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.MemberSearchValueResponse'
+        type: array
+    type: object
   Kurajj_internal_models.SignInEntity:
     properties:
       email:
@@ -199,6 +217,10 @@ definitions:
         type: integer
       refreshToken:
         type: string
+      searchValues:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.SearchValueResponse'
+        type: array
       secondName:
         type: string
       telephone:
@@ -428,8 +450,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Update proposal event transaction's status to models.InProcess state
-      tags:
-      - Proposal Event
   /api/events/proposal/comment:
     post:
       consumes:
@@ -467,8 +487,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Create new comment in proposal event
-      tags:
-      - Proposal Event
   /api/events/proposal/comment/{id}:
     delete:
       consumes:
@@ -503,8 +521,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Update proposal event comment
-      tags:
-      - Proposal Event
     put:
       consumes:
       - application/json
@@ -544,8 +560,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Update proposal event comment
-      tags:
-      - Proposal Event
   /api/events/proposal/comments/id:
     get:
       consumes:
@@ -582,8 +596,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Take all comments in proposal event by its id
-      tags:
-      - Proposal Event
   /api/events/proposal/create:
     post:
       consumes:
@@ -623,8 +635,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Create a new proposal event
-      tags:
-      - Proposal Event
   /api/events/proposal/delete/{id}:
     delete:
       consumes:
@@ -661,8 +671,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Delete proposal event
-      tags:
-      - Proposal Event
   /api/events/proposal/get:
     get:
       consumes:
@@ -695,8 +703,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Get all proposal events
-      tags:
-      - Proposal Event
   /api/events/proposal/get-own:
     get:
       consumes:
@@ -729,8 +735,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Get all proposal events created by user requester id
-      tags:
-      - Proposal Event
   /api/events/proposal/get/{id}:
     get:
       consumes:
@@ -769,8 +773,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Get proposal event by id
-      tags:
-      - Proposal Event
   /api/events/proposal/response:
     post:
       consumes:
@@ -806,8 +808,6 @@ paths:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Create new transaction with waiting status for the proposal event if
         slot is available
-      tags:
-      - Proposal Event
   /api/events/proposal/transactions/{id}:
     get:
       consumes:
@@ -844,8 +844,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Get all proposal event transactions(finished, in process, etc)
-      tags:
-      - Proposal Event
   /api/events/proposal/update-status/{id}:
     post:
       consumes:
@@ -881,8 +879,6 @@ paths:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Update proposal event transaction's status to to one of models.TransactionStatus
         state
-      tags:
-      - Proposal Event
   /api/events/proposal/update/{id}:
     put:
       consumes:
@@ -925,8 +921,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Update proposal event
-      tags:
-      - Proposal Event
   /api/refresh-user-data:
     post:
       consumes:
@@ -1245,8 +1239,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Return proposal events by given order and filter values
-      tags:
-      - Proposal Event
 securityDefinitions:
   BasicAuth:
     type: basic

@@ -292,9 +292,8 @@ func (h *Handler) RefreshUserData(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	go func() {
 		member, err := h.services.Authentication.GetUserByRefreshToken(ctx, token.RefreshToken)
-		userResponse := member.GetUserFullResponse(models.Tokens{})
 		userch <- userSignInResponse{
-			resp: userResponse,
+			resp: member,
 			err:  err,
 		}
 	}()

@@ -20,7 +20,7 @@ type Authenticator interface {
 	GetUserShortInfo(ctx context.Context, id uint) (models.UserShortInfo, error)
 	SignUp(ctx context.Context, user models.User) (uint, error)
 	SignIn(ctx context.Context, user models.User) (models.SignedInUser, error)
-	GetUserByRefreshToken(ctx context.Context, token string) (models.User, error)
+	GetUserByRefreshToken(ctx context.Context, token string) (models.SignedInUser, error)
 	ParseToken(accessToken string) (uint, error)
 	NewRefreshToken() (string, error)
 	RefreshTokens(ctx context.Context, refreshToken string) (models.Tokens, error)
@@ -48,8 +48,16 @@ func (a *Authentication) GetUserShortInfo(ctx context.Context, id uint) (models.
 	return user, nil
 }
 
-func (a *Authentication) GetUserByRefreshToken(ctx context.Context, token string) (models.User, error) {
-	return a.repo.User.GetByRefreshToken(ctx, token)
+func (a *Authentication) GetUserByRefreshToken(ctx context.Context, token string) (models.SignedInUser, error) {
+	user, err := a.repo.User.GetByRefreshToken(ctx, token)
+	if err != nil {
+		return models.SignedInUser{}, err
+	}
+
+	return user.GetUserFullResponse(models.Tokens{
+		Access:  "",
+		Refresh: user.RefreshToken,
+	}), nil
 }
 
 const confirmEmail = "Confirm Your Email Address"

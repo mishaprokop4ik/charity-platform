@@ -15,19 +15,21 @@ type Tabler interface {
 
 type User struct {
 	gorm.Model
-	ID               uint   `gorm:"primaryKey"`
-	Email            string `gorm:"column:email"`
-	FullName         string `gorm:"column:full_name"`
-	Telephone        string `gorm:"column:telephone"`
-	CompanyName      string `gorm:"column:company_name"`
-	IsAdmin          bool   `gorm:"column:is_admin"`
-	Password         string `gorm:"column:password"`
-	Address          string `gorm:"column:address"`
-	IsDeleted        bool   `gorm:"column:is_deleted"`
-	IsActivated      bool   `gorm:"column:is_activated"`
-	TelegramUsername string `gorm:"column:telegram_username"`
-	AvatarImagePath  string `gorm:"column:image_path"`
-
+	ID               uint           `gorm:"primaryKey"`
+	Email            string         `gorm:"column:email"`
+	FullName         string         `gorm:"column:full_name"`
+	Telephone        string         `gorm:"column:telephone"`
+	CompanyName      string         `gorm:"column:company_name"`
+	IsAdmin          bool           `gorm:"column:is_admin"`
+	Password         string         `gorm:"column:password"`
+	Address          string         `gorm:"column:address"`
+	IsDeleted        bool           `gorm:"column:is_deleted"`
+	IsActivated      bool           `gorm:"column:is_activated"`
+	TelegramUsername string         `gorm:"column:telegram_username"`
+	AvatarImagePath  string         `gorm:"column:image_path"`
+	UserSearchValues []MemberSearch `gorm:"-"`
+	Token            string         `json:"token"`
+	RefreshToken     string         `json:"refreshToken"`
 	//ProposalEvents []ProposalEvent `gorm:"foreignKey:AuthorID"`
 }
 
@@ -92,6 +94,10 @@ func (u User) GetUserFullResponse(tokens Tokens) SignedInUser {
 		secondName = fullName[1]
 	}
 	address, _ := u.getAddress()
+	searchValues := make([]SearchValueResponse, len(u.UserSearchValues))
+	for i, searchValue := range u.UserSearchValues {
+		searchValues[i] = searchValue.Response()
+	}
 	return SignedInUser{
 		ID: int(u.ID),
 		//TODO add email validation
@@ -104,6 +110,7 @@ func (u User) GetUserFullResponse(tokens Tokens) SignedInUser {
 		Address:      address,
 		AccessToken:  tokens.Access,
 		RefreshToken: tokens.Refresh,
+		SearchValues: searchValues,
 	}
 }
 

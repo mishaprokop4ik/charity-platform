@@ -67,18 +67,18 @@ func UnmarshalProposalEventCreate(r *io.ReadCloser) (ProposalEventRequestCreate,
 }
 
 type ProposalEventGetResponse struct {
-	ID                    uint                  `json:"id,omitempty"`
-	Title                 string                `json:"title,omitempty"`
-	Description           string                `json:"description,omitempty"`
-	CreationDate          string                `json:"creationDate,omitempty"`
-	MaxConcurrentRequests uint                  `json:"maxConcurrentRequests,omitempty"`
-	AvailableHelps        uint                  `json:"availableHelps,omitempty"`
-	CompetitionDate       string                `json:"competitionDate,omitempty"`
-	Status                EventStatus           `json:"status,omitempty"`
-	User                  UserShortInfo         `json:"authorInfo,omitempty"`
-	Comments              []CommentResponse     `json:"comments,omitempty"`
-	Transactions          []TransactionResponse `json:"transactions,omitempty"`
-	Tags                  []TagResponse         `json:"tags,omitempty"`
+	ID                    uint                  `json:"id"`
+	Title                 string                `json:"title"`
+	Description           string                `json:"description"`
+	CreationDate          string                `json:"creationDate"`
+	MaxConcurrentRequests uint                  `json:"maxConcurrentRequests"`
+	AvailableHelps        uint                  `json:"availableHelps"`
+	CompetitionDate       string                `json:"competitionDate"`
+	Status                EventStatus           `json:"status"`
+	User                  UserShortInfo         `json:"authorInfo"`
+	Comments              []CommentResponse     `json:"comments"`
+	Transactions          []TransactionResponse `json:"transactions"`
+	Tags                  []TagResponse         `json:"tags"`
 }
 
 func (p ProposalEventGetResponse) Bytes() []byte {

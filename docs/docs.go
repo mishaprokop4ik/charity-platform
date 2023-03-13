@@ -91,9 +91,6 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
-                "tags": [
-                    "Proposal Event"
-                ],
                 "summary": "Update proposal event transaction's status to models.InProcess state",
                 "parameters": [
                     {
@@ -145,9 +142,6 @@ const docTemplate = `{
             "post": {
                 "consumes": [
                     "application/json"
-                ],
-                "tags": [
-                    "Proposal Event"
                 ],
                 "summary": "Create new comment in proposal event",
                 "parameters": [
@@ -205,9 +199,6 @@ const docTemplate = `{
             "put": {
                 "consumes": [
                     "application/json"
-                ],
-                "tags": [
-                    "Proposal Event"
                 ],
                 "summary": "Update proposal event comment",
                 "parameters": [
@@ -268,9 +259,6 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
-                "tags": [
-                    "Proposal Event"
-                ],
                 "summary": "Update proposal event comment",
                 "parameters": [
                     {
@@ -322,9 +310,6 @@ const docTemplate = `{
             "get": {
                 "consumes": [
                     "application/json"
-                ],
-                "tags": [
-                    "Proposal Event"
                 ],
                 "summary": "Take all comments in proposal event by its id",
                 "parameters": [
@@ -383,9 +368,6 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
-                ],
-                "tags": [
-                    "Proposal Event"
                 ],
                 "summary": "Create a new proposal event",
                 "parameters": [
@@ -447,9 +429,6 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "tags": [
-                    "Proposal Event"
-                ],
                 "summary": "Delete proposal event",
                 "parameters": [
                     {
@@ -505,9 +484,6 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "tags": [
-                    "Proposal Event"
-                ],
                 "summary": "Get all proposal events",
                 "responses": {
                     "200": {
@@ -557,9 +533,6 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "tags": [
-                    "Proposal Event"
-                ],
                 "summary": "Get all proposal events created by user requester id",
                 "responses": {
                     "200": {
@@ -608,9 +581,6 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
-                ],
-                "tags": [
-                    "Proposal Event"
                 ],
                 "summary": "Get proposal event by id",
                 "parameters": [
@@ -667,9 +637,6 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
-                "tags": [
-                    "Proposal Event"
-                ],
                 "summary": "Create new transaction with waiting status for the proposal event if slot is available",
                 "parameters": [
                     {
@@ -721,9 +688,6 @@ const docTemplate = `{
             "get": {
                 "consumes": [
                     "application/json"
-                ],
-                "tags": [
-                    "Proposal Event"
                 ],
                 "summary": "Get all proposal event transactions(finished, in process, etc)",
                 "parameters": [
@@ -780,9 +744,6 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
-                "tags": [
-                    "Proposal Event"
-                ],
                 "summary": "Update proposal event transaction's status to to one of models.TransactionStatus state",
                 "parameters": [
                     {
@@ -837,9 +798,6 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
-                ],
-                "tags": [
-                    "Proposal Event"
                 ],
                 "summary": "Update proposal event",
                 "parameters": [
@@ -1326,9 +1284,6 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
-                "tags": [
-                    "Proposal Event"
-                ],
                 "summary": "Return proposal events by given order and filter values",
                 "parameters": [
                     {
@@ -1529,6 +1484,17 @@ const docTemplate = `{
                 "ProposalEventType"
             ]
         },
+        "Kurajj_internal_models.MemberSearchValueResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "value": {
+                    "type": "string"
+                }
+            }
+        },
         "Kurajj_internal_models.ProposalEventGetResponse": {
             "type": "object",
             "properties": {
@@ -1635,6 +1601,23 @@ const docTemplate = `{
                 }
             }
         },
+        "Kurajj_internal_models.SearchValueResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.MemberSearchValueResponse"
+                    }
+                }
+            }
+        },
         "Kurajj_internal_models.SignInEntity": {
             "type": "object",
             "properties": {
@@ -1692,6 +1675,12 @@ const docTemplate = `{
                 },
                 "refreshToken": {
                     "type": "string"
+                },
+                "searchValues": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.SearchValueResponse"
+                    }
                 },
                 "secondName": {
                     "type": "string"

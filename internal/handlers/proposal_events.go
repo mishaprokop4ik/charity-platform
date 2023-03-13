@@ -21,7 +21,7 @@ type proposalEventCreateResponse struct {
 
 // CreateProposalEvent creates a new proposal event
 // @Summary      Create a new proposal event
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Produce      json
 // @Param request body models.ProposalEventRequestCreate true "query params"
@@ -80,7 +80,7 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 
 // UpdateProposalEvent updates a proposal event
 // @Summary      Update proposal event
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Produce      json
 // @Param request body models.ProposalEventRequestUpdate true "query params"
@@ -150,7 +150,7 @@ func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 
 // DeleteProposalEvent deletes a proposal event
 // @Summary      Delete proposal event
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Produce      json
 // @Param        id   path int  true  "ID"
@@ -204,7 +204,7 @@ func (h *Handler) DeleteProposalEvent(w http.ResponseWriter, r *http.Request) {
 
 // GetProposalEvent gets proposal event by id
 // @Summary      Get proposal event by id
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Produce      json
 // @Param        id   path int  true  "ID"
@@ -262,7 +262,7 @@ func (h *Handler) GetProposalEvent(w http.ResponseWriter, r *http.Request) {
 
 // GetProposalEvents gets all proposal events
 // @Summary      Get all proposal events
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Produce      json
 // @Success      200  {object} models.ProposalEvents
@@ -309,7 +309,7 @@ func (h *Handler) GetProposalEvents(w http.ResponseWriter, r *http.Request) {
 
 // GetUsersProposalEvents get all proposal events created by user requester id
 // @Summary      Get all proposal events created by user requester id
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Produce      json
 // @Success      200  {object} models.ProposalEvents
@@ -370,7 +370,7 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 
 // ResponseProposalEvent creates new transaction with waiting status for the proposal event if slot is available
 // @Summary      Create new transaction with waiting status for the proposal event if slot is available
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Param        id   path int  true  "ID"
 // @Success      200
@@ -436,7 +436,7 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 
 // AcceptProposalEventResponse updates proposal event transaction's status to models.InProcess state
 // @Summary      Update proposal event transaction's status to models.InProcess state
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Param        id   path int  true  "ID"
 // @Success      200
@@ -501,7 +501,7 @@ func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, t
 
 // UpdateProposalEventTransactionStatus updates proposal event transaction's status to one of models.TransactionStatus state
 // @Summary      Update proposal event transaction's status to to one of models.TransactionStatus state
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Param        id   path int  true  "ID"
 // @Success      200
@@ -512,6 +512,7 @@ func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, t
 // @Failure      500  {object}  models.ErrResponse
 // @Router       /api/events/proposal/update-status/{id} [post]
 func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r *http.Request) {
+	// TODO update available helps
 	defer r.Body.Close()
 	transactionID, ok := mux.Vars(r)["id"]
 	parsedTransactionID, err := strconv.Atoi(transactionID)
@@ -567,7 +568,7 @@ func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r 
 // WriteCommentInProposalEvent creates new comment in proposal event
 // @Param request body models.CommentCreateRequest true "query params"
 // @Summary      Create new comment in proposal event
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Success      201  {object}  models.CreationResponse
 // @Failure      401  {object}  models.ErrResponse
@@ -628,7 +629,7 @@ func (h *Handler) WriteCommentInProposalEvent(w http.ResponseWriter, r *http.Req
 
 // GetCommentsInProposalEvent takes all comments in proposal event by its id
 // @Summary      Take all comments in proposal event by its id
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Param        id   path int  true  "ID"
 // @Success      200  {object}  models.Comments
@@ -713,7 +714,7 @@ func (h *Handler) GetCommentsInProposalEvent(w http.ResponseWriter, r *http.Requ
 // @Param        id   path int  true  "ID"
 // @Param request body models.CommentUpdateRequest true "query params"
 // @Summary      Update proposal event comment
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Success      200
 // @Failure      401  {object}  models.ErrResponse
@@ -783,7 +784,7 @@ func (h *Handler) UpdateProposalEventComment(w http.ResponseWriter, r *http.Requ
 // DeleteProposalEventComment deletes proposal event comment
 // @Param        id   path int  true  "ID"
 // @Summary      Update proposal event comment
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Success      200
 // @Failure      401  {object}  models.ErrResponse
@@ -839,7 +840,7 @@ func (h *Handler) DeleteProposalEventComment(w http.ResponseWriter, r *http.Requ
 // GetProposalEventTransactions gets all proposal event transactions
 // @Param        id   path int  true  "ID"
 // @Summary      Get all proposal event transactions(finished, in process, etc)
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Success      200  {object}  models.TransactionsExport
 // @Failure      401  {object}  models.ErrResponse
@@ -920,7 +921,7 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 // @Param        id   path int  true  "ID"
 // @Summary      Return proposal events by given order and filter values
 // @Param request body search.AllEventsSearch true "query params"
-// @Tags         Proposal Event
+// @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Success      200  {object}  models.ProposalEvents
 // @Failure      401  {object}  models.ErrResponse

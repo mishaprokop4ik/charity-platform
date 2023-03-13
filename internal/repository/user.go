@@ -2,6 +2,7 @@ package repository
 
 import (
 	"Kurajj/internal/models"
+	zlog "Kurajj/pkg/logger"
 	"context"
 	"errors"
 	"fmt"
@@ -49,6 +50,37 @@ func (u *User) GetByRefreshToken(ctx context.Context, token string) (models.User
 	}
 	member := models.User{}
 	err = u.DBConnector.DB.First(&member, session.MemberID).WithContext(ctx).Error
+	if err != nil {
+		return models.User{}, err
+	}
+	memberSearch := []models.MemberSearch{}
+	err = u.DBConnector.DB.
+		Where("member_id = ?", member.ID).
+		Find(&memberSearch).
+		WithContext(ctx).
+		Error
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.User{}, err
+	}
+	member.UserSearchValues = memberSearch
+
+	for i, searchValue := range member.UserSearchValues {
+		searchValues := []models.SearchValue{}
+		err = u.DBConnector.DB.Where("member_search_id = ?", searchValue.ID).
+			Find(&searchValues).
+			WithContext(ctx).
+			Error
+
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			zlog.Log.Error(err, "got an error while getting search values")
+			continue
+		}
+		member.UserSearchValues[i].Values = searchValues
+	}
+
+	member.RefreshToken = session.RefreshToken
+
 	return member, err
 }
 
@@ -93,37 +125,89 @@ func (u *User) CreateUser(ctx context.Context, user models.User) (uint, error) {
 }
 
 func (u *User) GetUserAuthentication(ctx context.Context, email, password string) (models.User, error) {
-	user := models.User{}
+	member := models.User{}
 	resp := u.DBConnector.DB.
 		Where("password = ?", password).
 		Where("email = ?", email).
 		Where("is_deleted = ?", false).
 		Where("is_activated = ?", true).
-		First(&user).
+		First(&member).
 		WithContext(ctx)
 
 	if errors.Is(resp.Error, gorm.ErrRecordNotFound) {
-		return user, fmt.Errorf("could not find with input email: %s; it may be besause the password is incorrect", email)
+		return member, fmt.Errorf("could not find with input email: %s; it may be besause the password is incorrect", email)
 	}
 
-	return user, resp.Error
+	memberSearch := []models.MemberSearch{}
+	err := u.DBConnector.DB.
+		Where("member_id = ?", member.ID).
+		Find(&memberSearch).
+		WithContext(ctx).
+		Error
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.User{}, err
+	}
+	member.UserSearchValues = memberSearch
+
+	for i, searchValue := range member.UserSearchValues {
+		searchValues := []models.SearchValue{}
+		err = u.DBConnector.DB.Where("member_search_id = ?", searchValue.ID).
+			Find(&searchValues).
+			WithContext(ctx).
+			Error
+
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			zlog.Log.Error(err, "got an error while getting search values")
+			continue
+		}
+		member.UserSearchValues[i].Values = searchValues
+	}
+
+	return member, resp.Error
 }
 
 func (u *User) GetEntity(ctx context.Context, email, password string, isAdmin, isDeleted bool) (models.User, error) {
-	user := models.User{}
+	member := models.User{}
 	err := u.DBConnector.DB.
 		WithContext(ctx).
 		Where("email = ?", email).
 		Where("password = ?", password).
 		Where("is_admin = ?", isAdmin).
 		Where("is_deleted = ?", isDeleted).
-		First(&user).
+		First(&member).
 		Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return models.User{}, fmt.Errorf("could not found an entity ")
 	}
 
-	return user, err
+	memberSearch := []models.MemberSearch{}
+	err = u.DBConnector.DB.
+		Where("member_id = ?", member.ID).
+		Find(&memberSearch).
+		WithContext(ctx).
+		Error
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.User{}, err
+	}
+	member.UserSearchValues = memberSearch
+
+	for i, searchValue := range member.UserSearchValues {
+		searchValues := []models.SearchValue{}
+		err = u.DBConnector.DB.Where("member_search_id = ?", searchValue.ID).
+			Find(&searchValues).
+			WithContext(ctx).
+			Error
+
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			zlog.Log.Error(err, "got an error while getting search values")
+			continue
+		}
+		member.UserSearchValues[i].Values = searchValues
+	}
+
+	return member, err
 }
 
 func (u *User) DeleteUser(ctx context.Context, id uint) error {
