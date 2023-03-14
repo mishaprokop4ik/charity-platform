@@ -448,10 +448,19 @@ func (p *ProposalEvent) getProposalEventComments(ctx context.Context, eventID ui
 		Find(&comments).
 		WithContext(ctx).
 		Error
-	if err != nil && errors.Is(err, gorm.ErrRecordNotFound) {
-		return comments, nil
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return comments, err
 	}
-	return comments, err
+
+	for i, comment := range comments {
+		newComment, err := p.updateCommentUsers(ctx, comment)
+		if err != nil {
+			return nil, err
+		}
+		comments[i] = newComment
+	}
+
+	return comments, nil
 }
 
 func (p *ProposalEvent) updateCommentUsers(ctx context.Context, comment models.Comment) (models.Comment, error) {

@@ -98,14 +98,12 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 			updatedTime = comment.UpdatedAt.Time.String()
 		}
 		comments[i] = CommentResponse{
-			ID:           comment.ID,
-			Text:         comment.Text,
-			CreationDate: comment.CreationDate,
-			IsUpdated:    comment.IsUpdated,
-			UpdateTime:   updatedTime,
-			UserShortInfo: UserShortInfo{
-				ID: comment.UserID,
-			},
+			ID:            comment.ID,
+			Text:          comment.Text,
+			CreationDate:  comment.CreationDate,
+			IsUpdated:     comment.IsUpdated,
+			UpdateTime:    updatedTime,
+			UserShortInfo: comment.UserValues,
 		}
 	}
 
