@@ -1548,6 +1548,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "imageURL": {
+                    "type": "string"
+                },
                 "maxConcurrentRequests": {
                     "type": "integer"
                 },
@@ -1715,6 +1718,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "profileImageURL": {
+                    "type": "string"
                 },
                 "refreshToken": {
                     "type": "string"

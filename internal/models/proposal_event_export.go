@@ -78,6 +78,7 @@ type ProposalEventGetResponse struct {
 	AvailableHelps        uint                  `json:"availableHelps"`
 	CompetitionDate       string                `json:"competitionDate"`
 	Status                EventStatus           `json:"status"`
+	Image                 string                `json:"imageURL"`
 	User                  UserShortInfo         `json:"authorInfo"`
 	Comments              []CommentResponse     `json:"comments"`
 	Transactions          []TransactionResponse `json:"transactions"`
@@ -198,6 +199,7 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 			ProfileImageURL: event.User.AvatarImagePath,
 			PhoneNumber:     Telephone(event.User.Telephone),
 		},
+		Image:        event.ImagePath,
 		Comments:     comments,
 		Transactions: transactions,
 		Tags:         tags,

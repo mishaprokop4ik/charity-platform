@@ -107,6 +107,7 @@ func (u User) GetUserFullResponse(tokens Tokens) SignedInUser {
 		Telephone:    Telephone(u.Telephone),
 		CompanyName:  u.CompanyName,
 		Address:      address,
+		Avatar:       u.AvatarImagePath,
 		AccessToken:  tokens.Access,
 		RefreshToken: tokens.Refresh,
 		SearchValues: searchValues,
