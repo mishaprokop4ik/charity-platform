@@ -924,7 +924,7 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 // @Param request body search.AllEventsSearch true "query params"
 // @SearchValuesResponse         Proposal Event
 // @Accept       json
-// @Success      200  {object}  models.ProposalEvents
+// @Success      200  {object}  models.ProposalEventsWithPagination
 // @Failure      401  {object}  models.ErrResponse
 // @Failure      403  {object}  models.ErrResponse
 // @Failure      404  {object}  models.ErrResponse
@@ -954,15 +954,18 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 		}
 		searchValuesInternal.SearcherID = &userIDParsed
 	}
-	eventch := make(chan getProposalEvents)
+	eventch := make(chan getProposalEventPagination)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
 		events, respError := h.services.ProposalEvent.GetProposalEventBySearch(ctx, searchValuesInternal)
 
-		eventch <- getProposalEvents{
-			proposalEvents: models.GetProposalEvents(events...),
-			err:            respError,
+		eventch <- getProposalEventPagination{
+			resp: models.ProposalEventsWithPagination{
+				ProposalEvents: models.GetProposalEvents(events.Events...),
+				Pagination:     events.Pagination,
+			},
+			err: respError,
 		}
 	}()
 	select {
@@ -981,7 +984,7 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 		}
 
 		w.WriteHeader(http.StatusOK)
-		err = httpHelper.SendHTTPResponse(w, resp.proposalEvents)
+		err = httpHelper.SendHTTPResponse(w, resp.resp)
 		if err != nil {
 			zlog.Log.Error(err, "could not send proposal events")
 		}

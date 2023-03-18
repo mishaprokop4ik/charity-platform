@@ -12,7 +12,7 @@ type ProposalEventer interface {
 	Accept(ctx context.Context, transactionID uint) error
 	UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint) error
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
-	GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) ([]models.ProposalEvent, error)
+	GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) (models.ProposalEventPagination, error)
 }
 
 type ProposalEventCRUDer interface {
@@ -33,7 +33,7 @@ type ProposalEvent struct {
 	repo *repository.Repository
 }
 
-func (p *ProposalEvent) GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) ([]models.ProposalEvent, error) {
+func (p *ProposalEvent) GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) (models.ProposalEventPagination, error) {
 	return p.repo.ProposalEvent.GetEventsWithSearchAndSort(ctx, search)
 }
 

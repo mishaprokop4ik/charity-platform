@@ -4,6 +4,7 @@ import (
 	_ "Kurajj/docs"
 	service "Kurajj/internal/services"
 	"github.com/gorilla/mux"
+	"github.com/rs/cors"
 	httpSwagger "github.com/swaggo/http-swagger"
 	"net/http"
 )
@@ -87,5 +88,7 @@ func (h *Handler) InitRoutes() http.Handler {
 	tags.HandleFunc("/upsert", h.UpsertTags).Methods(http.MethodPost)
 	tags.HandleFunc("/user-search", h.UpsertUserSearch).Methods(http.MethodPost)
 
-	return r
+	handler := cors.AllowAll().Handler(r)
+
+	return handler
 }

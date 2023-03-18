@@ -1307,7 +1307,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ProposalEvents"
+                            "$ref": "#/definitions/Kurajj_internal_models.ProposalEventsWithPagination"
                         }
                     },
                     "401": {
@@ -1495,6 +1495,32 @@ const docTemplate = `{
                 }
             }
         },
+        "Kurajj_internal_models.Pagination": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer"
+                },
+                "nextPage": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "page": {
+                    "type": "integer"
+                },
+                "previousPage": {
+                    "type": "integer"
+                },
+                "totalPage": {
+                    "type": "integer"
+                },
+                "totalRecords": {
+                    "type": "integer"
+                }
+            }
+        },
         "Kurajj_internal_models.ProposalEventGetResponse": {
             "type": "object",
             "properties": {
@@ -1577,6 +1603,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "maxConcurrentRequests": {
+                    "type": "integer"
+                },
                 "title": {
                     "type": "string"
                 }
@@ -1585,6 +1614,20 @@ const docTemplate = `{
         "Kurajj_internal_models.ProposalEvents": {
             "type": "object",
             "properties": {
+                "proposalEvents": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.ProposalEventGetResponse"
+                    }
+                }
+            }
+        },
+        "Kurajj_internal_models.ProposalEventsWithPagination": {
+            "type": "object",
+            "properties": {
+                "pagination": {
+                    "$ref": "#/definitions/Kurajj_internal_models.Pagination"
+                },
                 "proposalEvents": {
                     "type": "array",
                     "items": {
@@ -1759,19 +1802,8 @@ const docTemplate = `{
                 "values": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/Kurajj_internal_models.TagValueResponse"
+                        "type": "string"
                     }
-                }
-            }
-        },
-        "Kurajj_internal_models.TagValueResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "value": {
-                    "type": "string"
                 }
             }
         },
@@ -1877,6 +1909,12 @@ const docTemplate = `{
                 },
                 "order": {
                     "type": "string"
+                },
+                "pageNumber": {
+                    "type": "integer"
+                },
+                "pageSize": {
+                    "type": "integer"
                 },
                 "sortField": {
                     "type": "string"

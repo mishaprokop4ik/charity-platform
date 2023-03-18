@@ -99,6 +99,23 @@ definitions:
       value:
         type: string
     type: object
+  Kurajj_internal_models.Pagination:
+    properties:
+      limit:
+        type: integer
+      nextPage:
+        type: integer
+      offset:
+        type: integer
+      page:
+        type: integer
+      previousPage:
+        type: integer
+      totalPage:
+        type: integer
+      totalRecords:
+        type: integer
+    type: object
   Kurajj_internal_models.ProposalEventGetResponse:
     properties:
       authorInfo:
@@ -153,11 +170,22 @@ definitions:
         type: string
       id:
         type: integer
+      maxConcurrentRequests:
+        type: integer
       title:
         type: string
     type: object
   Kurajj_internal_models.ProposalEvents:
     properties:
+      proposalEvents:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.ProposalEventGetResponse'
+        type: array
+    type: object
+  Kurajj_internal_models.ProposalEventsWithPagination:
+    properties:
+      pagination:
+        $ref: '#/definitions/Kurajj_internal_models.Pagination'
       proposalEvents:
         items:
           $ref: '#/definitions/Kurajj_internal_models.ProposalEventGetResponse'
@@ -271,15 +299,8 @@ definitions:
         type: string
       values:
         items:
-          $ref: '#/definitions/Kurajj_internal_models.TagValueResponse'
+          type: string
         type: array
-    type: object
-  Kurajj_internal_models.TagValueResponse:
-    properties:
-      id:
-        type: integer
-      value:
-        type: string
     type: object
   Kurajj_internal_models.TokensResponse:
     properties:
@@ -351,6 +372,10 @@ definitions:
         type: string
       order:
         type: string
+      pageNumber:
+        type: integer
+      pageSize:
+        type: integer
       sortField:
         type: string
       statusStates:
@@ -1217,7 +1242,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/Kurajj_internal_models.ProposalEvents'
+            $ref: '#/definitions/Kurajj_internal_models.ProposalEventsWithPagination'
         "401":
           description: Unauthorized
           schema:

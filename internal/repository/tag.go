@@ -57,6 +57,11 @@ func (t *Tag) UpsertTags(ctx context.Context, eventType models.EventType, eventI
 	}
 	for _, tag := range tags {
 		if tag.Title == "location" {
+			err = tx.Model(&models.Address{}).Where("event_type = ?", eventType).Where("event_id = ?", eventID).WithContext(ctx).Error
+			if err != nil && !errors.Is(gorm.ErrRecordNotFound, err) {
+				tx.Rollback()
+				return err
+			}
 			if len(tag.Values) >= models.DecodedAddressLength {
 				location := models.Address{
 					Region:       tag.Values[0].Value,

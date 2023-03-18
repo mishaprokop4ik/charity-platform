@@ -14,6 +14,8 @@ type AllEventsSearch struct {
 	Order       models.Order        `json:"order"`
 	TakingPart  bool                `json:"takingPart"`
 	StatusState models.EventStatus  `json:"statusStates"`
+	PageNumber  int                 `json:"pageNumber"`
+	PageSize    int                 `json:"pageSize"`
 }
 
 func UnmarshalAllEventsSearch(r *io.ReadCloser) (AllEventsSearch, error) {
@@ -53,6 +55,10 @@ func (s AllEventsSearch) Internal() models.ProposalEventSearchInternal {
 		Order:     &s.Order,
 		SortField: s.SortField,
 		Location:  &location,
+		Pagination: models.PaginationRequest{
+			PageSize:   s.PageSize,
+			PageNumber: s.PageNumber,
+		},
 	}
 }
 

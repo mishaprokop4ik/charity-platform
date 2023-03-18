@@ -92,6 +92,27 @@ type ProposalEventSearchInternal struct {
 	State      []EventStatus
 	TakingPart *bool
 	Location   *Address
+	Pagination PaginationRequest
+}
+
+type PaginationRequest struct {
+	PageNumber int
+	PageSize   int
+}
+
+type Pagination struct {
+	TotalRecords int64 `json:"totalRecords"`
+	TotalPage    int   `json:"totalPage"`
+	Offset       int   `json:"offset"`
+	Limit        int   `json:"limit"`
+	Page         int   `json:"page"`
+	PrevPage     int   `json:"previousPage"`
+	NextPage     int   `json:"nextPage"`
+}
+
+type ProposalEventPagination struct {
+	Events     []ProposalEvent
+	Pagination Pagination
 }
 
 func (i ProposalEventSearchInternal) GetTagsValues() []string {

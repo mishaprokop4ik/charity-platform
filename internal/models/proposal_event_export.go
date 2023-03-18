@@ -168,17 +168,27 @@ type ProposalEvents struct {
 	ProposalEvents []ProposalEventGetResponse `json:"proposalEvents"`
 }
 
+func (l ProposalEvents) Bytes() []byte {
+	bytes, _ := json.Marshal(l)
+	return bytes
+}
+
+type ProposalEventsWithPagination struct {
+	ProposalEvents
+	Pagination Pagination `json:"pagination"`
+}
+
+func (l ProposalEventsWithPagination) Bytes() []byte {
+	bytes, _ := json.Marshal(l)
+	return bytes
+}
+
 func GetProposalEvents(events ...ProposalEvent) ProposalEvents {
 	responseEvents := ProposalEvents{}
 	for _, e := range events {
 		responseEvents.ProposalEvents = append(responseEvents.ProposalEvents, GetProposalEvent(e))
 	}
 	return responseEvents
-}
-
-func (l ProposalEvents) Bytes() []byte {
-	bytes, _ := json.Marshal(l)
-	return bytes
 }
 
 type ProposalEventRequestUpdate struct {

@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
+	"math"
 	"strings"
 	"time"
 )
@@ -19,7 +20,7 @@ type ProposalEventer interface {
 	proposalEventCRUDer
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
 	GetEventsWithSearchAndSort(ctx context.Context,
-		searchValues models.ProposalEventSearchInternal) ([]models.ProposalEvent, error)
+		searchValues models.ProposalEventSearchInternal) (models.ProposalEventPagination, error)
 }
 
 type proposalEventCRUDer interface {
@@ -34,16 +35,58 @@ type ProposalEvent struct {
 	DBConnector *Connector
 }
 
+const (
+	DefaultPageNumber = 1
+	DefaultPageLimit  = 10
+)
+
+func (p *ProposalEvent) calculatePagination(ctx context.Context, searchValues models.ProposalEventSearchInternal) (*models.Pagination, error) {
+	offset := 0
+
+	if searchValues.Pagination.PageNumber > 0 {
+		offset = (searchValues.Pagination.PageNumber - 1) * searchValues.Pagination.PageSize
+	}
+
+	var count int64
+
+	err := p.DBConnector.DB.Model(&models.ProposalEvent{}).Count(&count).WithContext(ctx).Error
+	if err != nil {
+		return nil, err
+	}
+
+	totalPages := int(math.Ceil(float64(count) / float64(searchValues.Pagination.PageSize)))
+
+	pagination := &models.Pagination{
+		TotalRecords: count,
+		TotalPage:    totalPages,
+		Offset:       offset,
+		Limit:        searchValues.Pagination.PageSize,
+		Page:         searchValues.Pagination.PageNumber,
+		PrevPage:     searchValues.Pagination.PageNumber,
+		NextPage:     searchValues.Pagination.PageNumber,
+	}
+
+	if searchValues.Pagination.PageNumber > 1 {
+		pagination.PrevPage = searchValues.Pagination.PageNumber - 1
+	}
+
+	if searchValues.Pagination.PageNumber != pagination.TotalPage {
+		pagination.NextPage = searchValues.Pagination.PageNumber + 1
+	}
+
+	return pagination, nil
+}
+
 func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
-	searchValues models.ProposalEventSearchInternal) ([]models.ProposalEvent, error) {
+	searchValues models.ProposalEventSearchInternal) (models.ProposalEventPagination, error) {
+	db := p.DBConnector.DB.Session(&gorm.Session{})
 	events := []models.ProposalEvent{}
 	searchValues = p.removeEmptySearchValues(searchValues)
-	query := p.DBConnector.DB.
+	query := db.
 		Order(fmt.Sprintf("%s %s", searchValues.SortField, strings.ToUpper(string(*searchValues.Order)))).
 		Where("status IN (?)", searchValues.State)
 
 	if searchValues.GetOwn != nil && searchValues.SearcherID != nil {
-		fmt.Println("1")
 		if *searchValues.GetOwn {
 			query = query.Where("author_id = ?", searchValues.SearcherID)
 		} else {
@@ -57,7 +100,6 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	}
 
 	if searchValues.TakingPart != nil {
-		fmt.Println("3")
 		if *searchValues.TakingPart {
 			query = query.Joins("JOIN transaction ON transaction.event_id = propositional_event.id").
 				Where("transaction.creator_id = ?", searchValues.SearcherID).
@@ -70,14 +112,13 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	}
 
 	if searchValues.Tags != nil && len(*searchValues.Tags) > 0 {
-		fmt.Println("4")
 		if len(searchValues.GetTagsValues()) == 0 {
-			subQuery := p.DBConnector.DB.Table("tag").Select("event_id").
+			subQuery := db.Table("tag").Select("event_id").
 				Where("LOWER(title) IN (?) AND event_type = ?", searchValues.GetTagsTitle(), models.ProposalEventType)
 
 			query = query.Where("id IN (?)", subQuery)
 		} else {
-			subQuery := p.DBConnector.DB.Table("tag").Select("event_id").
+			subQuery := db.Table("tag").Select("event_id").
 				Joins("JOIN tag_value ON tag.id = tag_value.tag_id").
 				Where("LOWER(tag.title) IN (?) AND LOWER(tag_value.value) IN (?) AND tag.event_type = ?",
 					searchValues.GetTagsTitle(), searchValues.GetTagsValues(), models.ProposalEventType)
@@ -87,7 +128,7 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	}
 	if searchValues.Location != nil {
 		location := *searchValues.Location
-		subQuery := p.DBConnector.DB.Table("location").Select("event_id").
+		subQuery := db.Table("location").Select("event_id").
 			Where("event_type = ?", models.ProposalEventType)
 
 		if location.Region != "" {
@@ -106,25 +147,33 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 		query = query.Where("id IN (?)", subQuery)
 	}
 
-	err := query.Find(&events).WithContext(ctx).Error
+	pagination, err := p.calculatePagination(ctx, searchValues)
 	if err != nil {
-		return nil, err
+		return models.ProposalEventPagination{}, err
+	}
+
+	err = query.Limit(searchValues.Pagination.PageSize).Offset(pagination.Offset).Find(&events).WithContext(ctx).Error
+	if err != nil {
+		return models.ProposalEventPagination{}, err
 	}
 
 	events, err = p.insertUserInProposalEvents(ctx, events)
 	if err != nil {
-		return nil, err
+		return models.ProposalEventPagination{}, err
 	}
 
 	for i, event := range events {
 		updatedEvent, err := p.updateMissingEventData(ctx, event)
 		if err != nil {
-			return nil, err
+			return models.ProposalEventPagination{}, err
 		}
 		events[i] = updatedEvent
 	}
 
-	return events, nil
+	return models.ProposalEventPagination{
+		Events:     events,
+		Pagination: *pagination,
+	}, nil
 }
 
 func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEventSearchInternal) models.ProposalEventSearchInternal {
@@ -179,6 +228,19 @@ func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEven
 	} else {
 		newSearchValues.Order = searchValues.Order
 	}
+
+	if searchValues.Pagination.PageNumber < 1 {
+		newSearchValues.Pagination.PageNumber = DefaultPageNumber
+	} else {
+		newSearchValues.Pagination.PageNumber = searchValues.Pagination.PageNumber
+	}
+
+	if searchValues.Pagination.PageSize < 1 {
+		newSearchValues.Pagination.PageSize = DefaultPageLimit
+	} else {
+		newSearchValues.Pagination.PageSize = searchValues.Pagination.PageSize
+	}
+
 	return newSearchValues
 }
 

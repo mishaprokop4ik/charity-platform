@@ -23,6 +23,11 @@ type getProposalEvents struct {
 	err            error
 }
 
+type getProposalEventPagination struct {
+	resp models.ProposalEventsWithPagination
+	err  error
+}
+
 type getTagsResponse struct {
 	tags []models.Tag
 	err  error

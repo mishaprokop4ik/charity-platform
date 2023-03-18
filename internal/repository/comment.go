@@ -69,14 +69,14 @@ func (c *Comment) DeleteComment(ctx context.Context, id uint) error {
 	}()
 
 	oldComment := models.Comment{}
-	err := c.DBConnector.DB.Where("id = ?", id).First(&oldComment).WithContext(ctx).Error
+	err := tx.Where("id = ?", id).First(&oldComment).WithContext(ctx).Error
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 	oldComment.IsDeleted = true
 
-	err = c.DBConnector.DB.Save(&oldComment).WithContext(ctx).Error
+	err = tx.Save(&oldComment).WithContext(ctx).Error
 	if err != nil {
 		tx.Rollback()
 		return err
