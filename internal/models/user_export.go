@@ -1,14 +1,45 @@
 package models
 
 import (
+	"Kurajj/pkg/util"
 	"encoding/json"
 	"fmt"
-	"github.com/samber/lo"
 	"io"
 	"regexp"
 )
 
 const ukrainePhoneNumberPrefix = "+380"
+
+func UnmarshalCreateAdmin(r *io.ReadCloser) (AdminCreation, error) {
+	admin := AdminCreation{}
+	if err := json.NewDecoder(*r).Decode(&admin); err != nil {
+		return AdminCreation{}, fmt.Errorf("cound not decode user: %s", err)
+	}
+
+	// TODO add validation for company name
+	admin.CompanyName = "nure"
+
+	return admin, nil
+}
+
+func UnmarshalSignUpUser(r *io.ReadCloser) (SignUpUser, error) {
+	user := SignUpUser{}
+	if err := json.NewDecoder(*r).Decode(&user); err != nil {
+		return SignUpUser{}, fmt.Errorf("cound not decode user: %s", err)
+	}
+
+	return user, nil
+}
+
+// UnmarshalSignInEntity gets an SignInEntity from http Request
+func UnmarshalSignInEntity(r *io.ReadCloser) (SignInEntity, error) {
+	e := SignInEntity{}
+	err := json.NewDecoder(*r).Decode(&e)
+	if err != nil {
+		return SignInEntity{}, err
+	}
+	return e, nil
+}
 
 type Email string
 
@@ -46,23 +77,10 @@ func (t Telephone) Validate() bool {
 		phoneNumber = phoneNumber[1:]
 	}
 	if len(phoneNumber) == 10 || len(phoneNumber) == 12 {
-		return containsOnlyDigits(string(phoneNumber))
+		return util.ContainsOnlyDigits(string(phoneNumber))
 	}
 
 	return false
-}
-
-func containsOnlyDigits(s string) bool {
-	digits := []rune{
-		'1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-	}
-	for i := range s {
-		if !lo.Contains(digits, rune(s[i])) {
-			return false
-		}
-	}
-
-	return true
 }
 
 type Address struct {
@@ -102,25 +120,6 @@ type SignInEntity struct {
 	IsAdmin  bool   `json:"-"`
 }
 
-func UnmarshalSignUpUser(r *io.ReadCloser) (SignUpUser, error) {
-	user := SignUpUser{}
-	if err := json.NewDecoder(*r).Decode(&user); err != nil {
-		return SignUpUser{}, fmt.Errorf("cound not decode user: %s", err)
-	}
-
-	return user, nil
-}
-
-// UnmarshalSignInEntity gets an SignInEntity from http Request
-func UnmarshalSignInEntity(r *io.ReadCloser) (SignInEntity, error) {
-	e := SignInEntity{}
-	err := json.NewDecoder(*r).Decode(&e)
-	if err != nil {
-		return SignInEntity{}, err
-	}
-	return e, nil
-}
-
 func (i SignUpUser) GetInternalUser() User {
 	fullName := fmt.Sprintf("%s %s", i.FirstName, i.SecondName)
 	return User{
@@ -135,6 +134,11 @@ func (i SignUpUser) GetInternalUser() User {
 
 type CreationResponse struct {
 	ID int `json:"id"`
+}
+
+func (r CreationResponse) Bytes() []byte {
+	encoded, _ := json.Marshal(r)
+	return encoded
 }
 
 type SignedInUser struct {
@@ -153,23 +157,6 @@ type SignedInUser struct {
 func (s SignedInUser) Bytes() []byte {
 	encoded, _ := json.Marshal(s)
 	return encoded
-}
-
-func (r CreationResponse) Bytes() []byte {
-	encoded, _ := json.Marshal(r)
-	return encoded
-}
-
-func UnmarshalCreateAdmin(r *io.ReadCloser) (AdminCreation, error) {
-	admin := AdminCreation{}
-	if err := json.NewDecoder(*r).Decode(&admin); err != nil {
-		return AdminCreation{}, fmt.Errorf("cound not decode user: %s", err)
-	}
-
-	// TODO add validation for company name
-	admin.CompanyName = "nure"
-
-	return admin, nil
 }
 
 type AdminCreation struct {

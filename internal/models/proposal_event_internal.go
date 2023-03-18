@@ -8,6 +8,13 @@ import (
 	"time"
 )
 
+type Order string
+
+var (
+	AscendingOrder Order = "ASC"
+	DecreaseOrder  Order = "DESC"
+)
+
 type ProposalEvent struct {
 	ID                    uint          `gorm:"primaryKey"`
 	Title                 string        `gorm:"column:title"`
@@ -75,13 +82,6 @@ func (p ProposalEventsInternal) Serialize() ([]byte, error) {
 	return decodedEvent, err
 }
 
-type Order string
-
-var (
-	AscendingOrder Order = "ASC"
-	DecreaseOrder  Order = "DESC"
-)
-
 type ProposalEventSearchInternal struct {
 	Name       *string
 	GetOwn     *bool
@@ -93,26 +93,6 @@ type ProposalEventSearchInternal struct {
 	TakingPart *bool
 	Location   *Address
 	Pagination PaginationRequest
-}
-
-type PaginationRequest struct {
-	PageNumber int
-	PageSize   int
-}
-
-type Pagination struct {
-	TotalRecords int64 `json:"totalRecords"`
-	TotalPage    int   `json:"totalPage"`
-	Offset       int   `json:"offset"`
-	Limit        int   `json:"limit"`
-	Page         int   `json:"page"`
-	PrevPage     int   `json:"previousPage"`
-	NextPage     int   `json:"nextPage"`
-}
-
-type ProposalEventPagination struct {
-	Events     []ProposalEvent
-	Pagination Pagination
 }
 
 func (i ProposalEventSearchInternal) GetTagsValues() []string {
@@ -143,4 +123,24 @@ func (i ProposalEventSearchInternal) GetTagsTitle() []string {
 	}
 
 	return titles
+}
+
+type PaginationRequest struct {
+	PageNumber int
+	PageSize   int
+}
+
+type Pagination struct {
+	TotalRecords int64 `json:"totalRecords"`
+	TotalPage    int   `json:"totalPage"`
+	Offset       int   `json:"offset"`
+	Limit        int   `json:"limit"`
+	Page         int   `json:"page"`
+	PrevPage     int   `json:"previousPage"`
+	NextPage     int   `json:"nextPage"`
+}
+
+type ProposalEventPagination struct {
+	Events     []ProposalEvent
+	Pagination Pagination
 }

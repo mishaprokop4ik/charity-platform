@@ -5,6 +5,12 @@ import (
 	"io"
 )
 
+func UnmarshalSearchValuesGroupCreateRequest(r *io.ReadCloser) (MemberSearchValuesRequestCreate, error) {
+	tags := MemberSearchValuesRequestCreate{}
+	err := json.NewDecoder(*r).Decode(&tags)
+	return tags, err
+}
+
 type MemberSearch struct {
 	ID     uint          `gorm:"primaryKey"`
 	Title  string        `gorm:"column:title"`
@@ -83,12 +89,6 @@ func (t MemberSearchValuesRequestCreate) Internal() []MemberSearch {
 		}
 	}
 	return search
-}
-
-func UnmarshalSearchValuesGroupCreateRequest(r *io.ReadCloser) (MemberSearchValuesRequestCreate, error) {
-	tags := MemberSearchValuesRequestCreate{}
-	err := json.NewDecoder(*r).Decode(&tags)
-	return tags, err
 }
 
 type SearchValue struct {

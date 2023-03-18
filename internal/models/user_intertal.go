@@ -30,7 +30,6 @@ type User struct {
 	UserSearchValues []MemberSearch `gorm:"-"`
 	Token            string         `json:"token"`
 	RefreshToken     string         `json:"refreshToken"`
-	//ProposalEvents []ProposalEvent `gorm:"foreignKey:AuthorID"`
 }
 
 func (u User) ToShortInfo() UserShortInfo {
@@ -117,5 +116,3 @@ func (u User) GetUserFullResponse(tokens Tokens) SignedInUser {
 func (User) TableName() string {
 	return "members"
 }
-
-const MemberIDContextKey = "id"

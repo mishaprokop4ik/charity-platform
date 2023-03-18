@@ -6,6 +6,18 @@ import (
 	"time"
 )
 
+func UnmarshalCommentUpdateRequest(r *io.ReadCloser) (CommentUpdateRequest, error) {
+	c := CommentUpdateRequest{}
+	err := json.NewDecoder(*r).Decode(&c)
+	return c, err
+}
+
+func UnmarshalCommentCreateRequest(r *io.ReadCloser) (CommentCreateRequest, error) {
+	c := CommentCreateRequest{}
+	err := json.NewDecoder(*r).Decode(&c)
+	return c, err
+}
+
 type CommentResponse struct {
 	ID           uint      `json:"id"`
 	Text         string    `json:"text"`
@@ -32,16 +44,4 @@ type CommentCreateRequest struct {
 type CommentUpdateRequest struct {
 	ID   uint   `json:"id"`
 	Text string `json:"text"`
-}
-
-func UnmarshalCommentUpdateRequest(r *io.ReadCloser) (CommentUpdateRequest, error) {
-	c := CommentUpdateRequest{}
-	err := json.NewDecoder(*r).Decode(&c)
-	return c, err
-}
-
-func UnmarshalCommentCreateRequest(r *io.ReadCloser) (CommentCreateRequest, error) {
-	c := CommentCreateRequest{}
-	err := json.NewDecoder(*r).Decode(&c)
-	return c, err
 }

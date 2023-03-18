@@ -9,6 +9,8 @@ import (
 	"strings"
 )
 
+const MemberIDContextKey = "id"
+
 func (h *Handler) Authentication(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()

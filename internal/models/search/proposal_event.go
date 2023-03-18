@@ -7,6 +7,12 @@ import (
 	"strings"
 )
 
+func UnmarshalAllEventsSearch(r *io.ReadCloser) (AllEventsSearch, error) {
+	search := AllEventsSearch{}
+	err := json.NewDecoder(*r).Decode(&search)
+	return search, err
+}
+
 type AllEventsSearch struct {
 	Name        string              `json:"name"`
 	Tags        []models.TagRequest `json:"tags"`
@@ -16,12 +22,6 @@ type AllEventsSearch struct {
 	StatusState models.EventStatus  `json:"statusStates"`
 	PageNumber  int                 `json:"pageNumber"`
 	PageSize    int                 `json:"pageSize"`
-}
-
-func UnmarshalAllEventsSearch(r *io.ReadCloser) (AllEventsSearch, error) {
-	search := AllEventsSearch{}
-	err := json.NewDecoder(*r).Decode(&search)
-	return search, err
 }
 
 func (s AllEventsSearch) Internal() models.ProposalEventSearchInternal {

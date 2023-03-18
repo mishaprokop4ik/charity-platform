@@ -5,12 +5,22 @@ import (
 	"io"
 )
 
+func UnmarshalTagGroupCreateRequest(r *io.ReadCloser) (TagGroupRequestCreate, error) {
+	tags := TagGroupRequestCreate{}
+	err := json.NewDecoder(*r).Decode(&tags)
+	return tags, err
+}
+
 type Tag struct {
 	ID        uint       `gorm:"primaryKey"`
 	Title     string     `gorm:"column:title"`
 	EventID   uint       `gorm:"column:event_id"`
 	EventType EventType  `gorm:"column:event_type"`
 	Values    []TagValue `gorm:"-"`
+}
+
+func (Tag) TableName() string {
+	return "tag"
 }
 
 func (t Tag) GetTagValuesResponse() []string {
@@ -78,20 +88,10 @@ func (t TagGroupRequestCreate) Internal() []Tag {
 	return tags
 }
 
-func UnmarshalTagGroupCreateRequest(r *io.ReadCloser) (TagGroupRequestCreate, error) {
-	tags := TagGroupRequestCreate{}
-	err := json.NewDecoder(*r).Decode(&tags)
-	return tags, err
-}
-
 type TagValueRequest struct {
 	ID    uint   `json:"id"`
 	TagID uint   `json:"tagID"`
 	Value string `json:"value"`
-}
-
-func (Tag) TableName() string {
-	return "tag"
 }
 
 type TagValue struct {

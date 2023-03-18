@@ -7,6 +7,18 @@ import (
 	"time"
 )
 
+func UnmarshalProposalEventUpdate(r *io.ReadCloser) (ProposalEventRequestUpdate, error) {
+	e := ProposalEventRequestUpdate{}
+	err := json.NewDecoder(*r).Decode(&e)
+	return e, err
+}
+
+func UnmarshalProposalEventCreate(r *io.ReadCloser) (ProposalEventRequestCreate, error) {
+	e := ProposalEventRequestCreate{}
+	err := json.NewDecoder(*r).Decode(&e)
+	return e, err
+}
+
 type ProposalEventRequestCreate struct {
 	Title                 string       `json:"title"`
 	Description           string       `json:"description"`
@@ -57,12 +69,6 @@ func (p *ProposalEventRequestCreate) InternalValue(userID uint) ProposalEvent {
 	}
 }
 
-func UnmarshalProposalEventCreate(r *io.ReadCloser) (ProposalEventRequestCreate, error) {
-	e := ProposalEventRequestCreate{}
-	err := json.NewDecoder(*r).Decode(&e)
-	return e, err
-}
-
 type ProposalEventGetResponse struct {
 	ID                    uint                  `json:"id"`
 	Title                 string                `json:"title"`
@@ -81,6 +87,41 @@ type ProposalEventGetResponse struct {
 func (p ProposalEventGetResponse) Bytes() []byte {
 	bytes, _ := json.Marshal(p)
 	return bytes
+}
+
+type ProposalEvents struct {
+	ProposalEvents []ProposalEventGetResponse `json:"proposalEvents"`
+}
+
+func (l ProposalEvents) Bytes() []byte {
+	bytes, _ := json.Marshal(l)
+	return bytes
+}
+
+type ProposalEventsWithPagination struct {
+	ProposalEvents
+	Pagination Pagination `json:"pagination"`
+}
+
+func (l ProposalEventsWithPagination) Bytes() []byte {
+	bytes, _ := json.Marshal(l)
+	return bytes
+}
+
+type ProposalEventRequestUpdate struct {
+	ID                    uint      `json:"id"`
+	Title                 string    `json:"title"`
+	Description           string    `json:"description"`
+	CompetitionDate       time.Time `json:"competitionDate"`
+	MaxConcurrentRequests int       `json:"maxConcurrentRequests"`
+}
+
+func GetProposalEvents(events ...ProposalEvent) ProposalEvents {
+	responseEvents := ProposalEvents{}
+	for _, e := range events {
+		responseEvents.ProposalEvents = append(responseEvents.ProposalEvents, GetProposalEvent(e))
+	}
+	return responseEvents
 }
 
 func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
@@ -162,45 +203,4 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 		Tags:         tags,
 		Status:       event.Status,
 	}
-}
-
-type ProposalEvents struct {
-	ProposalEvents []ProposalEventGetResponse `json:"proposalEvents"`
-}
-
-func (l ProposalEvents) Bytes() []byte {
-	bytes, _ := json.Marshal(l)
-	return bytes
-}
-
-type ProposalEventsWithPagination struct {
-	ProposalEvents
-	Pagination Pagination `json:"pagination"`
-}
-
-func (l ProposalEventsWithPagination) Bytes() []byte {
-	bytes, _ := json.Marshal(l)
-	return bytes
-}
-
-func GetProposalEvents(events ...ProposalEvent) ProposalEvents {
-	responseEvents := ProposalEvents{}
-	for _, e := range events {
-		responseEvents.ProposalEvents = append(responseEvents.ProposalEvents, GetProposalEvent(e))
-	}
-	return responseEvents
-}
-
-type ProposalEventRequestUpdate struct {
-	ID                    uint      `json:"id"`
-	Title                 string    `json:"title"`
-	Description           string    `json:"description"`
-	CompetitionDate       time.Time `json:"competitionDate"`
-	MaxConcurrentRequests int       `json:"maxConcurrentRequests"`
-}
-
-func UnmarshalProposalEventUpdate(r *io.ReadCloser) (ProposalEventRequestUpdate, error) {
-	e := ProposalEventRequestUpdate{}
-	err := json.NewDecoder(*r).Decode(&e)
-	return e, err
 }
