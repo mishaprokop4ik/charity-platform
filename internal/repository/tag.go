@@ -4,6 +4,7 @@ import (
 	"Kurajj/internal/models"
 	"context"
 	"errors"
+	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -44,6 +45,7 @@ func (t *Tag) CreateTag(ctx context.Context, tag models.Tag) error {
 }
 
 func (t *Tag) UpsertTags(ctx context.Context, eventType models.EventType, eventID uint, tags []models.Tag) error {
+	// TODO add real upsert
 	tx := t.DBConnector.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -57,7 +59,13 @@ func (t *Tag) UpsertTags(ctx context.Context, eventType models.EventType, eventI
 	}
 	for _, tag := range tags {
 		if tag.Title == "location" {
-			err = tx.Model(&models.Address{}).Where("event_type = ?", eventType).Where("event_id = ?", eventID).WithContext(ctx).Error
+			fmt.Println(eventID, eventType)
+			err = tx.Model(&models.Address{}).
+				Where("event_type = ?", eventType).
+				Where("event_id = ?", eventID).
+				Delete(&models.Address{}).
+				WithContext(ctx).
+				Error
 			if err != nil && !errors.Is(gorm.ErrRecordNotFound, err) {
 				tx.Rollback()
 				return err
@@ -71,7 +79,7 @@ func (t *Tag) UpsertTags(ctx context.Context, eventType models.EventType, eventI
 					EventType:    eventType,
 					EventID:      eventID,
 				}
-				err = t.DBConnector.DB.Create(&location).WithContext(ctx).Error
+				err = tx.Create(&location).WithContext(ctx).Error
 				if err != nil {
 					return err
 				}
@@ -86,7 +94,7 @@ func (t *Tag) UpsertTags(ctx context.Context, eventType models.EventType, eventI
 		}
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (t *Tag) GetTagsByEvent(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Tag, error) {
