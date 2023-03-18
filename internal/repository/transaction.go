@@ -4,6 +4,7 @@ import (
 	"Kurajj/internal/models"
 	"context"
 	"github.com/samber/lo"
+	"gorm.io/gorm"
 )
 
 type Transactioner interface {
@@ -71,13 +72,47 @@ func (t *Transaction) UpdateTransactionByEvent(ctx context.Context, eventID uint
 }
 
 func (t *Transaction) UpdateTransactionByID(ctx context.Context, id uint, toUpdate map[string]any) error {
-	return t.DBConnector.DB.
+	tx := t.DBConnector.DB.Begin()
+	if err := t.DBConnector.DB.
 		Model(&models.Transaction{}).
 		Select(lo.Keys(toUpdate)).
 		Where("id = ?", id).
 		Updates(toUpdate).
 		WithContext(ctx).
+		Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	eventType, ok := toUpdate["event_type"]
+	if ok && eventType != models.ProposalEventType {
+		return tx.Commit().Error
+	}
+
+	if status, ok := toUpdate["transaction_status"]; ok && !lo.Contains([]models.TransactionStatus{
+		models.Completed,
+		models.Interrupted,
+		models.Canceled,
+	}, status.(models.TransactionStatus)) {
+		return tx.Commit().Error
+	}
+
+	eventID, ok := toUpdate["event_id"]
+	if !ok {
+		return tx.Commit().Error
+	}
+
+	err := t.DBConnector.DB.Model(&models.ProposalEvent{}).
+		Where("event_id = ?", eventID).
+		Update("remaining_helps", gorm.Expr("remaining_helps + ?", 1)).
+		WithContext(ctx).
 		Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (t *Transaction) CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error) {

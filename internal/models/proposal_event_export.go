@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
 	"time"
 )
@@ -54,10 +55,6 @@ func (p *ProposalEventRequestCreate) InternalValue(userID uint) ProposalEvent {
 		RemainingHelps:        p.MaxConcurrentRequests,
 		Tags:                  p.TagsInternal(),
 	}
-}
-
-func (Address) TableName() string {
-	return "location"
 }
 
 func UnmarshalProposalEventCreate(r *io.ReadCloser) (ProposalEventRequestCreate, error) {
@@ -130,7 +127,7 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 				Value: event.Location.District,
 			},
 			{
-				Value: event.Location.HomeLocation,
+				Value: fmt.Sprintf("%s %s", event.Location.Street, event.Location.HomeLocation),
 			},
 		},
 	})
@@ -193,10 +190,11 @@ func (l ProposalEvents) Bytes() []byte {
 }
 
 type ProposalEventRequestUpdate struct {
-	ID              uint      `json:"id"`
-	Title           string    `json:"title"`
-	Description     string    `json:"description"`
-	CompetitionDate time.Time `json:"competitionDate"`
+	ID                    uint      `json:"id"`
+	Title                 string    `json:"title"`
+	Description           string    `json:"description"`
+	CompetitionDate       time.Time `json:"competitionDate"`
+	MaxConcurrentRequests int       `json:"maxConcurrentRequests"`
 }
 
 func UnmarshalProposalEventUpdate(r *io.ReadCloser) (ProposalEventRequestUpdate, error) {

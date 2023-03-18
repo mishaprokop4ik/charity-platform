@@ -86,7 +86,6 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 		}
 	}
 	if searchValues.Location != nil {
-		fmt.Println("5")
 		location := *searchValues.Location
 		subQuery := p.DBConnector.DB.Table("location").Select("event_id").
 			Where("event_type = ?", models.ProposalEventType)
@@ -495,14 +494,15 @@ func (p *ProposalEvent) updateMissingEventData(ctx context.Context, proposalEven
 	err = p.DBConnector.DB.
 		Where("event_type = ?", models.ProposalEventType).
 		Where("event_id = ?", proposalEvent.ID).
-		First(&location).
+		Find(&location).
 		WithContext(ctx).
 		Error
 
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		return models.ProposalEvent{}, err
+	} else if err == nil {
+		proposalEvent.Location = location
 	}
-	proposalEvent.Location = location
 
 	tags := []models.Tag{}
 	err = p.DBConnector.DB.

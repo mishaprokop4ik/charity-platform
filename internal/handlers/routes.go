@@ -24,6 +24,10 @@ func (h *Handler) InitRoutes() http.Handler {
 	openAPI := r.PathPrefix("/open-api").Subrouter()
 	openAPI.HandleFunc("/proposal-search", h.SearchProposalEvents).
 		Methods(http.MethodPost)
+	openAPI.HandleFunc("/proposal/{id}", h.GetProposalEvent).
+		Methods(http.MethodGet)
+	openAPI.HandleFunc("/proposal/", h.GetProposalEvents).
+		Methods(http.MethodGet)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(h.Authentication)
@@ -50,10 +54,6 @@ func (h *Handler) InitRoutes() http.Handler {
 		Methods(http.MethodPost)
 	proposalEventSubRouter.HandleFunc("/update/{id}", h.UpdateProposalEvent).
 		Methods(http.MethodPut, http.MethodPatch)
-	proposalEventSubRouter.HandleFunc("/get/{id}", h.GetProposalEvent).
-		Methods(http.MethodGet)
-	proposalEventSubRouter.HandleFunc("/get", h.GetProposalEvents).
-		Methods(http.MethodGet)
 	proposalEventSubRouter.HandleFunc("/get-own", h.GetUsersProposalEvents).
 		Methods(http.MethodGet)
 	proposalEventSubRouter.HandleFunc("/delete/{id}", h.DeleteProposalEvent).

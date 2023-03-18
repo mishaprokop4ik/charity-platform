@@ -121,6 +121,7 @@ func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 			CompetitionDate: sql.NullTime{
 				Time: event.CompetitionDate,
 			},
+			MaxConcurrentRequests: uint(event.MaxConcurrentRequests),
 		})
 
 		eventch <- errResponse{

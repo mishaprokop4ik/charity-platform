@@ -77,6 +77,10 @@ type Address struct {
 	EventID      uint      `json:"-" gorm:"column:event_id"`
 }
 
+func (Address) TableName() string {
+	return "location"
+}
+
 func (a Address) IsEmpty() bool {
 	return a.Region == "" && a.City == "" && a.District == "" && a.HomeLocation == ""
 }
