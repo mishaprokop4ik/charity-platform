@@ -13,11 +13,10 @@ type Tag struct {
 	Values    []TagValue `gorm:"-"`
 }
 
-func (t Tag) GetTagValuesResponse() []TagValueResponse {
-	values := make([]TagValueResponse, len(t.Values))
+func (t Tag) GetTagValuesResponse() []string {
+	values := make([]string, len(t.Values))
 	for i := range values {
-		values[i].ID = t.Values[i].ID
-		values[i].Value = t.Values[i].Value
+		values[i] = t.Values[i].Value
 	}
 
 	return values
@@ -111,7 +110,7 @@ type TagValueResponse struct {
 }
 
 type TagResponse struct {
-	ID     uint               `json:"id"`
-	Title  string             `json:"title"`
-	Values []TagValueResponse `json:"values"`
+	ID     uint     `json:"id"`
+	Title  string   `json:"title"`
+	Values []string `json:"values"`
 }

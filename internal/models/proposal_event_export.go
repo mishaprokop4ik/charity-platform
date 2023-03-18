@@ -116,19 +116,11 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 	tags = append(tags, TagResponse{
 		ID:    event.Location.ID,
 		Title: "location",
-		Values: []TagValueResponse{
-			{
-				Value: event.Location.Region,
-			},
-			{
-				Value: event.Location.City,
-			},
-			{
-				Value: event.Location.District,
-			},
-			{
-				Value: fmt.Sprintf("%s %s", event.Location.Street, event.Location.HomeLocation),
-			},
+		Values: []string{
+			event.Location.Region,
+			event.Location.City,
+			event.Location.District,
+			fmt.Sprintf("%s %s", event.Location.Street, event.Location.HomeLocation),
 		},
 	})
 
