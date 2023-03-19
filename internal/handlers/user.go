@@ -48,6 +48,11 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.Password == "" {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("empty password"))
+		return
+	}
+
 	userch := make(chan userSignInResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
