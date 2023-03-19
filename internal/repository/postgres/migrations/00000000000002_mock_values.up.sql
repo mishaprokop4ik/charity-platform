@@ -2,14 +2,14 @@ INSERT INTO members (full_name, telephone, telegram_username, email, password, i
 VALUES
     ('John Doe', '+380671234567', '@john_doe', 'john.doe@example.com', '736c6461666a6173646e666d61736e88ea39439e74fa27c09a4fc0bc8ebe6d00978392', '/images/john_doe.png', 'ABC Company', '123 Main St, Anytown, USA', '2022-01-01 00:00:00', null, null, false, true, true),
     ('Jane Smith', '+380671234567', '@jane_smith', 'jane.smith@example.com', '736c6461666a6173646e666d61736e88ea39439e74fa27c09a4fc0bc8ebe6d00978392', '/images/jane_smith.png', 'XYZ Corporation', '456 Elm St, Anytown, USA', '2022-01-02 00:00:00', null, null, false, false, true),
-    ('Bob Johnson', '+380671234567', '@bob_johnson', 'bob.johnson@example.com', '736c6461666a6173646e666d61736e88ea39439e74fa27c09a4fc0bc8ebe6d00978392', '/images/bob_johnson.png', '123 LLC', '789 Oak St, Anytown, USA', '2022-01-03 00:00:00', null, null, false, false, true);
+    ('Bob Johnson', '+380671234567', '@bob_johnson', 'bob.johnson@example.com', '736c6461666a6173646e666d61736e88ea39439e74fa27c09a4fc0bc8ebe6d00978392', '/images/bob_johnson.png', '123 LLC', '789 Oak St, Anytown, USA', '2022-01-03 00:00:00', null, null, false, false, true),
     ('Test Test', '+380671234567', '@bob_johnson', 'test@test.com', '736c6461666a6173646e666d61736e88ea39439e74fa27c09a4fc0bc8ebe6d00978392', '/images/bob_johnson.png', '123 LLC', '789 Oak St, Anytown, USA', '2022-01-03 00:00:00', null, null, false, false, true);
 
-INSERT INTO propositional_event (title, description, creation_date, competition_date, status, max_concurrent_requests, remaining_helps, author_id, category, is_deleted)
+INSERT INTO propositional_event (title, description, creation_date, competition_date, status, max_concurrent_requests, remaining_helps, author_id, is_deleted)
 VALUES
-    ('Fundraising Event', 'A charity event to raise funds for a local non-profit organization.', '2022-02-01 00:00:00', '2022-03-01 00:00:00', 'active', 50, 10, 1, 'charity', false),
-    ('Volunteer Day', 'A day of volunteering at a local community center.', '2022-03-01 00:00:00', '2022-03-01 00:00:00', 'inactive', 10, 0, 2, 'volunteering', false),
-    ('Community Cleanup', 'A day of cleaning up a local park.', '2022-04-01 00:00:00', '2022-04-01 00:00:00', 'active', 20, 5, 3, 'environmental', false);
+    ('Fundraising Event', 'A charity event to raise funds for a local non-profit organization.', '2022-02-01 00:00:00', '2022-03-01 00:00:00', 'active', 50, 10, 1, false),
+    ('Volunteer Day', 'A day of volunteering at a local community center.', '2022-03-01 00:00:00', '2022-03-01 00:00:00', 'inactive', 10, 0, 2, false),
+    ('Community Cleanup', 'A day of cleaning up a local park.', '2022-04-01 00:00:00', '2022-04-01 00:00:00', 'active', 20, 5, 3, false);
 
 INSERT INTO help_event (title, description, creation_date, author_id, category, address, competition_date, rate)
 VALUES
