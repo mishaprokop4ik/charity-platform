@@ -28,8 +28,8 @@ type User struct {
 	TelegramUsername string         `gorm:"column:telegram_username"`
 	AvatarImagePath  string         `gorm:"column:image_path"`
 	UserSearchValues []MemberSearch `gorm:"-"`
-	Token            string         `json:"token"`
-	RefreshToken     string         `json:"refreshToken"`
+	Token            string         `json:"token" gorm:"-"`
+	RefreshToken     string         `json:"refreshToken" gorm:"-"`
 }
 
 func (u User) ToShortInfo() UserShortInfo {
