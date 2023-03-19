@@ -12,15 +12,14 @@ import (
 // @Summary      Deletes old user search values and create new by input
 // @Tags         Tag
 // @Accept       json
-// @Param request body models.MemberSearch true "query params"
+// @Param request body models.MemberSearchValuesRequestCreate true "query params"
 // @Success      200
 // @Failure      401  {object}  models.ErrResponse
 // @Failure      403  {object}  models.ErrResponse
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/tags/upsert [post]
-
+// @Router       /api/tags/user-search [post]
 func (h *Handler) UpsertUserSearch(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 

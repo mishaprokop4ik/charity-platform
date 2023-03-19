@@ -975,6 +975,63 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/tags/user-search": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Tag"
+                ],
+                "summary": "Deletes old user search values and create new by input",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.MemberSearchValuesRequestCreate"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/confirm/{email}": {
             "post": {
                 "consumes": [
@@ -1484,6 +1541,20 @@ const docTemplate = `{
                 "ProposalEventType"
             ]
         },
+        "Kurajj_internal_models.MemberSearchRequestCreate": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string"
+                },
+                "values": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
         "Kurajj_internal_models.MemberSearchValueResponse": {
             "type": "object",
             "properties": {
@@ -1492,6 +1563,17 @@ const docTemplate = `{
                 },
                 "value": {
                     "type": "string"
+                }
+            }
+        },
+        "Kurajj_internal_models.MemberSearchValuesRequestCreate": {
+            "type": "object",
+            "properties": {
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.MemberSearchRequestCreate"
+                    }
                 }
             }
         },
@@ -1612,6 +1694,15 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "fileBytes": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "fileType": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -1694,6 +1785,15 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "email": {
+                    "type": "string"
+                },
+                "fileBytes": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "fileType": {
                     "type": "string"
                 },
                 "firstName": {
