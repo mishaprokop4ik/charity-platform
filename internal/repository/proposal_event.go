@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 	"math"
@@ -15,6 +16,8 @@ import (
 )
 
 const defaultSortField = "creation_date"
+
+const defaultImage = "https://charity-platform.s3.amazonaws.com/images/volunteer-care-old-people-nurse-isolated-young-human-helping-senior-volunteers-service-helpful-person-nursing-elderly-decent-vector-set_53562-17770.avif"
 
 type ProposalEventer interface {
 	proposalEventCRUDer
@@ -33,6 +36,7 @@ type proposalEventCRUDer interface {
 
 type ProposalEvent struct {
 	DBConnector *Connector
+	Filer
 }
 
 const (
@@ -246,7 +250,7 @@ func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEven
 
 func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error) {
 	tx := p.DBConnector.DB.Begin()
-	err := p.DBConnector.DB.
+	err := tx.
 		Create(&event).
 		WithContext(ctx).
 		Error
@@ -256,9 +260,25 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 		return 0, err
 	}
 
+	if event.File != nil {
+		fileName, err := uuid.NewUUID()
+		if err != nil {
+			tx.Commit()
+			return 0, err
+		}
+		filePath, err := p.Filer.Upload(ctx, fileName.String(), event.File)
+		if err != nil {
+			zlog.Log.Error(err, "could not upload file")
+			return 0, err
+		}
+		event.ImagePath = filePath
+	} else {
+		event.ImagePath = defaultImage
+	}
+
 	if !event.Location.IsEmpty() {
 		event.Location.EventID = event.ID
-		err = p.DBConnector.DB.
+		err = tx.
 			Create(&event.Location).
 			WithContext(ctx).
 			Error
@@ -271,14 +291,14 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 
 	for _, tag := range event.Tags {
 		tag.EventID = event.ID
-		err = p.DBConnector.DB.Create(&tag).WithContext(ctx).Error
+		err = tx.Create(&tag).WithContext(ctx).Error
 		if err != nil {
 			tx.Rollback()
 			return 0, err
 		}
 		for _, tagValue := range tag.Values {
 			tagValue.TagID = tag.ID
-			err = p.DBConnector.DB.Create(&tagValue).WithContext(ctx).Error
+			err = tx.Create(&tagValue).WithContext(ctx).Error
 			if err != nil {
 				tx.Rollback()
 				return 0, err
@@ -597,6 +617,6 @@ func (p *ProposalEvent) updateMissingEventData(ctx context.Context, proposalEven
 	return proposalEvent, nil
 }
 
-func NewProposalEvent(DBConnector *Connector) *ProposalEvent {
-	return &ProposalEvent{DBConnector: DBConnector}
+func NewProposalEvent(config AWSConfig, DBConnector *Connector) *ProposalEvent {
+	return &ProposalEvent{DBConnector: DBConnector, Filer: NewFile(config)}
 }

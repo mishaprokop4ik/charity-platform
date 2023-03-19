@@ -10,11 +10,11 @@ type Repository struct {
 	UserSearchValue UserSearcher
 }
 
-func New(dbConnector *Connector) *Repository {
+func New(dbConnector *Connector, config AWSConfig) *Repository {
 	return &Repository{
 		User:            NewUser(dbConnector),
 		Admin:           NewAdmin(dbConnector),
-		ProposalEvent:   NewProposalEvent(dbConnector),
+		ProposalEvent:   NewProposalEvent(config, dbConnector),
 		Transaction:     NewTransaction(dbConnector),
 		Comment:         NewComment(dbConnector),
 		Tag:             NewTag(dbConnector),

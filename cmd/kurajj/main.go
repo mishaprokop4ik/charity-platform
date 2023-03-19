@@ -8,6 +8,7 @@ import (
 	logic "Kurajj/internal/services"
 	zlog "Kurajj/pkg/logger"
 	"flag"
+	"github.com/joho/godotenv"
 	"os"
 )
 
@@ -61,7 +62,25 @@ func main() {
 		zlog.Log.Error(err, "could not create connector")
 		os.Exit(1)
 	}
-	repo := repository.New(conn)
+
+	err = godotenv.Load()
+	if err != nil {
+		zlog.Log.Error(err, "could not get env values")
+		os.Exit(1)
+	}
+
+	s3Bucket := os.Getenv("S3_BUCKET")
+	secretKey := os.Getenv("SECRET_KEY")
+	accessKey := os.Getenv("ACCESS_KEY")
+	region := os.Getenv("REGION")
+
+	repo := repository.New(conn, repository.AWSConfig{
+		AccessKey:       accessKey,
+		SecretAccessKey: secretKey,
+		Region:          region,
+		BucketName:      s3Bucket,
+	})
+
 	service := logic.New(repo, &authConfig, &emailConfig)
 	handlers := handlers2.New(service)
 
