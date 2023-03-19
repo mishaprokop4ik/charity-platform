@@ -109,20 +109,13 @@ func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
 		return
 	}
+	event.ID = uint(parsedID)
 
 	eventch := make(chan errResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err = h.services.ProposalEvent.UpdateEvent(ctx, models.ProposalEvent{
-			ID:          uint(parsedID),
-			Title:       event.Title,
-			Description: event.Description,
-			CompetitionDate: sql.NullTime{
-				Time: event.CompetitionDate,
-			},
-			MaxConcurrentRequests: uint(event.MaxConcurrentRequests),
-		})
+		err = h.services.ProposalEvent.UpdateEvent(ctx, event.Internal())
 
 		eventch <- errResponse{
 			err: err,

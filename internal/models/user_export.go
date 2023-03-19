@@ -2,6 +2,7 @@ package models
 
 import (
 	"Kurajj/pkg/util"
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -109,8 +110,10 @@ func (a Address) String() string {
 
 type SignUpUser struct {
 	defaultFields
-	Address  Address `json:"address"`
-	Password string  `json:"password"`
+	Address   Address `json:"address"`
+	Password  string  `json:"password"`
+	FileBytes []byte  `json:"fileBytes"`
+	FileType  string  `json:"fileType"`
 }
 
 // SignInEntity represents default sign in structure.
@@ -122,7 +125,7 @@ type SignInEntity struct {
 
 func (i SignUpUser) GetInternalUser() User {
 	fullName := fmt.Sprintf("%s %s", i.FirstName, i.SecondName)
-	return User{
+	user := User{
 		Email:       string(i.Email),
 		FullName:    fullName,
 		Telephone:   string(i.Telephone),
@@ -130,6 +133,12 @@ func (i SignUpUser) GetInternalUser() User {
 		Password:    i.Password,
 		Address:     i.Address.String(),
 	}
+	if len(i.FileBytes) != 0 {
+		user.Image = bytes.NewReader(i.FileBytes)
+		user.FileType = i.FileType
+	}
+
+	return user
 }
 
 type CreationResponse struct {
@@ -150,6 +159,8 @@ type SignedInUser struct {
 	CompanyName  string                `json:"companyName"`
 	Address      Address               `json:"address"`
 	AccessToken  string                `json:"token"`
+	FileBytes    []byte                `json:"fileBytes"`
+	FileType     string                `json:"fileType"`
 	Avatar       string                `json:"profileImageURL"`
 	RefreshToken string                `json:"refreshToken"`
 	SearchValues []SearchValueResponse `json:"searchValues"`
