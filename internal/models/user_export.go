@@ -159,8 +159,6 @@ type SignedInUser struct {
 	CompanyName  string                `json:"companyName"`
 	Address      Address               `json:"address"`
 	AccessToken  string                `json:"token"`
-	FileBytes    []byte                `json:"fileBytes"`
-	FileType     string                `json:"fileType"`
 	Avatar       string                `json:"profileImageURL"`
 	RefreshToken string                `json:"refreshToken"`
 	SearchValues []SearchValueResponse `json:"searchValues"`
