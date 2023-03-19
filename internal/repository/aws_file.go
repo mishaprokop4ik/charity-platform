@@ -44,12 +44,15 @@ func (f *AWSFile) Upload(ctx context.Context, fileName string, fileData io.Reade
 	uploader := s3manager.NewUploader(awsSession)
 	uploadedFile, err := uploader.UploadWithContext(ctx, &s3manager.UploadInput{
 		Bucket: aws.String(f.config.BucketName),
-		ACL:    aws.String("public-read"),
-		Key:    aws.String(fileName),
+		Key:    aws.String("images/" + fileName),
 		Body:   fileData,
 	})
 
-	return uploadedFile.Location, err
+	if err != nil {
+		return "", err
+	}
+
+	return uploadedFile.Location, nil
 }
 
 func (f *AWSFile) Delete(ctx context.Context, identifier string) error {

@@ -266,7 +266,7 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 			tx.Commit()
 			return 0, err
 		}
-		filePath, err := p.Filer.Upload(ctx, fileName.String(), event.File)
+		filePath, err := p.Filer.Upload(ctx, fmt.Sprintf("%s.%s", fileName.String(), event.FileType), event.File)
 		if err != nil {
 			zlog.Log.Error(err, "could not upload file")
 			return 0, err
