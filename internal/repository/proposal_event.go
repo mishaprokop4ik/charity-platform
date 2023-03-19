@@ -17,7 +17,7 @@ import (
 
 const defaultSortField = "creation_date"
 
-const defaultImage = "https://charity-platform.s3.amazonaws.com/images/volunteer-care-old-people-nurse-isolated-young-human-helping-senior-volunteers-service-helpful-person-nursing-elderly-decent-vector-set_53562-17770.avif"
+const defaultProposalImage = "https://charity-platform.s3.amazonaws.com/images/volunteer-care-old-people-nurse-isolated-young-human-helping-senior-volunteers-service-helpful-person-nursing-elderly-decent-vector-set_53562-17770.avif"
 
 type ProposalEventer interface {
 	proposalEventCRUDer
@@ -30,7 +30,7 @@ type proposalEventCRUDer interface {
 	CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error)
 	GetEvent(ctx context.Context, id uint) (models.ProposalEvent, error)
 	GetEvents(ctx context.Context) ([]models.ProposalEvent, error)
-	UpdateEvent(ctx context.Context, id uint, toUpdate map[string]any) error
+	UpdateEvent(ctx context.Context, event models.ProposalEvent) error
 	DeleteEvent(ctx context.Context, id uint) error
 }
 
@@ -264,7 +264,7 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 		}
 		event.ImagePath = filePath
 	} else {
-		event.ImagePath = defaultImage
+		event.ImagePath = defaultProposalImage
 	}
 
 	err := tx.
@@ -368,12 +368,37 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 	return events, nil
 }
 
-func (p *ProposalEvent) UpdateEvent(ctx context.Context, id uint, toUpdate map[string]any) error {
+func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEvent) error {
+	if event.File != nil {
+		oldEvent := models.ProposalEvent{}
+		err := p.DBConnector.DB.Where("id = ?", event.ID).First(&oldEvent).WithContext(ctx).Error
+		if err != nil {
+			return err
+		}
+
+		imagePath := strings.Split(oldEvent.ImagePath, "/")
+		imageName := imagePath[len(imagePath)-1]
+		err = p.Filer.Delete(ctx, imageName)
+		if err != nil {
+			return err
+		}
+		fileName, err := uuid.NewUUID()
+		if err != nil {
+			return err
+		}
+		filePath, err := p.Filer.Upload(ctx, fmt.Sprintf("%s.%s", fileName.String(), event.FileType), event.File)
+		if err != nil {
+			zlog.Log.Error(err, "could not upload file")
+			return err
+		}
+		event.ImagePath = filePath
+	}
+
 	return p.DBConnector.DB.
 		Model(&models.ProposalEvent{}).
-		Select(lo.Keys(toUpdate)).
-		Where("id = ?", id).
-		Updates(toUpdate).
+		Select(lo.Keys(event.GetValuesToUpdate())).
+		Where("id = ?", event.ID).
+		Updates(event.GetValuesToUpdate()).
 		WithContext(ctx).
 		Error
 }

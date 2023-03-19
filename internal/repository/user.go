@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
@@ -24,8 +25,11 @@ type Userer interface {
 	IsEmailTaken(ctx context.Context, email string) (bool, error)
 }
 
+const defaultUserImage = "https://charity-platform.s3.amazonaws.com/images/png-transparent-default-avatar-thumbnail.png"
+
 type User struct {
 	DBConnector *Connector
+	Filer
 }
 
 func (u *User) SetSession(ctx context.Context, userID uint, session models.MemberSession) error {
@@ -117,7 +121,20 @@ func (u *User) IsEmailTaken(ctx context.Context, email string) (bool, error) {
 }
 
 func (u *User) CreateUser(ctx context.Context, user models.User) (uint, error) {
-	// TODO add saving avatar image in S3
+	if user.Image != nil {
+		fileName, err := uuid.NewUUID()
+		if err != nil {
+			return 0, err
+		}
+		filePath, err := u.Filer.Upload(ctx, fmt.Sprintf("%s.%s", fileName.String(), user.FileType), user.Image)
+		if err != nil {
+			zlog.Log.Error(err, "could not upload file")
+			return 0, err
+		}
+		user.AvatarImagePath = filePath
+	} else {
+		user.AvatarImagePath = defaultUserImage
+	}
 	err := u.DBConnector.DB.
 		Create(&user).
 		WithContext(ctx).Error

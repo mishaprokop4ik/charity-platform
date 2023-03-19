@@ -101,7 +101,7 @@ CREATE TABLE transaction (
     responder_comment varchar(255),
     event_type event,
     transaction_status transaction_status NOT NULL,
-    owner_status responder_status NOT NULL DEFAULT 'not_started',
+    user_implementation_status responder_status DEFAULT 'not_started' NOT NULL,
     CONSTRAINT creator_fk FOREIGN KEY(creator_id) REFERENCES members(id)
         ON DELETE SET NULL ON UPDATE SET DEFAULT
 );

@@ -2,6 +2,7 @@ package models
 
 import (
 	"bytes"
+	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -59,19 +60,24 @@ func (p *ProposalEventRequestCreate) InternalValue(userID uint) ProposalEvent {
 			p.Tags = append(p.Tags[:i], p.Tags[i+1:]...)
 		}
 	}
-	return ProposalEvent{
+
+	event := ProposalEvent{
 		AuthorID:              userID,
 		Title:                 p.Title,
 		Description:           p.Description,
 		Location:              location,
 		CreationDate:          time.Now(),
-		File:                  bytes.NewReader(p.FileBytes),
 		Status:                Active,
 		FileType:              p.FileType,
 		MaxConcurrentRequests: uint(p.MaxConcurrentRequests),
 		RemainingHelps:        p.MaxConcurrentRequests,
 		Tags:                  p.TagsInternal(),
 	}
+	if len(p.FileBytes) != 0 {
+		event.File = bytes.NewReader(p.FileBytes)
+		event.FileType = p.FileType
+	}
+	return event
 }
 
 type ProposalEventGetResponse struct {
@@ -119,7 +125,27 @@ type ProposalEventRequestUpdate struct {
 	Title                 string    `json:"title"`
 	Description           string    `json:"description"`
 	CompetitionDate       time.Time `json:"competitionDate"`
+	FileBytes             []byte    `json:"fileBytes"`
+	FileType              string    `json:"fileType"`
 	MaxConcurrentRequests int       `json:"maxConcurrentRequests"`
+}
+
+func (p *ProposalEventRequestUpdate) Internal() ProposalEvent {
+	event := ProposalEvent{
+		ID:          uint(p.ID),
+		Title:       p.Title,
+		Description: p.Description,
+		CompetitionDate: sql.NullTime{
+			Time: p.CompetitionDate,
+		},
+		MaxConcurrentRequests: uint(p.MaxConcurrentRequests),
+	}
+	if len(p.FileBytes) != 0 {
+		event.File = bytes.NewReader(p.FileBytes)
+		event.FileType = p.FileType
+	}
+
+	return event
 }
 
 func GetProposalEvents(events ...ProposalEvent) ProposalEvents {

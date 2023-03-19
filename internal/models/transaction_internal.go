@@ -18,7 +18,7 @@ type Transaction struct {
 	CreationDate      time.Time         `gorm:"column:creation_date"`
 	EventType         EventType         `gorm:"column:event_type"`
 	TransactionStatus TransactionStatus `gorm:"column:transaction_status"`
-	ResponderStatus   TransactionStatus `gorm:"column:responder_status"`
+	ResponderStatus   TransactionStatus `gorm:"column:user_implementation_status"`
 }
 
 func (Transaction) TableName() string {
