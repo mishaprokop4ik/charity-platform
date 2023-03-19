@@ -101,13 +101,6 @@ definitions:
           type: string
         type: array
     type: object
-  Kurajj_internal_models.MemberSearchValueResponse:
-    properties:
-      id:
-        type: integer
-      value:
-        type: string
-    type: object
   Kurajj_internal_models.MemberSearchValuesRequestCreate:
     properties:
       tags:
@@ -234,7 +227,7 @@ definitions:
         type: string
       values:
         items:
-          $ref: '#/definitions/Kurajj_internal_models.MemberSearchValueResponse'
+          type: string
         type: array
     type: object
   Kurajj_internal_models.SignInEntity:

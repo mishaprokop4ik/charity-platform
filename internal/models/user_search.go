@@ -20,15 +20,12 @@ type MemberSearch struct {
 
 func (s MemberSearch) Response() SearchValueResponse {
 	resp := SearchValueResponse{
-		Values: make([]MemberSearchValueResponse, len(s.Values)),
+		Values: make([]string, len(s.Values)),
 	}
 	resp.Title = s.Title
 	resp.ID = s.ID
 	for i, searchValue := range s.Values {
-		resp.Values[i] = MemberSearchValueResponse{
-			ID:    searchValue.ID,
-			Value: searchValue.Value,
-		}
+		resp.Values[i] = searchValue.Value
 	}
 
 	return resp
@@ -49,9 +46,9 @@ func (s MemberSearch) GetTagValuesResponse() []MemberSearchValueResponse {
 }
 
 type SearchValueResponse struct {
-	ID     uint                        `json:"id"`
-	Title  string                      `json:"title"`
-	Values []MemberSearchValueResponse `json:"values"`
+	ID     uint     `json:"id"`
+	Title  string   `json:"title"`
+	Values []string `json:"values"`
 }
 
 type SearchValuesResponse struct {

@@ -1555,17 +1555,6 @@ const docTemplate = `{
                 }
             }
         },
-        "Kurajj_internal_models.MemberSearchValueResponse": {
-            "type": "object",
-            "properties": {
-                "id": {
-                    "type": "integer"
-                },
-                "value": {
-                    "type": "string"
-                }
-            }
-        },
         "Kurajj_internal_models.MemberSearchValuesRequestCreate": {
             "type": "object",
             "properties": {
@@ -1759,7 +1748,7 @@ const docTemplate = `{
                 "values": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/Kurajj_internal_models.MemberSearchValueResponse"
+                        "type": "string"
                     }
                 }
             }
