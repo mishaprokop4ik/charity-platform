@@ -1586,6 +1586,9 @@ const docTemplate = `{
                         "type": "integer"
                     }
                 },
+                "fileType": {
+                    "type": "string"
+                },
                 "maxConcurrentRequests": {
                     "type": "integer"
                 },

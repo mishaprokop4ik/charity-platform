@@ -159,6 +159,8 @@ definitions:
         items:
           type: integer
         type: array
+      fileType:
+        type: string
       maxConcurrentRequests:
         type: integer
       tags:
