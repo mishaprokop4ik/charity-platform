@@ -9,3 +9,4 @@ Kurajj.iml
 kurajj-openssl-ca.cnf
 
 configs/gmail.yaml
+.env
