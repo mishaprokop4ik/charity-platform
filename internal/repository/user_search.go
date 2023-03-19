@@ -22,7 +22,7 @@ func (t *UserSearch) createSearchValue(ctx context.Context, searchValue models.M
 			tx.Rollback()
 		}
 	}()
-	err := t.DBConnector.DB.Create(&searchValue).WithContext(ctx).Error
+	err := tx.Create(&searchValue).WithContext(ctx).Error
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -30,14 +30,14 @@ func (t *UserSearch) createSearchValue(ctx context.Context, searchValue models.M
 
 	for _, value := range searchValue.Values {
 		value.SearchID = searchValue.ID
-		err = t.DBConnector.DB.Create(&value).WithContext(ctx).Error
+		err = tx.Create(&value).WithContext(ctx).Error
 		if err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (t *UserSearch) UpsertTags(ctx context.Context, userID uint, searchValues []models.MemberSearch) error {
@@ -61,7 +61,7 @@ func (t *UserSearch) UpsertTags(ctx context.Context, userID uint, searchValues [
 		}
 	}
 
-	return nil
+	return tx.Commit().Error
 }
 
 func (t *UserSearch) deleteAllUserSearchValues(ctx context.Context, userID uint) error {
