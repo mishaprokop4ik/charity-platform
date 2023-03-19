@@ -28,6 +28,7 @@ type ProposalEvent struct {
 	RemainingHelps        int           `gorm:"column:remaining_helps"`
 	IsDeleted             bool          `gorm:"column:is_deleted"`
 	ImagePath             string        `gorm:"column:image_path"`
+	FileType              string        `gorm:"-"`
 	File                  io.Reader     `gorm:"-"`
 	Comments              []Comment     `gorm:"-"`
 	Transactions          []Transaction `gorm:"-"`

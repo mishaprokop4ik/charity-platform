@@ -25,6 +25,7 @@ type ProposalEventRequestCreate struct {
 	Description           string       `json:"description"`
 	MaxConcurrentRequests int          `json:"maxConcurrentRequests"`
 	FileBytes             []byte       `json:"fileBytes"`
+	FileType              string       `json:"fileType"`
 	Tags                  []TagRequest `json:"tags"`
 }
 
@@ -66,6 +67,7 @@ func (p *ProposalEventRequestCreate) InternalValue(userID uint) ProposalEvent {
 		CreationDate:          time.Now(),
 		File:                  bytes.NewReader(p.FileBytes),
 		Status:                Active,
+		FileType:              p.FileType,
 		MaxConcurrentRequests: uint(p.MaxConcurrentRequests),
 		RemainingHelps:        p.MaxConcurrentRequests,
 		Tags:                  p.TagsInternal(),
