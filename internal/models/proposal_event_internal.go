@@ -3,6 +3,7 @@ package models
 import (
 	"database/sql"
 	"encoding/json"
+	"io"
 	"reflect"
 	"strings"
 	"time"
@@ -27,6 +28,7 @@ type ProposalEvent struct {
 	RemainingHelps        int           `gorm:"column:remaining_helps"`
 	IsDeleted             bool          `gorm:"column:is_deleted"`
 	ImagePath             string        `gorm:"column:image_path"`
+	File                  io.Reader     `gorm:"-"`
 	Comments              []Comment     `gorm:"-"`
 	Transactions          []Transaction `gorm:"-"`
 	Tags                  []Tag         `gorm:"-"`

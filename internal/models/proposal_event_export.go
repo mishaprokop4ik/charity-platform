@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -23,6 +24,7 @@ type ProposalEventRequestCreate struct {
 	Title                 string       `json:"title"`
 	Description           string       `json:"description"`
 	MaxConcurrentRequests int          `json:"maxConcurrentRequests"`
+	FileBytes             []byte       `json:"fileBytes"`
 	Tags                  []TagRequest `json:"tags"`
 }
 
@@ -62,6 +64,7 @@ func (p *ProposalEventRequestCreate) InternalValue(userID uint) ProposalEvent {
 		Description:           p.Description,
 		Location:              location,
 		CreationDate:          time.Now(),
+		File:                  bytes.NewReader(p.FileBytes),
 		Status:                Active,
 		MaxConcurrentRequests: uint(p.MaxConcurrentRequests),
 		RemainingHelps:        p.MaxConcurrentRequests,
