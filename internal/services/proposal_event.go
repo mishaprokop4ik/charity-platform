@@ -94,7 +94,7 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 }
 
 func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEvent) error {
-	return p.repo.ProposalEvent.UpdateEvent(ctx, event.ID, event.GetValuesToUpdate())
+	return p.repo.ProposalEvent.UpdateEvent(ctx, event)
 }
 
 func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {

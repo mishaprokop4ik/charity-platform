@@ -1580,6 +1580,15 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "fileBytes": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "fileType": {
+                    "type": "string"
+                },
                 "maxConcurrentRequests": {
                     "type": "integer"
                 },

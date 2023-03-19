@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/google/uuid"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 	"math"
@@ -15,6 +16,8 @@ import (
 )
 
 const defaultSortField = "creation_date"
+
+const defaultProposalImage = "https://charity-platform.s3.amazonaws.com/images/volunteer-care-old-people-nurse-isolated-young-human-helping-senior-volunteers-service-helpful-person-nursing-elderly-decent-vector-set_53562-17770.avif"
 
 type ProposalEventer interface {
 	proposalEventCRUDer
@@ -27,12 +30,13 @@ type proposalEventCRUDer interface {
 	CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error)
 	GetEvent(ctx context.Context, id uint) (models.ProposalEvent, error)
 	GetEvents(ctx context.Context) ([]models.ProposalEvent, error)
-	UpdateEvent(ctx context.Context, id uint, toUpdate map[string]any) error
+	UpdateEvent(ctx context.Context, event models.ProposalEvent) error
 	DeleteEvent(ctx context.Context, id uint) error
 }
 
 type ProposalEvent struct {
 	DBConnector *Connector
+	Filer
 }
 
 const (
@@ -246,7 +250,24 @@ func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEven
 
 func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error) {
 	tx := p.DBConnector.DB.Begin()
-	err := p.DBConnector.DB.
+
+	if event.File != nil {
+		fileName, err := uuid.NewUUID()
+		if err != nil {
+			tx.Commit()
+			return 0, err
+		}
+		filePath, err := p.Filer.Upload(ctx, fmt.Sprintf("%s.%s", fileName.String(), event.FileType), event.File)
+		if err != nil {
+			zlog.Log.Error(err, "could not upload file")
+			return 0, err
+		}
+		event.ImagePath = filePath
+	} else {
+		event.ImagePath = defaultProposalImage
+	}
+
+	err := tx.
 		Create(&event).
 		WithContext(ctx).
 		Error
@@ -258,7 +279,7 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 
 	if !event.Location.IsEmpty() {
 		event.Location.EventID = event.ID
-		err = p.DBConnector.DB.
+		err = tx.
 			Create(&event.Location).
 			WithContext(ctx).
 			Error
@@ -271,14 +292,14 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 
 	for _, tag := range event.Tags {
 		tag.EventID = event.ID
-		err = p.DBConnector.DB.Create(&tag).WithContext(ctx).Error
+		err = tx.Create(&tag).WithContext(ctx).Error
 		if err != nil {
 			tx.Rollback()
 			return 0, err
 		}
 		for _, tagValue := range tag.Values {
 			tagValue.TagID = tag.ID
-			err = p.DBConnector.DB.Create(&tagValue).WithContext(ctx).Error
+			err = tx.Create(&tagValue).WithContext(ctx).Error
 			if err != nil {
 				tx.Rollback()
 				return 0, err
@@ -347,12 +368,37 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 	return events, nil
 }
 
-func (p *ProposalEvent) UpdateEvent(ctx context.Context, id uint, toUpdate map[string]any) error {
+func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEvent) error {
+	if event.File != nil {
+		oldEvent := models.ProposalEvent{}
+		err := p.DBConnector.DB.Where("id = ?", event.ID).First(&oldEvent).WithContext(ctx).Error
+		if err != nil {
+			return err
+		}
+
+		imagePath := strings.Split(oldEvent.ImagePath, "/")
+		imageName := imagePath[len(imagePath)-1]
+		err = p.Filer.Delete(ctx, imageName)
+		if err != nil {
+			return err
+		}
+		fileName, err := uuid.NewUUID()
+		if err != nil {
+			return err
+		}
+		filePath, err := p.Filer.Upload(ctx, fmt.Sprintf("%s.%s", fileName.String(), event.FileType), event.File)
+		if err != nil {
+			zlog.Log.Error(err, "could not upload file")
+			return err
+		}
+		event.ImagePath = filePath
+	}
+
 	return p.DBConnector.DB.
 		Model(&models.ProposalEvent{}).
-		Select(lo.Keys(toUpdate)).
-		Where("id = ?", id).
-		Updates(toUpdate).
+		Select(lo.Keys(event.GetValuesToUpdate())).
+		Where("id = ?", event.ID).
+		Updates(event.GetValuesToUpdate()).
 		WithContext(ctx).
 		Error
 }
@@ -597,6 +643,6 @@ func (p *ProposalEvent) updateMissingEventData(ctx context.Context, proposalEven
 	return proposalEvent, nil
 }
 
-func NewProposalEvent(DBConnector *Connector) *ProposalEvent {
-	return &ProposalEvent{DBConnector: DBConnector}
+func NewProposalEvent(config AWSConfig, DBConnector *Connector) *ProposalEvent {
+	return &ProposalEvent{DBConnector: DBConnector, Filer: NewFile(config)}
 }

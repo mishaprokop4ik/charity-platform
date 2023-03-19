@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 	"gorm.io/gorm"
+	"io"
 	"reflect"
 	"strings"
 )
@@ -26,6 +27,8 @@ type User struct {
 	IsDeleted        bool           `gorm:"column:is_deleted"`
 	IsActivated      bool           `gorm:"column:is_activated"`
 	TelegramUsername string         `gorm:"column:telegram_username"`
+	Image            io.Reader      `gorm:"-"`
+	FileType         string         `gorm:"-"`
 	AvatarImagePath  string         `gorm:"column:image_path"`
 	UserSearchValues []MemberSearch `gorm:"-"`
 	Token            string         `json:"token" gorm:"-"`

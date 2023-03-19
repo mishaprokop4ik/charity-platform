@@ -155,6 +155,12 @@ definitions:
     properties:
       description:
         type: string
+      fileBytes:
+        items:
+          type: integer
+        type: array
+      fileType:
+        type: string
       maxConcurrentRequests:
         type: integer
       tags:
