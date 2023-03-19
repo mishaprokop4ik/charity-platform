@@ -123,6 +123,11 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if user.Password == "" {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("empty password"))
+		return
+	}
+
 	user.Telephone = user.Telephone.GetDefaultTelephoneNumber()
 	userch := make(chan idResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)

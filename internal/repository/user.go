@@ -144,8 +144,7 @@ func (u *User) CreateUser(ctx context.Context, user models.User) (uint, error) {
 func (u *User) GetUserAuthentication(ctx context.Context, email, password string) (models.User, error) {
 	member := models.User{}
 	resp := u.DBConnector.DB.
-		Where("password = ?", password).
-		Where("email = ?", email).
+		Where("password = ? AND email = ?", password, email).
 		Where("is_deleted = ?", false).
 		Where("is_activated = ?", true).
 		First(&member).
