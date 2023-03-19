@@ -250,15 +250,6 @@ func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEven
 
 func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error) {
 	tx := p.DBConnector.DB.Begin()
-	err := tx.
-		Create(&event).
-		WithContext(ctx).
-		Error
-
-	if err != nil {
-		tx.Rollback()
-		return 0, err
-	}
 
 	if event.File != nil {
 		fileName, err := uuid.NewUUID()
@@ -274,6 +265,16 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 		event.ImagePath = filePath
 	} else {
 		event.ImagePath = defaultImage
+	}
+
+	err := tx.
+		Create(&event).
+		WithContext(ctx).
+		Error
+
+	if err != nil {
+		tx.Rollback()
+		return 0, err
 	}
 
 	if !event.Location.IsEmpty() {
