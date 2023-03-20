@@ -955,8 +955,8 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 
 		eventch <- getProposalEventPagination{
 			resp: models.ProposalEventsWithPagination{
-				ProposalEvents: models.GetProposalEvents(events.Events...),
-				Pagination:     events.Pagination,
+				ProposalEventsItems: models.GetProposalEventItems(events.Events...),
+				Pagination:          events.Pagination,
 			},
 			err: respError,
 		}

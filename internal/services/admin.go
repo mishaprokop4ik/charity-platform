@@ -1,7 +1,7 @@
 package service
 
 import (
-	"Kurajj/internal/config"
+	"Kurajj/configs"
 	"Kurajj/internal/models"
 	"Kurajj/internal/repository"
 	zlog "Kurajj/pkg/logger"
@@ -10,7 +10,7 @@ import (
 	"html/template"
 )
 
-func NewAdmin(repo *repository.Repository, authConfig *config.AuthenticationConfig, emailConfig *config.Email) *Admin {
+func NewAdmin(repo *repository.Repository, authConfig *configs.AuthenticationConfig, emailConfig *configs.Email) *Admin {
 	return &Admin{repo: repo, authConfig: authConfig, emailSender: Sender{
 		email:        emailConfig.Email,
 		password:     emailConfig.Password,
@@ -20,7 +20,7 @@ func NewAdmin(repo *repository.Repository, authConfig *config.AuthenticationConf
 
 type Admin struct {
 	repo        *repository.Repository
-	authConfig  *config.AuthenticationConfig
+	authConfig  *configs.AuthenticationConfig
 	emailSender Sender
 }
 

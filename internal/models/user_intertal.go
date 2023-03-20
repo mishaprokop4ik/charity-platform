@@ -107,13 +107,13 @@ func (u User) GetUserFullResponse(tokens Tokens) SignedInUser {
 		FirstName:  firstName,
 		SecondName: secondName,
 		//TODO add telephone validation
-		Telephone:    Telephone(u.Telephone),
-		CompanyName:  u.CompanyName,
-		Address:      address,
-		Avatar:       u.AvatarImagePath,
-		AccessToken:  tokens.Access,
-		RefreshToken: tokens.Refresh,
-		SearchValues: searchValues,
+		Telephone:                 Telephone(u.Telephone),
+		CompanyName:               u.CompanyName,
+		Address:                   address,
+		Avatar:                    u.AvatarImagePath,
+		AccessToken:               tokens.Access,
+		RefreshToken:              tokens.Refresh,
+		ProposalEventSearchValues: searchValues,
 	}
 }
 

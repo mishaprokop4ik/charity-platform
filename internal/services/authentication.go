@@ -1,7 +1,7 @@
 package service
 
 import (
-	"Kurajj/internal/config"
+	"Kurajj/configs"
 	"Kurajj/internal/models"
 	"Kurajj/internal/repository"
 	zlog "Kurajj/pkg/logger"
@@ -29,7 +29,7 @@ type Authenticator interface {
 
 type Authentication struct {
 	repo        *repository.Repository
-	authConfig  *config.AuthenticationConfig
+	authConfig  *configs.AuthenticationConfig
 	emailSender Sender
 }
 
@@ -73,7 +73,7 @@ func GenerateRandomPassword() string {
 	return string(s)
 }
 
-func NewAuthentication(repo *repository.Repository, authConfig *config.AuthenticationConfig, emailConfig *config.Email) *Authentication {
+func NewAuthentication(repo *repository.Repository, authConfig *configs.AuthenticationConfig, emailConfig *configs.Email) *Authentication {
 	return &Authentication{repo: repo, authConfig: authConfig, emailSender: Sender{
 		email:        emailConfig.Email,
 		password:     emailConfig.Password,

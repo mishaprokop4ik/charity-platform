@@ -1,7 +1,7 @@
 package service
 
 import (
-	"Kurajj/internal/config"
+	"Kurajj/configs"
 	"Kurajj/internal/repository"
 )
 
@@ -16,8 +16,8 @@ type Service struct {
 }
 
 func New(repo *repository.Repository,
-	authConfig *config.AuthenticationConfig,
-	emailConfig *config.Email) *Service {
+	authConfig *configs.AuthenticationConfig,
+	emailConfig *configs.Email) *Service {
 	return &Service{
 		Authentication:  NewAuthentication(repo, authConfig, emailConfig),
 		Admin:           NewAdmin(repo, authConfig, emailConfig),

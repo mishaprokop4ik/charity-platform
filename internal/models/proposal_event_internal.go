@@ -136,10 +136,10 @@ type PaginationRequest struct {
 
 type Pagination struct {
 	TotalRecords int64 `json:"totalRecords"`
-	TotalPage    int   `json:"totalPage"`
+	TotalPage    int   `json:"totalPageCount"`
 	Offset       int   `json:"offset"`
 	Limit        int   `json:"limit"`
-	Page         int   `json:"page"`
+	Page         int   `json:"pageNumber"`
 	PrevPage     int   `json:"previousPage"`
 	NextPage     int   `json:"nextPage"`
 }

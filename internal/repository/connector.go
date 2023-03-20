@@ -1,7 +1,7 @@
 package repository
 
 import (
-	"Kurajj/internal/config"
+	"Kurajj/configs"
 	"fmt"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -11,7 +11,7 @@ type Connector struct {
 	DB *gorm.DB
 }
 
-func NewConnector(config config.DB) (*Connector, error) {
+func NewConnector(config configs.DB) (*Connector, error) {
 	conn := postgres.Open(config.DSN())
 	db, err := gorm.Open(conn)
 	if err != nil {

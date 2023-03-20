@@ -44,7 +44,7 @@ const (
 	DefaultPageLimit  = 10
 )
 
-func (p *ProposalEvent) calculatePagination(ctx context.Context, searchValues models.ProposalEventSearchInternal) (*models.Pagination, error) {
+func (p *ProposalEvent) calculatePagination(ctx context.Context, searchValues models.ProposalEventSearchInternal, searchQuery *gorm.DB) (*models.Pagination, error) {
 	offset := 0
 
 	if searchValues.Pagination.PageNumber > 0 {
@@ -53,7 +53,7 @@ func (p *ProposalEvent) calculatePagination(ctx context.Context, searchValues mo
 
 	var count int64
 
-	err := p.DBConnector.DB.Model(&models.ProposalEvent{}).Count(&count).WithContext(ctx).Error
+	err := searchQuery.Find(&[]models.ProposalEvent{}).Count(&count).WithContext(ctx).Error
 	if err != nil {
 		return nil, err
 	}
@@ -89,6 +89,8 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	query := db.
 		Order(fmt.Sprintf("%s %s", searchValues.SortField, strings.ToUpper(string(*searchValues.Order)))).
 		Where("status IN (?)", searchValues.State)
+
+	query = query.Debug()
 
 	if searchValues.GetOwn != nil && searchValues.SearcherID != nil {
 		if *searchValues.GetOwn {
@@ -130,7 +132,8 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 			query = query.Where("id IN (?)", subQuery)
 		}
 	}
-	if searchValues.Location != nil {
+	fmt.Println(searchValues.Location)
+	if searchValues.Location != nil && searchValues.Location.String() != "|||" {
 		location := *searchValues.Location
 		subQuery := db.Table("location").Select("event_id").
 			Where("event_type = ?", models.ProposalEventType)
@@ -151,8 +154,9 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 		query = query.Where("id IN (?)", subQuery)
 	}
 
-	pagination, err := p.calculatePagination(ctx, searchValues)
+	pagination, err := p.calculatePagination(ctx, searchValues, query)
 	if err != nil {
+		zlog.Log.Error(err, "could not calculate pagination value")
 		return models.ProposalEventPagination{}, err
 	}
 
@@ -415,19 +419,19 @@ func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 	}()
 
 	oldProposalEvent := &models.ProposalEvent{}
-	err := p.DBConnector.DB.Where("id = ?", id).WithContext(ctx).First(oldProposalEvent).Error
+	err := tx.Where("id = ?", id).WithContext(ctx).First(oldProposalEvent).Error
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 	oldProposalEvent.CompetitionDate = sql.NullTime{Time: time.Now(), Valid: true}
 	oldProposalEvent.IsDeleted = true
-	err = p.DBConnector.DB.Where("id = ?", id).Updates(oldProposalEvent).WithContext(ctx).Error
+	err = tx.Where("id = ?", id).Updates(oldProposalEvent).WithContext(ctx).Error
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
-	err = p.DBConnector.DB.
+	err = tx.
 		Model(&models.Transaction{}).
 		Where("event_id = ?", id).
 		Where("event_type = ?", models.ProposalEventType).
@@ -439,7 +443,7 @@ func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 		tx.Rollback()
 		return err
 	}
-	err = p.DBConnector.DB.
+	err = tx.
 		Model(&models.Comment{}).
 		Where("event_id = ?", id).
 		Where("event_type = ?", models.ProposalEventType).

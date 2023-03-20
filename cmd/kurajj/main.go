@@ -1,7 +1,7 @@
 package main
 
 import (
-	"Kurajj/internal/config"
+	"Kurajj/configs"
 	handlers2 "Kurajj/internal/handlers"
 	"Kurajj/internal/handlers/server"
 	"Kurajj/internal/repository"
@@ -39,19 +39,19 @@ func main() {
 	flag.Parse()
 	zlog.Init()
 
-	dbConfig, err := config.NewDBConfigFromFile(*dbConfig)
+	dbConfig, err := configs.NewDBConfigFromFile(*dbConfig)
 	if err != nil {
 		zlog.Log.Error(err, "could not read database config")
 		os.Exit(1)
 	}
 
-	authConfig, err := config.NewAuthenticationConfigFromFile(*authConfig)
+	authConfig, err := configs.NewAuthenticationConfigFromFile(*authConfig)
 	if err != nil {
 		zlog.Log.Error(err, "could not read authentication config")
 		os.Exit(1)
 	}
 
-	emailConfig, err := config.NewEmailConfigFromFile(*emailConfig)
+	emailConfig, err := configs.NewEmailConfigFromFile(*emailConfig)
 	if err != nil {
 		zlog.Log.Error(err, "could not read email config")
 		os.Exit(1)
