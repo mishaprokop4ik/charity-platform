@@ -139,7 +139,7 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 			Where("event_type = ?", models.ProposalEventType)
 
 		if location.Region != "" {
-			subQuery = subQuery.Where("LOWER(region) LIKE ?", "%"+location.Region+"%")
+			subQuery = subQuery.Where("LOWER(area) LIKE ?", "%"+location.Region+"%")
 		}
 		if location.City != "" {
 			subQuery = subQuery.Where("LOWER(city) LIKE ?", "%"+location.City+"%")
