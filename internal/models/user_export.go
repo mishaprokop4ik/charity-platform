@@ -96,6 +96,10 @@ type Address struct {
 	EventID      uint      `json:"-" gorm:"column:event_id"`
 }
 
+func (a Address) Values() string {
+	return fmt.Sprintf("%s%s%s%s", a.Region, a.City, a.District, a.Street)
+}
+
 func (Address) TableName() string {
 	return "location"
 }

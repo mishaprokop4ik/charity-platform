@@ -133,7 +133,7 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 		}
 	}
 	fmt.Println(searchValues.Location)
-	if searchValues.Location != nil && searchValues.Location.String() != "|||" {
+	if searchValues.Location != nil && searchValues.Location.String() != "|||" && searchValues.Location.Values() != "" {
 		location := *searchValues.Location
 		subQuery := db.Table("location").Select("event_id").
 			Where("event_type = ?", models.ProposalEventType)

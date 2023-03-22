@@ -108,7 +108,9 @@ func (i ProposalEventSearchInternal) GetTagsValues() []string {
 	for _, tag := range *i.Tags {
 		tagValues := tag.Values
 		for _, tagValue := range tagValues {
-			values = append(values, tagValue.Value)
+			if tagValue.Value != "" {
+				values = append(values, tagValue.Value)
+			}
 		}
 	}
 
