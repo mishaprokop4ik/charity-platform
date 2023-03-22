@@ -365,8 +365,8 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 // ResponseProposalEvent creates new transaction with waiting status for the proposal event if slot is available
 // @Summary      Create new transaction with waiting status for the proposal event if slot is available
 // @SearchValuesResponse         Proposal Event
+// @Param request body models.TransactionAcceptCreateRequest true "query params"
 // @Accept       json
-// @Param        id   path int  true  "ID"
 // @Success      200
 // @Failure      401  {object}  models.ErrResponse
 // @Failure      403  {object}  models.ErrResponse
@@ -376,7 +376,11 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 // @Router       /api/events/proposal/response [post]
 func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-
+	transactionInfo, err := models.UnmarshalTransactionAcceptCreateRequest(&r.Body)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
 	userID := r.Context().Value("id")
 	if userID == "" {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
@@ -386,17 +390,7 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		id, ok := mux.Vars(r)["id"]
-		parsedID, err := strconv.Atoi(id)
-		if !ok || err != nil {
-			response := "there is no id for getting in URL"
-			if err != nil {
-				response = err.Error()
-			}
-			httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
-			return
-		}
-		err = h.validateProposalEventTransactionRequest(ctx, uint(parsedID))
+		err = h.validateProposalEventTransactionRequest(ctx, uint(transactionInfo.ID))
 		if err != nil {
 			errch <- errResponse{
 				err: err,
@@ -404,7 +398,7 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 
 			return
 		}
-		err = h.services.ProposalEvent.Response(ctx, uint(parsedID), userID.(uint))
+		err = h.services.ProposalEvent.Response(ctx, uint(transactionInfo.ID), userID.(uint), transactionInfo.Comment)
 
 		errch <- errResponse{
 			err: err,

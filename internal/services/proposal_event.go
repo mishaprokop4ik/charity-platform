@@ -8,7 +8,7 @@ import (
 
 type ProposalEventer interface {
 	ProposalEventCRUDer
-	Response(ctx context.Context, proposalEventID, responderID uint) error
+	Response(ctx context.Context, proposalEventID, responderID uint, comment string) error
 	Accept(ctx context.Context, transactionID uint) error
 	UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint) error
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
@@ -51,7 +51,7 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 	return p.UpdateTransaction(ctx, transaction)
 }
 
-func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responderID uint) error {
+func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responderID uint, comment string) error {
 	//transaction, err := p.repo.ProposalEvent.GetEvent(ctx, proposalEventID)
 	//if err != nil {
 	//	return err
@@ -62,6 +62,7 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	_, err := p.CreateTransaction(ctx, models.Transaction{
 		CreatorID:         responderID,
 		EventID:           proposalEventID,
+		ResponderComment:  comment,
 		EventType:         models.ProposalEventType,
 		ResponderStatus:   models.InProcess,
 		TransactionStatus: models.Waiting,

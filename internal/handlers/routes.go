@@ -75,7 +75,7 @@ func (h *Handler) InitRoutes() http.Handler {
 	proposalEventSubRouter.HandleFunc("/transactions/{id}", h.GetProposalEventTransactions).
 		Methods(http.MethodGet)
 
-	proposalEventSubRouter.HandleFunc("/response/{id}", h.ResponseProposalEvent).
+	proposalEventSubRouter.HandleFunc("/response", h.ResponseProposalEvent).
 		Methods(http.MethodPost)
 	proposalEventSubRouter.HandleFunc("/accept/{id}", h.AcceptProposalEventResponse).
 		Methods(http.MethodPost)

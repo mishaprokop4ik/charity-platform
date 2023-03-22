@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"io"
 	"time"
 )
@@ -203,7 +202,13 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 			Values: tag.GetTagValuesResponse(),
 		}
 	}
-
+	homeLocation := ""
+	if event.Location.Street != "" {
+		homeLocation = event.Location.Street
+	}
+	if event.Location.HomeLocation != "" {
+		homeLocation += homeLocation + " " + event.Location.HomeLocation
+	}
 	tags = append(tags, TagResponse{
 		ID:    event.Location.ID,
 		Title: "location",
@@ -211,7 +216,7 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 			event.Location.Region,
 			event.Location.City,
 			event.Location.District,
-			fmt.Sprintf("%s %s", event.Location.Street, event.Location.HomeLocation),
+			homeLocation,
 		},
 	})
 

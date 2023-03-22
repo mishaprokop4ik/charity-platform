@@ -640,11 +640,13 @@ const docTemplate = `{
                 "summary": "Create new transaction with waiting status for the proposal event if slot is available",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.TransactionAcceptCreateRequest"
+                        }
                     }
                 ],
                 "responses": {
@@ -1566,32 +1568,6 @@ const docTemplate = `{
                 }
             }
         },
-        "Kurajj_internal_models.Pagination": {
-            "type": "object",
-            "properties": {
-                "limit": {
-                    "type": "integer"
-                },
-                "nextPage": {
-                    "type": "integer"
-                },
-                "offset": {
-                    "type": "integer"
-                },
-                "page": {
-                    "type": "integer"
-                },
-                "previousPage": {
-                    "type": "integer"
-                },
-                "totalPage": {
-                    "type": "integer"
-                },
-                "totalRecords": {
-                    "type": "integer"
-                }
-            }
-        },
         "Kurajj_internal_models.ProposalEventGetResponse": {
             "type": "object",
             "properties": {
@@ -1717,14 +1693,32 @@ const docTemplate = `{
         "Kurajj_internal_models.ProposalEventsWithPagination": {
             "type": "object",
             "properties": {
-                "pagination": {
-                    "$ref": "#/definitions/Kurajj_internal_models.Pagination"
-                },
-                "proposalEvents": {
+                "items": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/Kurajj_internal_models.ProposalEventGetResponse"
                     }
+                },
+                "limit": {
+                    "type": "integer"
+                },
+                "nextPage": {
+                    "type": "integer"
+                },
+                "offset": {
+                    "type": "integer"
+                },
+                "pageNumber": {
+                    "type": "integer"
+                },
+                "previousPage": {
+                    "type": "integer"
+                },
+                "totalPageCount": {
+                    "type": "integer"
+                },
+                "totalRecords": {
+                    "type": "integer"
                 }
             }
         },
@@ -1820,14 +1814,14 @@ const docTemplate = `{
                 "profileImageURL": {
                     "type": "string"
                 },
-                "refreshToken": {
-                    "type": "string"
-                },
-                "searchValues": {
+                "proposalEventSearchValues": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/Kurajj_internal_models.SearchValueResponse"
                     }
+                },
+                "refreshToken": {
+                    "type": "string"
                 },
                 "secondName": {
                     "type": "string"
@@ -1919,6 +1913,17 @@ const docTemplate = `{
                 },
                 "refreshToken": {
                     "type": "string"
+                }
+            }
+        },
+        "Kurajj_internal_models.TransactionAcceptCreateRequest": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 }
             }
         },

@@ -231,7 +231,7 @@ func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEven
 	} else {
 		newSearchValues.Location = searchValues.Location
 	}
-	if newSearchValues.Order == nil {
+	if searchValues.Order == nil || *searchValues.Order == "" {
 		newSearchValues.Order = &models.AscendingOrder
 	} else {
 		newSearchValues.Order = searchValues.Order

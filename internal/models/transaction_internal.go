@@ -11,6 +11,7 @@ type Transaction struct {
 	ID                uint              `gorm:"primaryKey"`
 	CreatorID         uint              `gorm:"column:creator_id"`
 	Creator           User              `gorm:"-"`
+	ResponderComment  string            `gorm:"column:responder_comment"`
 	Responder         User              `gorm:"-"`
 	CompetitionDate   sql.NullTime      `gorm:"column:completion_date"`
 	EventID           uint              `gorm:"column:event_id"`

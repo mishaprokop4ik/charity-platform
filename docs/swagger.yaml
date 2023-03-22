@@ -108,23 +108,6 @@ definitions:
           $ref: '#/definitions/Kurajj_internal_models.MemberSearchRequestCreate'
         type: array
     type: object
-  Kurajj_internal_models.Pagination:
-    properties:
-      limit:
-        type: integer
-      nextPage:
-        type: integer
-      offset:
-        type: integer
-      page:
-        type: integer
-      previousPage:
-        type: integer
-      totalPage:
-        type: integer
-      totalRecords:
-        type: integer
-    type: object
   Kurajj_internal_models.ProposalEventGetResponse:
     properties:
       authorInfo:
@@ -207,12 +190,24 @@ definitions:
     type: object
   Kurajj_internal_models.ProposalEventsWithPagination:
     properties:
-      pagination:
-        $ref: '#/definitions/Kurajj_internal_models.Pagination'
-      proposalEvents:
+      items:
         items:
           $ref: '#/definitions/Kurajj_internal_models.ProposalEventGetResponse'
         type: array
+      limit:
+        type: integer
+      nextPage:
+        type: integer
+      offset:
+        type: integer
+      pageNumber:
+        type: integer
+      previousPage:
+        type: integer
+      totalPageCount:
+        type: integer
+      totalRecords:
+        type: integer
     type: object
   Kurajj_internal_models.RefreshTokenInput:
     properties:
@@ -274,12 +269,12 @@ definitions:
         type: integer
       profileImageURL:
         type: string
-      refreshToken:
-        type: string
-      searchValues:
+      proposalEventSearchValues:
         items:
           $ref: '#/definitions/Kurajj_internal_models.SearchValueResponse'
         type: array
+      refreshToken:
+        type: string
       secondName:
         type: string
       telephone:
@@ -339,6 +334,13 @@ definitions:
         type: string
       refreshToken:
         type: string
+    type: object
+  Kurajj_internal_models.TransactionAcceptCreateRequest:
+    properties:
+      comment:
+        type: string
+      id:
+        type: integer
     type: object
   Kurajj_internal_models.TransactionResponse:
     properties:
@@ -834,11 +836,12 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: ID
-        in: path
-        name: id
+      - description: query params
+        in: body
+        name: request
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models.TransactionAcceptCreateRequest'
       responses:
         "200":
           description: OK

@@ -41,6 +41,17 @@ type CommentCreateRequest struct {
 	EventID uint   `json:"eventId"`
 }
 
+type TransactionAcceptCreateRequest struct {
+	ID      int    `json:"id"`
+	Comment string `json:"comment"`
+}
+
+func UnmarshalTransactionAcceptCreateRequest(b *io.ReadCloser) (TransactionAcceptCreateRequest, error) {
+	r := TransactionAcceptCreateRequest{}
+	err := json.NewDecoder(*b).Decode(&r)
+	return r, err
+}
+
 type CommentUpdateRequest struct {
 	ID   uint   `json:"id"`
 	Text string `json:"text"`
