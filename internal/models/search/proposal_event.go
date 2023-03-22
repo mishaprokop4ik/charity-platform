@@ -35,11 +35,24 @@ func (s AllEventsSearch) Internal() models.ProposalEventSearchInternal {
 		if strings.ToLower(tag.Title) == "location" ||
 			strings.ToLower(tag.Title) == "place" &&
 				len(tag.Values) >= models.DecodedAddressLength {
-			location.Region = tag.Values[0].Value
-			location.City = tag.Values[1].Value
-			location.District = tag.Values[2].Value
-			location.HomeLocation = tag.Values[3].Value
-			tags = append(tags[:i], tags[i+1:]...)
+			if len(tag.Values[0].Value) != 0 {
+				location.Region = tag.Values[0].Value
+			}
+			if len(tag.Values[1].Value) != 0 {
+				location.City = tag.Values[1].Value
+			}
+			if len(tag.Values[2].Value) != 0 {
+				location.District = tag.Values[2].Value
+			}
+			if len(tag.Values[3].Value) != 0 {
+				location.HomeLocation = tag.Values[3].Value
+			}
+			if len(tag.Values[0].Value) != 0 &&
+				len(tag.Values[1].Value) != 0 &&
+				len(tag.Values[2].Value) != 0 &&
+				len(tag.Values[3].Value) != 0 {
+				tags = append(tags[:i], tags[i+1:]...)
+			}
 		}
 	}
 	if s.StatusState == "" {
