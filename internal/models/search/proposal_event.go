@@ -47,12 +47,7 @@ func (s AllEventsSearch) Internal() models.ProposalEventSearchInternal {
 			if len(tag.Values[3].Value) != 0 {
 				location.HomeLocation = tag.Values[3].Value
 			}
-			if len(tag.Values[0].Value) != 0 &&
-				len(tag.Values[1].Value) != 0 &&
-				len(tag.Values[2].Value) != 0 &&
-				len(tag.Values[3].Value) != 0 {
-				tags = append(tags[:i], tags[i+1:]...)
-			}
+			tags = append(tags[:i], tags[i+1:]...)
 		}
 	}
 	if s.StatusState == "" {
