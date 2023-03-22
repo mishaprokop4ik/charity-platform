@@ -118,7 +118,7 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	}
 
 	if searchValues.Tags != nil && len(*searchValues.Tags) != 0 {
-		if len(searchValues.GetTagsValues()) == 0 {
+		if len(searchValues.GetTagsValues()) == 0 && len(searchValues.GetTagsTitle()) != 0 {
 			subQuery := db.Table("tag").Select("event_id").
 				Where("LOWER(title) IN (?) AND event_type = ?", searchValues.GetTagsTitle(), models.ProposalEventType)
 
