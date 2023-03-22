@@ -282,6 +282,11 @@ definitions:
       token:
         type: string
     type: object
+  Kurajj_internal_models.StatusExport:
+    properties:
+      status:
+        $ref: '#/definitions/Kurajj_internal_models.TransactionStatus'
+    type: object
   Kurajj_internal_models.TagGroupRequestCreate:
     properties:
       eventID:
@@ -908,6 +913,12 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models.StatusExport'
       - description: ID
         in: path
         name: id

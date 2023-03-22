@@ -490,6 +490,7 @@ func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, t
 // UpdateProposalEventTransactionStatus updates proposal event transaction's status to one of models.TransactionStatus state
 // @Summary      Update proposal event transaction's status to to one of models.TransactionStatus state
 // @SearchValuesResponse         Proposal Event
+// @Param request body models.StatusExport true "query params"
 // @Accept       json
 // @Param        id   path int  true  "ID"
 // @Success      200

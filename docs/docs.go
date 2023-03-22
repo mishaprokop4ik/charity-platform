@@ -749,6 +749,15 @@ const docTemplate = `{
                 "summary": "Update proposal event transaction's status to to one of models.TransactionStatus state",
                 "parameters": [
                     {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.StatusExport"
+                        }
+                    },
+                    {
                         "type": "integer",
                         "description": "ID",
                         "name": "id",
@@ -1831,6 +1840,14 @@ const docTemplate = `{
                 },
                 "token": {
                     "type": "string"
+                }
+            }
+        },
+        "Kurajj_internal_models.StatusExport": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
                 }
             }
         },
