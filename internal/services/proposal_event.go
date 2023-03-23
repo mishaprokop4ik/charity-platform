@@ -46,8 +46,6 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 	if transaction.CreatorID == userID {
 		transaction.ResponderStatus = status
 		transaction.ReceiverStatus = status
-	} else {
-		transaction.ReceiverStatus = status
 	}
 	return p.UpdateTransaction(ctx, transaction)
 }
@@ -65,7 +63,7 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 		EventID:          proposalEventID,
 		ResponderComment: comment,
 		EventType:        models.ProposalEventType,
-		ReceiverStatus:   models.InProcess,
+		ReceiverStatus:   models.Waiting,
 		ResponderStatus:  models.NotStarted,
 	})
 

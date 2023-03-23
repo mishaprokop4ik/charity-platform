@@ -19,6 +19,7 @@ type TransactionStatus string
 
 const (
 	InProcess   TransactionStatus = "in_process"
+	Waiting     TransactionStatus = "waiting"
 	Completed   TransactionStatus = "completed"
 	Interrupted TransactionStatus = "interrupted"
 	Canceled    TransactionStatus = "canceled"

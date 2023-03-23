@@ -100,7 +100,7 @@ CREATE TABLE transaction (
     event_id bigint,
     receiver_comment varchar(255),
     event_type event,
-    receiver_status transaction_status NOT NULL,
+    receiver_status transaction_status DEFAULT 'waiting' NOT NULL,
     responder_status responder_status DEFAULT 'not_started' NOT NULL,
     CONSTRAINT creator_fk FOREIGN KEY(creator_id) REFERENCES members(id)
         ON DELETE SET NULL ON UPDATE SET DEFAULT
