@@ -1989,14 +1989,14 @@ const docTemplate = `{
                 "completed",
                 "interrupted",
                 "canceled",
-                "waiting"
+                "not_started"
             ],
             "x-enum-varnames": [
                 "InProcess",
                 "Completed",
                 "Interrupted",
                 "Canceled",
-                "Waiting"
+                "NotStarted"
             ]
         },
         "Kurajj_internal_models.TransactionsExport": {

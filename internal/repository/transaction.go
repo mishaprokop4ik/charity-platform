@@ -3,7 +3,6 @@ package repository
 import (
 	"Kurajj/internal/models"
 	"context"
-	"fmt"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
@@ -117,19 +116,20 @@ func (t *Transaction) UpdateTransactionByID(ctx context.Context, id uint, toUpda
 }
 
 func (t *Transaction) CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error) {
-	var count int64
-	err := t.DBConnector.DB.Model(models.Transaction{}).
-		Where("creator_id = ?", transaction.CreatorID).
-		Where("event_id = ?", transaction.EventID).Count(&count).
-		WithContext(ctx).
-		Error
-	if err != nil {
-		return 0, err
-	}
-	if count != 0 {
-		return 0, fmt.Errorf("user cannot create more than one transaction per one event")
-	}
-	err = t.DBConnector.DB.Create(&transaction).WithContext(ctx).Error
+	// TODO delete this comments after debug
+	//var count int64
+	//err := t.DBConnector.DB.Model(models.Transaction{}).
+	//	Where("creator_id = ?", transaction.CreatorID).
+	//	Where("event_id = ?", transaction.EventID).Count(&count).
+	//	WithContext(ctx).
+	//	Error
+	//if err != nil {
+	//	return 0, err
+	//}
+	//if count != 0 {
+	//	return 0, fmt.Errorf("user cannot create more than one transaction per one event")
+	//}
+	err := t.DBConnector.DB.Create(&transaction).WithContext(ctx).Error
 	return transaction.ID, err
 }
 
