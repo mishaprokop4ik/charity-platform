@@ -8,6 +8,7 @@ type Repository struct {
 	Comment         Commenter
 	Tag             Tagger
 	UserSearchValue UserSearcher
+	File            Filer
 }
 
 func New(dbConnector *Connector, config AWSConfig) *Repository {
@@ -19,5 +20,6 @@ func New(dbConnector *Connector, config AWSConfig) *Repository {
 		Comment:         NewComment(dbConnector),
 		Tag:             NewTag(dbConnector),
 		UserSearchValue: NewUserSearch(dbConnector),
+		File:            NewFile(config),
 	}
 }

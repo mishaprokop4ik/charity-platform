@@ -124,13 +124,14 @@ func (l ProposalEventsWithPagination) Bytes() []byte {
 }
 
 type ProposalEventRequestUpdate struct {
-	ID                    uint      `json:"id"`
-	Title                 string    `json:"title"`
-	Description           string    `json:"description"`
-	CompetitionDate       time.Time `json:"competitionDate"`
-	FileBytes             []byte    `json:"fileBytes"`
-	FileType              string    `json:"fileType"`
-	MaxConcurrentRequests int       `json:"maxConcurrentRequests"`
+	ID                    uint        `json:"id"`
+	Title                 string      `json:"title"`
+	Description           string      `json:"description"`
+	CompetitionDate       time.Time   `json:"competitionDate"`
+	Status                EventStatus `json:"status"`
+	FileBytes             []byte      `json:"fileBytes"`
+	FileType              string      `json:"fileType"`
+	MaxConcurrentRequests int         `json:"maxConcurrentRequests"`
 }
 
 func (p *ProposalEventRequestUpdate) Internal() ProposalEvent {
@@ -138,6 +139,7 @@ func (p *ProposalEventRequestUpdate) Internal() ProposalEvent {
 		ID:          uint(p.ID),
 		Title:       p.Title,
 		Description: p.Description,
+		Status:      p.Status,
 		CompetitionDate: sql.NullTime{
 			Time: p.CompetitionDate,
 		},
@@ -231,6 +233,7 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 			CreationDate:    t.CreationDate,
 			ReceiverStatus:  t.ReceiverStatus,
 			ResponderStatus: t.ResponderStatus,
+			ReportURL:       t.ReportURL,
 			Creator:         t.Creator.ToShortInfo(),
 			Responder:       t.Responder.ToShortInfo(),
 		}

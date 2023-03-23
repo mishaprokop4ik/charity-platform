@@ -1683,6 +1683,9 @@ const docTemplate = `{
                 "maxConcurrentRequests": {
                     "type": "integer"
                 },
+                "status": {
+                    "$ref": "#/definitions/Kurajj_internal_models.EventStatus"
+                },
                 "title": {
                     "type": "string"
                 }
@@ -1846,6 +1849,15 @@ const docTemplate = `{
         "Kurajj_internal_models.StatusExport": {
             "type": "object",
             "properties": {
+                "fileBytes": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "fileType": {
+                    "type": "string"
+                },
                 "status": {
                     "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
                 }
@@ -1974,6 +1986,9 @@ const docTemplate = `{
                 "receiverStatus": {
                     "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
                 },
+                "reportURL": {
+                    "type": "string"
+                },
                 "responder": {
                     "$ref": "#/definitions/Kurajj_internal_models.UserShortInfo"
                 },
@@ -1986,6 +2001,7 @@ const docTemplate = `{
             "type": "string",
             "enum": [
                 "in_process",
+                "waiting",
                 "completed",
                 "interrupted",
                 "canceled",
@@ -1993,6 +2009,7 @@ const docTemplate = `{
             ],
             "x-enum-varnames": [
                 "InProcess",
+                "Waiting",
                 "Completed",
                 "Interrupted",
                 "Canceled",

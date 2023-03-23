@@ -18,10 +18,13 @@ type TransactionResponse struct {
 	Comment         string            `json:"comment"`
 	ReceiverStatus  TransactionStatus `json:"receiverStatus"`
 	ResponderStatus TransactionStatus `json:"responderStatus"`
+	ReportURL       string            `json:"reportURL"`
 }
 
 type StatusExport struct {
-	Status TransactionStatus `json:"status"`
+	Status    TransactionStatus `json:"status"`
+	FileBytes []byte            `json:"fileBytes"`
+	FileType  string            `json:"fileType"`
 }
 
 type TransactionsExport struct {

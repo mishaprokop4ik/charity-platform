@@ -5,6 +5,7 @@ import (
 	"Kurajj/internal/models/search"
 	httpHelper "Kurajj/pkg/http"
 	zlog "Kurajj/pkg/logger"
+	"bytes"
 	"context"
 	"database/sql"
 	"fmt"
@@ -529,7 +530,10 @@ func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err := h.services.ProposalEvent.UpdateStatus(ctx, s.Status, uint(parsedTransactionID), userID.(uint))
+		err := h.services.ProposalEvent.UpdateStatus(ctx, s.Status,
+			uint(parsedTransactionID),
+			userID.(uint),
+			bytes.NewReader(s.FileBytes), s.FileType)
 
 		eventch <- errResponse{
 			err: err,

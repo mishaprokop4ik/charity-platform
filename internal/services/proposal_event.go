@@ -4,13 +4,16 @@ import (
 	"Kurajj/internal/models"
 	"Kurajj/internal/repository"
 	"context"
+	"fmt"
+	"github.com/google/uuid"
+	"io"
 )
 
 type ProposalEventer interface {
 	ProposalEventCRUDer
 	Response(ctx context.Context, proposalEventID, responderID uint, comment string) error
 	Accept(ctx context.Context, transactionID uint) error
-	UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint) error
+	UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType string) error
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
 	GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) (models.ProposalEventPagination, error)
 }
@@ -37,7 +40,7 @@ func (p *ProposalEvent) GetProposalEventBySearch(ctx context.Context, search mod
 	return p.repo.ProposalEvent.GetEventsWithSearchAndSort(ctx, search)
 }
 
-func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint) error {
+func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType string) error {
 	transaction, err := p.GetTransactionByID(ctx, transactionID)
 	if err != nil {
 		return err
@@ -47,6 +50,20 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 		transaction.ResponderStatus = status
 		transaction.ReceiverStatus = status
 	}
+
+	if status == models.Completed {
+		fileUniqueID, err := uuid.NewUUID()
+		if err != nil {
+			return err
+		}
+		fileName := fmt.Sprintf("%s.%s", fileUniqueID.String(), fileType)
+		filePath, err := p.repo.File.Upload(ctx, fileName, file)
+		if err != nil {
+			return err
+		}
+		transaction.ReportURL = filePath
+	}
+
 	return p.UpdateTransaction(ctx, transaction)
 }
 
@@ -59,12 +76,12 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	//	return fmt.Errorf("event creator cannot response his/her own events")
 	//}
 	_, err := p.CreateTransaction(ctx, models.Transaction{
-		CreatorID:        responderID,
-		EventID:          proposalEventID,
-		ResponderComment: comment,
-		EventType:        models.ProposalEventType,
-		ReceiverStatus:   models.Waiting,
-		ResponderStatus:  models.NotStarted,
+		CreatorID:       responderID,
+		EventID:         proposalEventID,
+		Comment:         comment,
+		EventType:       models.ProposalEventType,
+		ReceiverStatus:  models.Waiting,
+		ResponderStatus: models.NotStarted,
 	})
 
 	return err

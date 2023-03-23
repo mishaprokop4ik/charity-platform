@@ -20,7 +20,7 @@ CREATE TABLE members (
 );
 
 CREATE TYPE event AS ENUM ('proposal-event', 'help', 'public');
-CREATE type event_status AS ENUM('active', 'inactive', 'done');
+CREATE type event_status AS ENUM('active', 'inactive', 'done', 'blocked');
 
 CREATE TABLE propositional_event (
     id bigserial PRIMARY KEY,
@@ -98,10 +98,11 @@ CREATE TABLE transaction (
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     completion_date timestamp,
     event_id bigint,
-    receiver_comment varchar(255),
+    comment varchar(255),
     event_type event,
     receiver_status transaction_status DEFAULT 'waiting' NOT NULL,
     responder_status responder_status DEFAULT 'not_started' NOT NULL,
+    report_url varchar,
     CONSTRAINT creator_fk FOREIGN KEY(creator_id) REFERENCES members(id)
         ON DELETE SET NULL ON UPDATE SET DEFAULT
 );

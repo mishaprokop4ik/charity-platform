@@ -8,18 +8,18 @@ import (
 )
 
 type Transaction struct {
-	ID               uint              `gorm:"primaryKey"`
-	CreatorID        uint              `gorm:"column:creator_id"`
-	Creator          User              `gorm:"-"`
-	ResponderComment string            `gorm:"column:receiver_comment"`
-	Responder        User              `gorm:"-"`
-	CompetitionDate  sql.NullTime      `gorm:"column:completion_date"`
-	EventID          uint              `gorm:"column:event_id"`
-	Comment          string            `gorm:"column:receiver_comment"`
-	CreationDate     time.Time         `gorm:"column:creation_date"`
-	EventType        EventType         `gorm:"column:event_type"`
-	ReceiverStatus   TransactionStatus `gorm:"column:receiver_status"`
-	ResponderStatus  TransactionStatus `gorm:"column:responder_status"`
+	ID              uint              `gorm:"primaryKey"`
+	CreatorID       uint              `gorm:"column:creator_id"`
+	Creator         User              `gorm:"-"`
+	Responder       User              `gorm:"-"`
+	CompetitionDate sql.NullTime      `gorm:"column:completion_date"`
+	EventID         uint              `gorm:"column:event_id"`
+	Comment         string            `gorm:"column:comment"`
+	CreationDate    time.Time         `gorm:"column:creation_date"`
+	EventType       EventType         `gorm:"column:event_type"`
+	ReceiverStatus  TransactionStatus `gorm:"column:receiver_status"`
+	ResponderStatus TransactionStatus `gorm:"column:responder_status"`
+	ReportURL       string            `gorm:"column:report_url"`
 }
 
 func (Transaction) TableName() string {

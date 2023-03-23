@@ -178,6 +178,8 @@ definitions:
         type: integer
       maxConcurrentRequests:
         type: integer
+      status:
+        $ref: '#/definitions/Kurajj_internal_models.EventStatus'
       title:
         type: string
     type: object
@@ -284,6 +286,12 @@ definitions:
     type: object
   Kurajj_internal_models.StatusExport:
     properties:
+      fileBytes:
+        items:
+          type: integer
+        type: array
+      fileType:
+        type: string
       status:
         $ref: '#/definitions/Kurajj_internal_models.TransactionStatus'
     type: object
@@ -367,6 +375,8 @@ definitions:
         type: integer
       receiverStatus:
         $ref: '#/definitions/Kurajj_internal_models.TransactionStatus'
+      reportURL:
+        type: string
       responder:
         $ref: '#/definitions/Kurajj_internal_models.UserShortInfo'
       responderStatus:
@@ -375,6 +385,7 @@ definitions:
   Kurajj_internal_models.TransactionStatus:
     enum:
     - in_process
+    - waiting
     - completed
     - interrupted
     - canceled
@@ -382,6 +393,7 @@ definitions:
     type: string
     x-enum-varnames:
     - InProcess
+    - Waiting
     - Completed
     - Interrupted
     - Canceled
