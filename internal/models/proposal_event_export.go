@@ -223,16 +223,16 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 	transactions := make([]TransactionResponse, len(event.Transactions))
 	for i, t := range event.Transactions {
 		transaction := TransactionResponse{
-			ID:                t.ID,
-			CreatorID:         t.CreatorID,
-			EventID:           t.EventID,
-			Comment:           t.Comment,
-			EventType:         t.EventType,
-			CreationDate:      t.CreationDate,
-			TransactionStatus: t.TransactionStatus,
-			ResponderStatus:   t.ResponderStatus,
-			Creator:           t.Creator.ToShortInfo(),
-			Responder:         t.Responder.ToShortInfo(),
+			ID:              t.ID,
+			CreatorID:       t.CreatorID,
+			EventID:         t.EventID,
+			Comment:         t.Comment,
+			EventType:       t.EventType,
+			CreationDate:    t.CreationDate,
+			ReceiverStatus:  t.ReceiverStatus,
+			ResponderStatus: t.ResponderStatus,
+			Creator:         t.Creator.ToShortInfo(),
+			Responder:       t.Responder.ToShortInfo(),
 		}
 		if t.CompetitionDate.Valid && !t.CompetitionDate.Time.IsZero() {
 			transaction.CompetitionDate = t.CompetitionDate.Time

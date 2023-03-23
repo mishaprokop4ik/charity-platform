@@ -482,6 +482,7 @@ func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, t
 	}
 
 	if transaction.RemainingHelps-1 < 0 {
+		fmt.Println(transaction.RemainingHelps)
 		return fmt.Errorf("there is no available slot")
 	}
 	return nil
@@ -883,15 +884,15 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 
 		for i, t := range resp.transactions {
 			transaction := models.TransactionResponse{
-				ID:                t.ID,
-				CreatorID:         t.CreatorID,
-				EventID:           t.EventID,
-				Comment:           t.Comment,
-				EventType:         t.EventType,
-				TransactionStatus: t.TransactionStatus,
-				ResponderStatus:   t.ResponderStatus,
-				Creator:           t.Creator.ToShortInfo(),
-				Responder:         t.Responder.ToShortInfo(),
+				ID:              t.ID,
+				CreatorID:       t.CreatorID,
+				EventID:         t.EventID,
+				Comment:         t.Comment,
+				EventType:       t.EventType,
+				ReceiverStatus:  t.ReceiverStatus,
+				ResponderStatus: t.ResponderStatus,
+				Creator:         t.Creator.ToShortInfo(),
+				Responder:       t.Responder.ToShortInfo(),
 			}
 			if t.CompetitionDate.Valid {
 				transaction.CompetitionDate = t.CompetitionDate.Time

@@ -98,10 +98,10 @@ CREATE TABLE transaction (
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     completion_date timestamp,
     event_id bigint,
-    responder_comment varchar(255),
+    receiver_comment varchar(255),
     event_type event,
-    transaction_status transaction_status NOT NULL,
-    user_implementation_status responder_status DEFAULT 'not_started' NOT NULL,
+    receiver_status transaction_status NOT NULL,
+    responder_status responder_status DEFAULT 'not_started' NOT NULL,
     CONSTRAINT creator_fk FOREIGN KEY(creator_id) REFERENCES members(id)
         ON DELETE SET NULL ON UPDATE SET DEFAULT
 );

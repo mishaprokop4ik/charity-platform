@@ -1971,13 +1971,13 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "receiverStatus": {
+                    "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
+                },
                 "responder": {
                     "$ref": "#/definitions/Kurajj_internal_models.UserShortInfo"
                 },
                 "responderStatus": {
-                    "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
-                },
-                "transactionStatus": {
                     "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
                 }
             }

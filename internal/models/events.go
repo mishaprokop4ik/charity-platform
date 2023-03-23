@@ -22,7 +22,7 @@ const (
 	Completed   TransactionStatus = "completed"
 	Interrupted TransactionStatus = "interrupted"
 	Canceled    TransactionStatus = "canceled"
-	Waiting     TransactionStatus = "waiting"
+	NotStarted  TransactionStatus = "not_started"
 )
 
 type Eventer interface {

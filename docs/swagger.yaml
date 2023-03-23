@@ -365,11 +365,11 @@ definitions:
         $ref: '#/definitions/Kurajj_internal_models.EventType'
       id:
         type: integer
+      receiverStatus:
+        $ref: '#/definitions/Kurajj_internal_models.TransactionStatus'
       responder:
         $ref: '#/definitions/Kurajj_internal_models.UserShortInfo'
       responderStatus:
-        $ref: '#/definitions/Kurajj_internal_models.TransactionStatus'
-      transactionStatus:
         $ref: '#/definitions/Kurajj_internal_models.TransactionStatus'
     type: object
   Kurajj_internal_models.TransactionStatus:
