@@ -45,6 +45,7 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 
 	if transaction.CreatorID == userID {
 		transaction.ResponderStatus = status
+		transaction.ReceiverStatus = status
 	} else {
 		transaction.ReceiverStatus = status
 	}
