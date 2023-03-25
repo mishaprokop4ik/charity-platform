@@ -4,9 +4,11 @@ import (
 	"Kurajj/internal/models"
 	"Kurajj/internal/repository"
 	"context"
+	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
 	"io"
+	"time"
 )
 
 type ProposalEventer interface {
@@ -64,6 +66,13 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 		transaction.ReportURL = filePath
 	}
 
+	if status == models.Completed || status == models.Canceled || status == models.Interrupted {
+		transaction.CompetitionDate = sql.NullTime{
+			Time:  time.Now(),
+			Valid: true,
+		}
+	}
+
 	return p.UpdateTransaction(ctx, transaction)
 }
 
@@ -80,6 +89,7 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 		EventID:         proposalEventID,
 		Comment:         comment,
 		EventType:       models.ProposalEventType,
+		CreationDate:    time.Now(),
 		ReceiverStatus:  models.Waiting,
 		ResponderStatus: models.NotStarted,
 	})
@@ -89,8 +99,8 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 
 func (p *ProposalEvent) Accept(ctx context.Context, transactionID uint) error {
 	return p.UpdateTransaction(ctx, models.Transaction{
-		ID:             transactionID,
-		ReceiverStatus: models.InProcess,
+		ID:              transactionID,
+		ResponderStatus: models.Accepted,
 	})
 }
 

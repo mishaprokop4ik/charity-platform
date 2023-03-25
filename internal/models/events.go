@@ -24,6 +24,7 @@ const (
 	Interrupted TransactionStatus = "interrupted"
 	Canceled    TransactionStatus = "canceled"
 	NotStarted  TransactionStatus = "not_started"
+	Accepted    TransactionStatus = "accepted"
 )
 
 type Eventer interface {
