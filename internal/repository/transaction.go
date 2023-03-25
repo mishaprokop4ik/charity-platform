@@ -89,7 +89,7 @@ func (t *Transaction) UpdateTransactionByID(ctx context.Context, id uint, toUpda
 		return tx.Commit().Error
 	}
 
-	if status, ok := toUpdate["receiver_status"]; ok && !lo.Contains([]models.TransactionStatus{
+	if status, ok := toUpdate["transaction_status"]; ok && !lo.Contains([]models.TransactionStatus{
 		models.Completed,
 		models.Interrupted,
 		models.Canceled,

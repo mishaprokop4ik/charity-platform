@@ -101,7 +101,7 @@ CREATE TABLE transaction (
     event_id bigint,
     comment varchar(255),
     event_type event,
-    receiver_status transaction_status DEFAULT 'waiting' NOT NULL,
+    transaction_status transaction_status DEFAULT 'waiting' NOT NULL,
     responder_status responder_status DEFAULT 'not_started' NOT NULL,
     report_url varchar,
     CONSTRAINT creator_fk FOREIGN KEY(creator_id) REFERENCES members(id)

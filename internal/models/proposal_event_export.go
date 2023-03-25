@@ -231,7 +231,7 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 			Comment:         t.Comment,
 			EventType:       t.EventType,
 			CreationDate:    t.CreationDate,
-			ReceiverStatus:  t.ReceiverStatus,
+			ReceiverStatus:  t.TransactionStatus,
 			ResponderStatus: t.ResponderStatus,
 			ReportURL:       t.ReportURL,
 			Creator:         t.Creator.ToShortInfo(),

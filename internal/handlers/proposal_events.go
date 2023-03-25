@@ -893,7 +893,7 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 				EventID:         t.EventID,
 				Comment:         t.Comment,
 				EventType:       t.EventType,
-				ReceiverStatus:  t.ReceiverStatus,
+				ReceiverStatus:  t.TransactionStatus,
 				ResponderStatus: t.ResponderStatus,
 				Creator:         t.Creator.ToShortInfo(),
 				Responder:       t.Responder.ToShortInfo(),

@@ -50,7 +50,7 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 
 	if transaction.CreatorID == userID {
 		transaction.ResponderStatus = status
-		transaction.ReceiverStatus = status
+		transaction.TransactionStatus = status
 	}
 
 	if status == models.Completed {
@@ -85,13 +85,13 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	//	return fmt.Errorf("event creator cannot response his/her own events")
 	//}
 	_, err := p.CreateTransaction(ctx, models.Transaction{
-		CreatorID:       responderID,
-		EventID:         proposalEventID,
-		Comment:         comment,
-		EventType:       models.ProposalEventType,
-		CreationDate:    time.Now(),
-		ReceiverStatus:  models.Waiting,
-		ResponderStatus: models.NotStarted,
+		CreatorID:         responderID,
+		EventID:           proposalEventID,
+		Comment:           comment,
+		EventType:         models.ProposalEventType,
+		CreationDate:      time.Now(),
+		TransactionStatus: models.Waiting,
+		ResponderStatus:   models.NotStarted,
 	})
 
 	return err
@@ -99,8 +99,8 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 
 func (p *ProposalEvent) Accept(ctx context.Context, transactionID uint) error {
 	return p.UpdateTransaction(ctx, models.Transaction{
-		ID:             transactionID,
-		ReceiverStatus: models.Accepted,
+		ID:                transactionID,
+		TransactionStatus: models.Accepted,
 	})
 }
 
