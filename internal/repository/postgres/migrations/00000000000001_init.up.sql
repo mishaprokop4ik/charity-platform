@@ -31,6 +31,7 @@ CREATE TABLE propositional_event (
     status event_status DEFAULT 'inactive',
     max_concurrent_requests integer NOT NULL,
     remaining_helps integer NOT NULL,
+    image_path varchar,
     author_id bigint,
     is_deleted bool,
     CONSTRAINT author_fk FOREIGN KEY(author_id) REFERENCES members(id)
@@ -89,8 +90,8 @@ CREATE TABLE comment (
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE type responder_status AS ENUM ('not_started', 'in_progress', 'completed', 'aborted');
-CREATE type transaction_status AS ENUM ('waiting', 'in_process', 'completed', 'aborted', 'canceled', 'accepted');
+CREATE type responder_status AS ENUM ('not_started', 'in_progress', 'completed', 'aborted', 'accepted');
+CREATE type transaction_status AS ENUM ('waiting', 'in_process', 'completed', 'aborted', 'canceled');
 
 CREATE TABLE transaction (
     id bigserial PRIMARY KEY,

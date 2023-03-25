@@ -5,11 +5,11 @@ VALUES
     ('Bob Johnson', '+380671234567', '@bob_johnson', 'bob.johnson@example.com', '736c6461666a6173646e666d61736e88ea39439e74fa27c09a4fc0bc8ebe6d00978392', 'https://charity-platform.s3.amazonaws.com/images/png-transparent-default-avatar-thumbnail.png', '123 LLC', '789 Oak St, Anytown, USA', '2022-01-03 00:00:00', null, null, false, false, true),
     ('Test Test', '+380671234567', '@bob_johnson', 'test@test.com', '736c6461666a6173646e666d61736e88ea39439e74fa27c09a4fc0bc8ebe6d00978392', 'https://charity-platform.s3.amazonaws.com/images/png-transparent-default-avatar-thumbnail.png', '123 LLC', '789 Oak St, Anytown, USA', '2022-01-03 00:00:00', null, null, false, false, true);
 
-INSERT INTO propositional_event (title, description, creation_date, competition_date, status, max_concurrent_requests, remaining_helps, author_id, is_deleted)
+INSERT INTO propositional_event (title, description, creation_date, competition_date, status, max_concurrent_requests, remaining_helps, author_id, is_deleted, image_path)
 VALUES
-    ('Fundraising Event', 'A charity event to raise funds for a local non-profit organization.', '2022-02-01 00:00:00', '2022-03-01 00:00:00', 'active', 50, 10, 1, false),
-    ('Volunteer Day', 'A day of volunteering at a local community center.', '2022-03-01 00:00:00', '2022-03-01 00:00:00', 'inactive', 10, 0, 2, false),
-    ('Community Cleanup', 'A day of cleaning up a local park.', '2022-04-01 00:00:00', '2022-04-01 00:00:00', 'active', 20, 5, 3, false);
+    ('Fundraising Event', 'A charity event to raise funds for a local non-profit organization.', '2022-02-01 00:00:00', '2022-03-01 00:00:00', 'active', 50, 10, 1, false, 'https://charity-platform.s3.amazonaws.com/images/volunteer-care-old-people-nurse-isolated-young-human-helping-senior-volunteers-service-helpful-person-nursing-elderly-decent-vector-set_53562-17770.avif'),
+    ('Volunteer Day', 'A day of volunteering at a local community center.', '2022-03-01 00:00:00', '2022-03-01 00:00:00', 'inactive', 10, 0, 2, false, 'https://charity-platform.s3.amazonaws.com/images/volunteer-care-old-people-nurse-isolated-young-human-helping-senior-volunteers-service-helpful-person-nursing-elderly-decent-vector-set_53562-17770.avif'),
+    ('Community Cleanup', 'A day of cleaning up a local park.', '2022-04-01 00:00:00', '2022-04-01 00:00:00', 'active', 20, 5, 3, false, 'https://charity-platform.s3.amazonaws.com/images/volunteer-care-old-people-nurse-isolated-young-human-helping-senior-volunteers-service-helpful-person-nursing-elderly-decent-vector-set_53562-17770.avif');
 
 INSERT INTO help_event (title, description, creation_date, author_id, category, address, competition_date, rate)
 VALUES
