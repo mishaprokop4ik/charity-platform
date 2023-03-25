@@ -99,8 +99,8 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 
 func (p *ProposalEvent) Accept(ctx context.Context, transactionID uint) error {
 	return p.UpdateTransaction(ctx, models.Transaction{
-		ID:              transactionID,
-		ResponderStatus: models.Accepted,
+		ID:             transactionID,
+		ReceiverStatus: models.Accepted,
 	})
 }
 

@@ -90,8 +90,8 @@ CREATE TABLE comment (
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL
 );
 
-CREATE type responder_status AS ENUM ('not_started', 'in_progress', 'completed', 'aborted', 'accepted');
-CREATE type transaction_status AS ENUM ('waiting', 'in_process', 'completed', 'aborted', 'canceled');
+CREATE type responder_status AS ENUM ('not_started', 'in_progress', 'completed', 'aborted');
+CREATE type transaction_status AS ENUM ('waiting', 'in_process', 'completed', 'aborted', 'canceled', 'accepted');
 
 CREATE TABLE transaction (
     id bigserial PRIMARY KEY,
