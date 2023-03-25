@@ -1983,9 +1983,6 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "receiverStatus": {
-                    "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
-                },
                 "reportURL": {
                     "type": "string"
                 },
@@ -1993,6 +1990,9 @@ const docTemplate = `{
                     "$ref": "#/definitions/Kurajj_internal_models.UserShortInfo"
                 },
                 "responderStatus": {
+                    "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
+                },
+                "transactionStatus": {
                     "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
                 }
             }
@@ -2005,7 +2005,8 @@ const docTemplate = `{
                 "completed",
                 "interrupted",
                 "canceled",
-                "not_started"
+                "not_started",
+                "accepted"
             ],
             "x-enum-varnames": [
                 "InProcess",
@@ -2013,7 +2014,8 @@ const docTemplate = `{
                 "Completed",
                 "Interrupted",
                 "Canceled",
-                "NotStarted"
+                "NotStarted",
+                "Accepted"
             ]
         },
         "Kurajj_internal_models.TransactionsExport": {

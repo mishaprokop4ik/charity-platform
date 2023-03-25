@@ -888,15 +888,15 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 
 		for i, t := range resp.transactions {
 			transaction := models.TransactionResponse{
-				ID:              t.ID,
-				CreatorID:       t.CreatorID,
-				EventID:         t.EventID,
-				Comment:         t.Comment,
-				EventType:       t.EventType,
-				ReceiverStatus:  t.TransactionStatus,
-				ResponderStatus: t.ResponderStatus,
-				Creator:         t.Creator.ToShortInfo(),
-				Responder:       t.Responder.ToShortInfo(),
+				ID:                t.ID,
+				CreatorID:         t.CreatorID,
+				EventID:           t.EventID,
+				Comment:           t.Comment,
+				EventType:         t.EventType,
+				TransactionStatus: t.TransactionStatus,
+				ResponderStatus:   t.ResponderStatus,
+				Creator:           t.Creator.ToShortInfo(),
+				Responder:         t.Responder.ToShortInfo(),
 			}
 			if t.CompetitionDate.Valid {
 				transaction.CompetitionDate = t.CompetitionDate.Time
