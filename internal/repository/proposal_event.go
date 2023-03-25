@@ -505,9 +505,9 @@ func (p *ProposalEvent) insertUserInProposalEvents(ctx context.Context, events [
 func (p *ProposalEvent) getProposalEventTransactions(ctx context.Context, eventID uint) ([]models.Transaction, error) {
 	transactions := []models.Transaction{}
 	err := p.DBConnector.DB.
-		Find(&transactions).
 		Where("event_id = ?", eventID).
 		Where("event_type = ?", models.ProposalEventType).
+		Find(&transactions).
 		WithContext(ctx).
 		Error
 	if err != nil {
