@@ -7,6 +7,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/samber/lo"
 	"io"
 	"time"
 )
@@ -85,11 +86,15 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 		return fmt.Errorf("event creator cannot response his/her own events")
 	}
 	//TODO remove after debug
-	//for _, transaction := range proposalEvent.Transactions {
-	//	if transaction.CreatorID == responderID {
-	//		return fmt.Errorf("user already has a transaction in this event")
-	//	}
-	//}
+	for _, transaction := range proposalEvent.Transactions {
+		if transaction.CreatorID == responderID && lo.Contains([]models.TransactionStatus{
+			models.Accepted,
+			models.InProcess,
+			models.Waiting,
+		}, transaction.TransactionStatus) {
+			return fmt.Errorf("user already has a transaction in this event")
+		}
+	}
 	_, err = p.CreateTransaction(ctx, models.Transaction{
 		CreatorID:         responderID,
 		EventID:           proposalEventID,
