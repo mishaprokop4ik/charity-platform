@@ -124,7 +124,7 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	//		return fmt.Errorf("user already has a transaction in this event")
 	//	}
 	//}
-	_, err = p.CreateTransaction(ctx, models.Transaction{
+	id, err := p.CreateTransaction(ctx, models.Transaction{
 		CreatorID:         responderID,
 		EventID:           proposalEventID,
 		Comment:           comment,
