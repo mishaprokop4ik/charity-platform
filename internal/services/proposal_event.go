@@ -168,7 +168,7 @@ func (p *ProposalEvent) Accept(ctx context.Context, request models.AcceptRequest
 		NewStatus:     status,
 		IsRead:        false,
 		CreationTime:  time.Now(),
-		MemberID:      request.MemberID,
+		MemberID:      transaction.CreatorID,
 	})
 
 	return err
