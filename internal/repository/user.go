@@ -30,6 +30,7 @@ const defaultUserImage = "https://charity-platform.s3.amazonaws.com/images/png-t
 type User struct {
 	DBConnector *Connector
 	Filer
+	Notifier
 }
 
 func (u *User) SetSession(ctx context.Context, userID uint, session models.MemberSession) error {
@@ -85,6 +86,13 @@ func (u *User) GetByRefreshToken(ctx context.Context, token string) (models.User
 
 	member.RefreshToken = session.RefreshToken
 
+	notifications, err := u.Notifier.GetByMember(ctx, member.ID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.User{}, err
+	}
+
+	member.TransactionNotification = notifications
+
 	return member, err
 }
 
@@ -105,8 +113,8 @@ func (u *User) GetUserInfo(ctx context.Context, id uint) (models.User, error) {
 	return user, nil
 }
 
-func NewUser(DBConnector *Connector) *User {
-	return &User{DBConnector: DBConnector}
+func NewUser(config AWSConfig, DBConnector *Connector) *User {
+	return &User{DBConnector: DBConnector, Filer: NewFile(config), Notifier: NewTransactionNotification(DBConnector)}
 }
 
 func (u *User) IsEmailTaken(ctx context.Context, email string) (bool, error) {
@@ -180,6 +188,13 @@ func (u *User) GetUserAuthentication(ctx context.Context, email, password string
 		member.UserSearchValues[i].Values = searchValues
 	}
 
+	notifications, err := u.Notifier.GetByMember(ctx, member.ID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.User{}, err
+	}
+
+	member.TransactionNotification = notifications
+
 	return member, resp.Error
 }
 
@@ -222,6 +237,13 @@ func (u *User) GetEntity(ctx context.Context, email, password string, isAdmin, i
 		}
 		member.UserSearchValues[i].Values = searchValues
 	}
+
+	notifications, err := u.Notifier.GetByMember(ctx, member.ID)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return models.User{}, err
+	}
+
+	member.TransactionNotification = notifications
 
 	return member, err
 }

@@ -18,13 +18,14 @@ const (
 type TransactionStatus string
 
 const (
-	InProcess   TransactionStatus = "in_process"
+	InProcess   TransactionStatus = "in_progress"
 	Waiting     TransactionStatus = "waiting"
 	Completed   TransactionStatus = "completed"
 	Interrupted TransactionStatus = "interrupted"
 	Canceled    TransactionStatus = "canceled"
 	NotStarted  TransactionStatus = "not_started"
 	Accepted    TransactionStatus = "accepted"
+	Aborted     TransactionStatus = "aborted"
 )
 
 type Eventer interface {

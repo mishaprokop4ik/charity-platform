@@ -15,12 +15,24 @@ type TransactionNotification struct {
 	repo *repository.Repository
 }
 
+func NewTransactionNotification(repo *repository.Repository) *TransactionNotification {
+	return &TransactionNotification{repo: repo}
+}
+
 func (t *TransactionNotification) Read(ctx context.Context, ids []uint) error {
-	//TODO implement me
-	panic("implement me")
+	for _, id := range ids {
+		err := t.repo.TransactionNotification.Update(ctx, models.TransactionNotification{
+			ID:     id,
+			IsRead: true,
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (t *TransactionNotification) GetUserNotifications(ctx context.Context, userID uint) ([]models.TransactionNotification, error) {
-	//TODO implement me
-	panic("implement me")
+	return t.repo.TransactionNotification.GetByMember(ctx, userID)
 }

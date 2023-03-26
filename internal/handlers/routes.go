@@ -34,6 +34,7 @@ func (h *Handler) InitRoutes() http.Handler {
 	apiRouter.Use(h.Authentication)
 
 	apiRouter.HandleFunc("/refresh-user-data", h.RefreshUserData).Methods(http.MethodPost)
+	apiRouter.HandleFunc("/read-notifications", h.ReadNotifications).Methods(http.MethodPut)
 
 	auth := r.PathPrefix("/auth").Subrouter()
 	auth.HandleFunc("/sign-up", h.UserSignUp).
@@ -75,7 +76,7 @@ func (h *Handler) InitRoutes() http.Handler {
 	proposalEventSubRouter.HandleFunc("/transactions/{id}", h.GetProposalEventTransactions).
 		Methods(http.MethodGet)
 
-	proposalEventSubRouter.HandleFunc("/dto", h.ResponseProposalEvent).
+	proposalEventSubRouter.HandleFunc("/response", h.ResponseProposalEvent).
 		Methods(http.MethodPost)
 	proposalEventSubRouter.HandleFunc("/accept/{id}", h.AcceptProposalEventResponse).
 		Methods(http.MethodPost)

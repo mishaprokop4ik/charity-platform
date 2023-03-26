@@ -14,7 +14,7 @@ type Repository struct {
 
 func New(dbConnector *Connector, config AWSConfig) *Repository {
 	return &Repository{
-		User:                    NewUser(dbConnector),
+		User:                    NewUser(config, dbConnector),
 		Admin:                   NewAdmin(dbConnector),
 		ProposalEvent:           NewProposalEvent(config, dbConnector),
 		Transaction:             NewTransaction(dbConnector),

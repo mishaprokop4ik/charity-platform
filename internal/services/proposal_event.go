@@ -48,10 +48,12 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 		return err
 	}
 
-	if transaction.CreatorID == userID {
-		transaction.ResponderStatus = status
-		transaction.TransactionStatus = status
+	if transaction.TransactionStatus == models.Completed || transaction.TransactionStatus == models.Aborted {
+		return fmt.Errorf("transaction cannot be changed when it it in %s state", transaction.TransactionStatus)
 	}
+
+	transaction.TransactionStatus = status
+	transaction.ResponderStatus = status
 
 	if status == models.Completed {
 		fileUniqueID, err := uuid.NewUUID()
@@ -89,6 +91,18 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 		MemberID:      transaction.CreatorID,
 	})
 
+	if err != nil {
+		return err
+	}
+
+	newProposalEventStatus := ""
+	if status == models.Completed {
+		newProposalEventStatus = string(models.Done)
+	}
+	err = p.repo.ProposalEvent.UpdateEvent(ctx, models.ProposalEvent{
+		Status: models.EventStatus(newProposalEventStatus),
+	})
+
 	return err
 }
 
@@ -97,14 +111,14 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	if err != nil {
 		return err
 	}
-	if proposalEvent.AuthorID == responderID {
-		return fmt.Errorf("event creator cannot dto his/her own events")
-	}
-	for _, transaction := range proposalEvent.Transactions {
-		if transaction.CreatorID == responderID {
-			return fmt.Errorf("user already has a transaction in this event")
-		}
-	}
+	//if proposalEvent.AuthorID == responderID {
+	//	return fmt.Errorf("event creator cannot response his/her own events")
+	//}
+	//for _, transaction := range proposalEvent.Transactions {
+	//	if transaction.CreatorID == responderID {
+	//		return fmt.Errorf("user already has a transaction in this event")
+	//	}
+	//}
 	id, err := p.CreateTransaction(ctx, models.Transaction{
 		CreatorID:         responderID,
 		EventID:           proposalEventID,

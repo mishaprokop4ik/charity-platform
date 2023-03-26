@@ -12,6 +12,7 @@ type TransactionNotification struct {
 	IsRead        bool              `gorm:"column:is_read"`
 	CreationTime  time.Time         `gorm:"column:creation_time"`
 	MemberID      uint              `gorm:"column:member_id"`
+	EventTitle    string            `gorm:"-"`
 }
 
 type TransactionAction string
