@@ -95,15 +95,7 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 		return err
 	}
 
-	newProposalEventStatus := ""
-	if status == models.Completed {
-		newProposalEventStatus = string(models.Done)
-	}
-	err = p.repo.ProposalEvent.UpdateEvent(ctx, models.ProposalEvent{
-		Status: models.EventStatus(newProposalEventStatus),
-	})
-
-	return err
+	return nil
 }
 
 func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responderID uint, comment string) error {
