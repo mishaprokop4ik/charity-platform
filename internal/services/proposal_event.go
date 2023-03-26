@@ -86,7 +86,7 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	}
 	for _, transaction := range proposalEvent.Transactions {
 		if transaction.CreatorID == responderID {
-			return fmt.Errorf("user already have a transaction in this event")
+			return fmt.Errorf("user already has a transaction in this event")
 		}
 	}
 	_, err = p.CreateTransaction(ctx, models.Transaction{
