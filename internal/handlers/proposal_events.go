@@ -487,13 +487,17 @@ func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Req
 }
 
 func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, transactionID uint) error {
-	transaction, err := h.services.ProposalEvent.GetEvent(ctx, transactionID)
+	transaction, err := h.services.Transaction.GetTransactionByID(ctx, transactionID)
+	if err != nil {
+		return err
+	}
+	event, err := h.services.ProposalEvent.GetEvent(ctx, transaction.EventID)
 	if err != nil {
 		return err
 	}
 
-	if transaction.RemainingHelps-1 < 0 {
-		fmt.Println(transaction)
+	if event.RemainingHelps-1 < 0 {
+		fmt.Println(event)
 		return fmt.Errorf("there is no available slot")
 	}
 	return nil

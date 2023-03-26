@@ -111,15 +111,20 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	if err != nil {
 		return err
 	}
-	//if proposalEvent.AuthorID == responderID {
-	//	return fmt.Errorf("event creator cannot response his/her own events")
-	//}
+	if proposalEvent.AuthorID == responderID {
+		return fmt.Errorf("event creator cannot response his/her own events")
+	}
+	//TODO remove after debug
 	//for _, transaction := range proposalEvent.Transactions {
-	//	if transaction.CreatorID == responderID {
+	//	if transaction.CreatorID == responderID && lo.Contains([]models.TransactionStatus{
+	//		models.Accepted,
+	//		models.InProcess,
+	//		models.Waiting,
+	//	}, transaction.TransactionStatus) {
 	//		return fmt.Errorf("user already has a transaction in this event")
 	//	}
 	//}
-	id, err := p.CreateTransaction(ctx, models.Transaction{
+	_, err = p.CreateTransaction(ctx, models.Transaction{
 		CreatorID:         responderID,
 		EventID:           proposalEventID,
 		Comment:           comment,
