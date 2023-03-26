@@ -641,7 +641,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/events/proposal/response": {
+        "/api/events/proposal/dto": {
             "post": {
                 "consumes": [
                     "application/json"

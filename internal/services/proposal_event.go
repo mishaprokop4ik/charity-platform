@@ -30,11 +30,11 @@ type ProposalEventCRUDer interface {
 
 func NewProposalEvent(repo *repository.Repository) *ProposalEvent {
 	return &ProposalEvent{
-		repo: repo, Transaction: *NewTransaction(repo)}
+		repo: repo, Transaction: NewTransaction(repo)}
 }
 
 type ProposalEvent struct {
-	Transaction
+	*Transaction
 	repo *repository.Repository
 }
 
@@ -73,7 +73,23 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 		}
 	}
 
-	return p.UpdateTransaction(ctx, transaction)
+	err = p.UpdateTransaction(ctx, transaction)
+	if err != nil {
+		return err
+	}
+
+	err = p.createNotification(ctx, models.TransactionNotification{
+		EventType:     models.ProposalEventType,
+		EventID:       transaction.EventID,
+		Action:        models.Updated,
+		TransactionID: transactionID,
+		NewStatus:     status,
+		IsRead:        false,
+		CreationTime:  time.Now(),
+		MemberID:      transaction.CreatorID,
+	})
+
+	return err
 }
 
 func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responderID uint, comment string) error {
@@ -82,14 +98,14 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 		return err
 	}
 	if proposalEvent.AuthorID == responderID {
-		return fmt.Errorf("event creator cannot response his/her own events")
+		return fmt.Errorf("event creator cannot dto his/her own events")
 	}
 	for _, transaction := range proposalEvent.Transactions {
 		if transaction.CreatorID == responderID {
 			return fmt.Errorf("user already has a transaction in this event")
 		}
 	}
-	_, err = p.CreateTransaction(ctx, models.Transaction{
+	id, err := p.CreateTransaction(ctx, models.Transaction{
 		CreatorID:         responderID,
 		EventID:           proposalEventID,
 		Comment:           comment,
@@ -98,21 +114,53 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 		TransactionStatus: models.Waiting,
 		ResponderStatus:   models.NotStarted,
 	})
+	if err != nil {
+		return err
+	}
+
+	err = p.createNotification(ctx, models.TransactionNotification{
+		EventType:     models.ProposalEventType,
+		EventID:       proposalEventID,
+		Action:        models.Created,
+		TransactionID: id,
+		IsRead:        false,
+		CreationTime:  time.Now(),
+		MemberID:      proposalEvent.AuthorID,
+	})
 
 	return err
 }
 
 func (p *ProposalEvent) Accept(ctx context.Context, request models.AcceptRequest) error {
+	status := models.Canceled
 	if request.Accept {
-		return p.UpdateTransaction(ctx, models.Transaction{
-			ID:                request.TransactionID,
-			TransactionStatus: models.Accepted,
-		})
+		status = models.Accepted
 	}
-	return p.UpdateTransaction(ctx, models.Transaction{
+	err := p.UpdateTransaction(ctx, models.Transaction{
 		ID:                request.TransactionID,
-		TransactionStatus: models.Canceled,
+		TransactionStatus: status,
 	})
+	if err != nil {
+		return err
+	}
+
+	transaction, err := p.GetTransactionByID(ctx, request.TransactionID)
+	if err != nil {
+		return err
+	}
+
+	err = p.createNotification(ctx, models.TransactionNotification{
+		EventType:     models.ProposalEventType,
+		EventID:       transaction.EventID,
+		Action:        models.Updated,
+		TransactionID: request.TransactionID,
+		NewStatus:     status,
+		IsRead:        false,
+		CreationTime:  time.Now(),
+		MemberID:      request.MemberID,
+	})
+
+	return err
 }
 
 func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error) {
@@ -137,4 +185,9 @@ func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEv
 
 func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 	return p.repo.ProposalEvent.DeleteEvent(ctx, id)
+}
+
+func (p *ProposalEvent) createNotification(ctx context.Context, notification models.TransactionNotification) error {
+	_, err := p.repo.TransactionNotification.Create(ctx, notification)
+	return err
 }

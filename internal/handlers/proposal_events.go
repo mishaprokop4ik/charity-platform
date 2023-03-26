@@ -374,7 +374,7 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/events/proposal/response [post]
+// @Router       /api/events/proposal/dto [post]
 func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	transactionInfo, err := models.UnmarshalTransactionAcceptCreateRequest(&r.Body)

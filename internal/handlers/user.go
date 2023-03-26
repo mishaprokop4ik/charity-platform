@@ -158,7 +158,7 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 
 		err := httpHelper.SendHTTPResponse(w, userResponse)
 		if err != nil {
-			zlog.Log.Error(err, "could not send response")
+			zlog.Log.Error(err, "could not send dto")
 			return
 		}
 	}
@@ -265,7 +265,7 @@ func (h *Handler) RefreshTokens(w http.ResponseWriter, r *http.Request) {
 
 		err := httpHelper.SendHTTPResponse(w, tokenResponse)
 		if err != nil {
-			zlog.Log.Error(err, "could not send response")
+			zlog.Log.Error(err, "could not send dto")
 			return
 		}
 	}
