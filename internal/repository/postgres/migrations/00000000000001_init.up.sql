@@ -91,7 +91,7 @@ CREATE TABLE comment (
 );
 
 CREATE type responder_status AS ENUM ('not_started', 'in_progress', 'completed', 'aborted');
-CREATE type transaction_status AS ENUM ('waiting', 'in_process', 'completed', 'aborted', 'canceled', 'accepted');
+CREATE type transaction_status AS ENUM ('waiting', 'in_progress', 'completed', 'aborted', 'canceled', 'accepted');
 
 CREATE TABLE transaction (
     id bigserial PRIMARY KEY,
