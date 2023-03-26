@@ -16,23 +16,24 @@ type Tabler interface {
 
 type User struct {
 	gorm.Model
-	ID               uint           `gorm:"primaryKey"`
-	Email            string         `gorm:"column:email"`
-	FullName         string         `gorm:"column:full_name"`
-	Telephone        string         `gorm:"column:telephone"`
-	CompanyName      string         `gorm:"column:company_name"`
-	IsAdmin          bool           `gorm:"column:is_admin"`
-	Password         string         `gorm:"column:password"`
-	Address          string         `gorm:"column:address"`
-	IsDeleted        bool           `gorm:"column:is_deleted"`
-	IsActivated      bool           `gorm:"column:is_activated"`
-	TelegramUsername string         `gorm:"column:telegram_username"`
-	Image            io.Reader      `gorm:"-"`
-	FileType         string         `gorm:"-"`
-	AvatarImagePath  string         `gorm:"column:image_path"`
-	UserSearchValues []MemberSearch `gorm:"-"`
-	Token            string         `json:"token" gorm:"-"`
-	RefreshToken     string         `json:"refreshToken" gorm:"-"`
+	ID                      uint                      `gorm:"primaryKey"`
+	Email                   string                    `gorm:"column:email"`
+	FullName                string                    `gorm:"column:full_name"`
+	Telephone               string                    `gorm:"column:telephone"`
+	CompanyName             string                    `gorm:"column:company_name"`
+	IsAdmin                 bool                      `gorm:"column:is_admin"`
+	Password                string                    `gorm:"column:password"`
+	Address                 string                    `gorm:"column:address"`
+	IsDeleted               bool                      `gorm:"column:is_deleted"`
+	IsActivated             bool                      `gorm:"column:is_activated"`
+	TelegramUsername        string                    `gorm:"column:telegram_username"`
+	Image                   io.Reader                 `gorm:"-"`
+	FileType                string                    `gorm:"-"`
+	AvatarImagePath         string                    `gorm:"column:image_path"`
+	UserSearchValues        []MemberSearch            `gorm:"-"`
+	Token                   string                    `json:"token" gorm:"-"`
+	RefreshToken            string                    `json:"refreshToken" gorm:"-"`
+	TransactionNotification []TransactionNotification `gorm:"-"`
 }
 
 func (u User) ToShortInfo() UserShortInfo {
@@ -101,12 +102,10 @@ func (u User) GetUserFullResponse(tokens Tokens) SignedInUser {
 		searchValues[i] = searchValue.Response()
 	}
 	return SignedInUser{
-		ID: int(u.ID),
-		//TODO add email validation
-		Email:      Email(u.Email),
-		FirstName:  firstName,
-		SecondName: secondName,
-		//TODO add telephone validation
+		ID:                        int(u.ID),
+		Email:                     Email(u.Email),
+		FirstName:                 firstName,
+		SecondName:                secondName,
 		Telephone:                 Telephone(u.Telephone),
 		CompanyName:               u.CompanyName,
 		Address:                   address,
@@ -114,6 +113,7 @@ func (u User) GetUserFullResponse(tokens Tokens) SignedInUser {
 		AccessToken:               tokens.Access,
 		RefreshToken:              tokens.Refresh,
 		ProposalEventSearchValues: searchValues,
+		TransactionNotifications:  GenerateNotificationResponses(u.TransactionNotification),
 	}
 }
 

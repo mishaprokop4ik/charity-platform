@@ -485,6 +485,60 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/events/proposal/dto": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "summary": "Create new transaction with waiting status for the proposal event if slot is available",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.TransactionAcceptCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/events/proposal/get": {
             "get": {
                 "consumes": [
@@ -607,60 +661,6 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/Kurajj_internal_models.ProposalEventGetResponse"
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "408": {
-                        "description": "Request Timeout",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/api/events/proposal/response": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "summary": "Create new transaction with waiting status for the proposal event if slot is available",
-                "parameters": [
-                    {
-                        "description": "query params",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.TransactionAcceptCreateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK"
                     },
                     "401": {
                         "description": "Unauthorized",
@@ -836,6 +836,66 @@ const docTemplate = `{
                         "name": "id",
                         "in": "path",
                         "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/read-notifications": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Changes notifications status to read=true",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.Ids"
+                        }
                     }
                 ],
                 "responses": {
@@ -1561,6 +1621,17 @@ const docTemplate = `{
                 "ProposalEventType"
             ]
         },
+        "Kurajj_internal_models.Ids": {
+            "type": "object",
+            "properties": {
+                "IDs": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "Kurajj_internal_models.MemberSearchRequestCreate": {
             "type": "object",
             "properties": {
@@ -1583,6 +1654,32 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/Kurajj_internal_models.MemberSearchRequestCreate"
                     }
+                }
+            }
+        },
+        "Kurajj_internal_models.NotificationResponse": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "eventID": {
+                    "type": "integer"
+                },
+                "eventTitle": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "isRead": {
+                    "type": "boolean"
+                },
+                "newStatus": {
+                    "type": "string"
+                },
+                "text": {
+                    "type": "string"
                 }
             }
         },
@@ -1852,6 +1949,12 @@ const docTemplate = `{
                 },
                 "token": {
                     "type": "string"
+                },
+                "transactionNotifications": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.NotificationResponse"
+                    }
                 }
             }
         },
@@ -2017,13 +2120,14 @@ const docTemplate = `{
         "Kurajj_internal_models.TransactionStatus": {
             "type": "string",
             "enum": [
-                "in_process",
+                "in_progress",
                 "waiting",
                 "completed",
                 "interrupted",
                 "canceled",
                 "not_started",
-                "accepted"
+                "accepted",
+                "aborted"
             ],
             "x-enum-varnames": [
                 "InProcess",
@@ -2032,7 +2136,8 @@ const docTemplate = `{
                 "Interrupted",
                 "Canceled",
                 "NotStarted",
-                "Accepted"
+                "Accepted",
+                "Aborted"
             ]
         },
         "Kurajj_internal_models.TransactionsExport": {

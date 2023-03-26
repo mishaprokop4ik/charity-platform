@@ -374,7 +374,7 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/events/proposal/response [post]
+// @Router       /api/events/proposal/dto [post]
 func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	transactionInfo, err := models.UnmarshalTransactionAcceptCreateRequest(&r.Body)
@@ -517,7 +517,6 @@ func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, t
 // @Failure      500  {object}  models.ErrResponse
 // @Router       /api/events/proposal/update-status/{id} [post]
 func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r *http.Request) {
-	// TODO update available helps
 	defer r.Body.Close()
 	transactionID, ok := mux.Vars(r)["id"]
 	parsedTransactionID, err := strconv.Atoi(transactionID)
@@ -538,6 +537,13 @@ func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r 
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
+	}
+
+	if s.Status == models.Completed {
+		if s.FileBytes == nil || s.FileType == "" {
+			httpHelper.SendErrorResponse(w, http.StatusBadRequest, "cannot update status to completed: fileBytes or fileType is empty")
+			return
+		}
 	}
 
 	eventch := make(chan errResponse)

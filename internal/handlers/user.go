@@ -328,3 +328,52 @@ func (h *Handler) RefreshUserData(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+// ReadNotifications changes notifications status to read=true
+// @Summary      Changes notifications status to read=true
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Param request body models.Ids true "query params"
+// @Success      200
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/read-notifications [put]
+func (h *Handler) ReadNotifications(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+
+	ids, err := models.ParseIds(&r.Body)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	errch := make(chan errResponse)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
+	defer cancel()
+	go func() {
+		err := h.services.TransactionNotification.Read(ctx, ids)
+		errch <- errResponse{
+			err: err,
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "reading notifications took too long")
+		return
+	case resp := <-errch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.ErrNotFound.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+	}
+}

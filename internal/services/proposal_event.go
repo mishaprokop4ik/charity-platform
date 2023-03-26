@@ -30,11 +30,11 @@ type ProposalEventCRUDer interface {
 
 func NewProposalEvent(repo *repository.Repository) *ProposalEvent {
 	return &ProposalEvent{
-		repo: repo, Transaction: *NewTransaction(repo)}
+		repo: repo, Transaction: NewTransaction(repo)}
 }
 
 type ProposalEvent struct {
-	Transaction
+	*Transaction
 	repo *repository.Repository
 }
 
@@ -48,10 +48,12 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 		return err
 	}
 
-	if transaction.CreatorID == userID {
-		transaction.ResponderStatus = status
-		transaction.TransactionStatus = status
+	if transaction.TransactionStatus == models.Completed || transaction.TransactionStatus == models.Aborted {
+		return fmt.Errorf("transaction cannot be changed when it it in %s state", transaction.TransactionStatus)
 	}
+
+	transaction.TransactionStatus = status
+	transaction.ResponderStatus = status
 
 	if status == models.Completed {
 		fileUniqueID, err := uuid.NewUUID()
@@ -73,7 +75,35 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 		}
 	}
 
-	return p.UpdateTransaction(ctx, transaction)
+	err = p.UpdateTransaction(ctx, transaction)
+	if err != nil {
+		return err
+	}
+
+	err = p.createNotification(ctx, models.TransactionNotification{
+		EventType:     models.ProposalEventType,
+		EventID:       transaction.EventID,
+		Action:        models.Updated,
+		TransactionID: transactionID,
+		NewStatus:     status,
+		IsRead:        false,
+		CreationTime:  time.Now(),
+		MemberID:      transaction.CreatorID,
+	})
+
+	if err != nil {
+		return err
+	}
+
+	newProposalEventStatus := ""
+	if status == models.Completed {
+		newProposalEventStatus = string(models.Done)
+	}
+	err = p.repo.ProposalEvent.UpdateEvent(ctx, models.ProposalEvent{
+		Status: models.EventStatus(newProposalEventStatus),
+	})
+
+	return err
 }
 
 func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responderID uint, comment string) error {
@@ -103,21 +133,53 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 		TransactionStatus: models.Waiting,
 		ResponderStatus:   models.NotStarted,
 	})
+	if err != nil {
+		return err
+	}
+
+	err = p.createNotification(ctx, models.TransactionNotification{
+		EventType:     models.ProposalEventType,
+		EventID:       proposalEventID,
+		Action:        models.Created,
+		TransactionID: id,
+		IsRead:        false,
+		CreationTime:  time.Now(),
+		MemberID:      proposalEvent.AuthorID,
+	})
 
 	return err
 }
 
 func (p *ProposalEvent) Accept(ctx context.Context, request models.AcceptRequest) error {
+	status := models.Canceled
 	if request.Accept {
-		return p.UpdateTransaction(ctx, models.Transaction{
-			ID:                request.TransactionID,
-			TransactionStatus: models.Accepted,
-		})
+		status = models.Accepted
 	}
-	return p.UpdateTransaction(ctx, models.Transaction{
+	err := p.UpdateTransaction(ctx, models.Transaction{
 		ID:                request.TransactionID,
-		TransactionStatus: models.Canceled,
+		TransactionStatus: status,
 	})
+	if err != nil {
+		return err
+	}
+
+	transaction, err := p.GetTransactionByID(ctx, request.TransactionID)
+	if err != nil {
+		return err
+	}
+
+	err = p.createNotification(ctx, models.TransactionNotification{
+		EventType:     models.ProposalEventType,
+		EventID:       transaction.EventID,
+		Action:        models.Updated,
+		TransactionID: request.TransactionID,
+		NewStatus:     status,
+		IsRead:        false,
+		CreationTime:  time.Now(),
+		MemberID:      request.MemberID,
+	})
+
+	return err
 }
 
 func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error) {
@@ -142,4 +204,9 @@ func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEv
 
 func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 	return p.repo.ProposalEvent.DeleteEvent(ctx, id)
+}
+
+func (p *ProposalEvent) createNotification(ctx context.Context, notification models.TransactionNotification) error {
+	_, err := p.repo.TransactionNotification.Create(ctx, notification)
+	return err
 }

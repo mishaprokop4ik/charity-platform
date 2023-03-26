@@ -155,22 +155,33 @@ func (r CreationResponse) Bytes() []byte {
 }
 
 type SignedInUser struct {
-	ID                        int                   `json:"id"`
-	Email                     Email                 `json:"email"`
-	FirstName                 string                `json:"firstName"`
-	SecondName                string                `json:"secondName"`
-	Telephone                 Telephone             `json:"telephone"`
-	CompanyName               string                `json:"companyName"`
-	Address                   Address               `json:"address"`
-	AccessToken               string                `json:"token"`
-	Avatar                    string                `json:"profileImageURL"`
-	RefreshToken              string                `json:"refreshToken"`
-	ProposalEventSearchValues []SearchValueResponse `json:"proposalEventSearchValues"`
+	ID                        int                    `json:"id"`
+	Email                     Email                  `json:"email"`
+	FirstName                 string                 `json:"firstName"`
+	SecondName                string                 `json:"secondName"`
+	Telephone                 Telephone              `json:"telephone"`
+	CompanyName               string                 `json:"companyName"`
+	Address                   Address                `json:"address"`
+	AccessToken               string                 `json:"token"`
+	Avatar                    string                 `json:"profileImageURL"`
+	RefreshToken              string                 `json:"refreshToken"`
+	ProposalEventSearchValues []SearchValueResponse  `json:"proposalEventSearchValues"`
+	TransactionNotifications  []NotificationResponse `json:"transactionNotifications"`
 }
 
 func (s SignedInUser) Bytes() []byte {
 	encoded, _ := json.Marshal(s)
 	return encoded
+}
+
+type Ids struct {
+	IDs []uint `json:"IDs"`
+}
+
+func ParseIds(from *io.ReadCloser) ([]uint, error) {
+	ids := Ids{}
+	err := json.NewDecoder(*from).Decode(&ids)
+	return ids.IDs, err
 }
 
 type AdminCreation struct {

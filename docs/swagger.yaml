@@ -92,6 +92,13 @@ definitions:
     type: string
     x-enum-varnames:
     - ProposalEventType
+  Kurajj_internal_models.Ids:
+    properties:
+      IDs:
+        items:
+          type: integer
+        type: array
+    type: object
   Kurajj_internal_models.MemberSearchRequestCreate:
     properties:
       title:
@@ -107,6 +114,23 @@ definitions:
         items:
           $ref: '#/definitions/Kurajj_internal_models.MemberSearchRequestCreate'
         type: array
+    type: object
+  Kurajj_internal_models.NotificationResponse:
+    properties:
+      createdAt:
+        type: string
+      eventID:
+        type: integer
+      eventTitle:
+        type: string
+      id:
+        type: integer
+      isRead:
+        type: boolean
+      newStatus:
+        type: string
+      text:
+        type: string
     type: object
   Kurajj_internal_models.ProposalEventGetResponse:
     properties:
@@ -283,6 +307,10 @@ definitions:
         type: string
       token:
         type: string
+      transactionNotifications:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.NotificationResponse'
+        type: array
     type: object
   Kurajj_internal_models.StatusExport:
     properties:
@@ -389,13 +417,14 @@ definitions:
     type: object
   Kurajj_internal_models.TransactionStatus:
     enum:
-    - in_process
+    - in_progress
     - waiting
     - completed
     - interrupted
     - canceled
     - not_started
     - accepted
+    - aborted
     type: string
     x-enum-varnames:
     - InProcess
@@ -405,6 +434,7 @@ definitions:
     - Canceled
     - NotStarted
     - Accepted
+    - Aborted
   Kurajj_internal_models.TransactionsExport:
     properties:
       transactions:
@@ -760,6 +790,42 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Delete proposal event
+  /api/events/proposal/dto:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models.TransactionAcceptCreateRequest'
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Create new transaction with waiting status for the proposal event if
+        slot is available
   /api/events/proposal/get:
     get:
       consumes:
@@ -862,42 +928,6 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Get proposal event by id
-  /api/events/proposal/response:
-    post:
-      consumes:
-      - application/json
-      parameters:
-      - description: query params
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/Kurajj_internal_models.TransactionAcceptCreateRequest'
-      responses:
-        "200":
-          description: OK
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "408":
-          description: Request Timeout
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-      summary: Create new transaction with waiting status for the proposal event if
-        slot is available
   /api/events/proposal/transactions/{id}:
     get:
       consumes:
@@ -1017,6 +1047,45 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Update proposal event
+  /api/read-notifications:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models.Ids'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Changes notifications status to read=true
+      tags:
+      - User
   /api/refresh-user-data:
     post:
       consumes:

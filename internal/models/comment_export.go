@@ -65,6 +65,7 @@ func UnmarshalTransactionAcceptRequest(b *io.ReadCloser) (TransactionAcceptReque
 type AcceptRequest struct {
 	Accept        bool
 	TransactionID uint
+	MemberID      uint
 }
 
 type CommentUpdateRequest struct {

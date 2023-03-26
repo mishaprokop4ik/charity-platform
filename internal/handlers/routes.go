@@ -34,6 +34,7 @@ func (h *Handler) InitRoutes() http.Handler {
 	apiRouter.Use(h.Authentication)
 
 	apiRouter.HandleFunc("/refresh-user-data", h.RefreshUserData).Methods(http.MethodPost)
+	apiRouter.HandleFunc("/read-notifications", h.ReadNotifications).Methods(http.MethodPut)
 
 	auth := r.PathPrefix("/auth").Subrouter()
 	auth.HandleFunc("/sign-up", h.UserSignUp).
