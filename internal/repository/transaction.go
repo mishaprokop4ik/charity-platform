@@ -2,6 +2,7 @@ package repository
 
 import (
 	"Kurajj/internal/models"
+	zlog "Kurajj/pkg/logger"
 	"context"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
@@ -73,7 +74,13 @@ func (t *Transaction) UpdateTransactionByEvent(ctx context.Context, eventID uint
 
 func (t *Transaction) UpdateTransactionByID(ctx context.Context, id uint, toUpdate map[string]any) error {
 	tx := t.DBConnector.DB.Begin()
-	if err := t.DBConnector.DB.
+	transaction := models.Transaction{}
+	err := tx.Where("id = ?", id).First(&transaction).WithContext(ctx).Error
+	if err != nil {
+		zlog.Log.Error(err, "could not get transaction when updating remaining helps")
+		return tx.Commit().Error
+	}
+	if err := tx.
 		Model(&models.Transaction{}).
 		Select(lo.Keys(toUpdate)).
 		Where("id = ?", id).
@@ -89,34 +96,47 @@ func (t *Transaction) UpdateTransactionByID(ctx context.Context, id uint, toUpda
 		return tx.Commit().Error
 	}
 
-	if status, ok := toUpdate["transaction_status"]; ok && !lo.Contains([]models.TransactionStatus{
-		models.Completed,
-		models.Interrupted,
-		models.Canceled,
-	}, status.(models.TransactionStatus)) {
-		return tx.Commit().Error
-	}
-
-	eventID, ok := toUpdate["event_id"]
+	status, ok := toUpdate["transaction_status"]
 	if !ok {
 		return tx.Commit().Error
 	}
 
-	err := t.DBConnector.DB.Model(&models.ProposalEvent{}).
-		Where("event_id = ?", eventID).
-		Update("remaining_helps", gorm.Expr("remaining_helps + ?", 1)).
-		WithContext(ctx).
-		Error
-	if err != nil {
-		tx.Rollback()
-		return err
+	if lo.Contains([]models.TransactionStatus{
+		models.Completed,
+		models.Interrupted,
+		models.Canceled,
+	}, status.(models.TransactionStatus)) && status != transaction.TransactionStatus {
+		switch transaction.EventType {
+		case models.ProposalEventType:
+			err = tx.Model(&models.ProposalEvent{}).
+				Where("id = ?", transaction.EventID).
+				Update("remaining_helps", gorm.Expr("remaining_helps + ?", 1)).
+				WithContext(ctx).
+				Error
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
+	} else if status == models.Accepted && transaction.TransactionStatus != status {
+		switch transaction.EventType {
+		case models.ProposalEventType:
+			err = tx.Model(&models.ProposalEvent{}).
+				Where("id = ?", transaction.EventID).
+				Update("remaining_helps", gorm.Expr("remaining_helps - ?", 1)).
+				WithContext(ctx).
+				Error
+			if err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
 	}
 
 	return tx.Commit().Error
 }
 
 func (t *Transaction) CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error) {
-	// TODO delete this comments after debug
 	//var count int64
 	//err := t.DBConnector.DB.Model(models.Transaction{}).
 	//	Where("creator_id = ?", transaction.CreatorID).

@@ -52,6 +52,21 @@ func UnmarshalTransactionAcceptCreateRequest(b *io.ReadCloser) (TransactionAccep
 	return r, err
 }
 
+type TransactionAcceptRequest struct {
+	IsAccepted bool `json:"isAccepted"`
+}
+
+func UnmarshalTransactionAcceptRequest(b *io.ReadCloser) (TransactionAcceptRequest, error) {
+	r := TransactionAcceptRequest{}
+	err := json.NewDecoder(*b).Decode(&r)
+	return r, err
+}
+
+type AcceptRequest struct {
+	Accept        bool
+	TransactionID uint
+}
+
 type CommentUpdateRequest struct {
 	ID   uint   `json:"id"`
 	Text string `json:"text"`

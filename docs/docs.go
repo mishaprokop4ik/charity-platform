@@ -91,8 +91,17 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
-                "summary": "Update proposal event transaction's status to models.InProcess state",
+                "summary": "Update proposal event transaction's status to models.InProcess state. When isAccepted is set to false",
                 "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.TransactionAcceptRequest"
+                        }
+                    },
                     {
                         "type": "integer",
                         "description": "ID",
@@ -1953,6 +1962,14 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                }
+            }
+        },
+        "Kurajj_internal_models.TransactionAcceptRequest": {
+            "type": "object",
+            "properties": {
+                "isAccepted": {
+                    "type": "boolean"
                 }
             }
         },

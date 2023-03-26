@@ -391,14 +391,6 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err = h.validateProposalEventTransactionRequest(ctx, uint(transactionInfo.ID))
-		if err != nil {
-			errch <- errResponse{
-				err: err,
-			}
-
-			return
-		}
 		err = h.services.ProposalEvent.Response(ctx, uint(transactionInfo.ID), userID.(uint), transactionInfo.Comment)
 
 		errch <- errResponse{
@@ -424,8 +416,10 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 }
 
 // AcceptProposalEventResponse updates proposal event transaction's status to models.InProcess state
-// @Summary      Update proposal event transaction's status to models.InProcess state
+// @Summary      Update proposal event transaction's status to models.InProcess state. When isAccepted is set to false
+// transaction's status changes to models.Canceled.
 // @SearchValuesResponse         Proposal Event
+// @Param request body models.TransactionAcceptRequest true "query params"
 // @Accept       json
 // @Param        id   path int  true  "ID"
 // @Success      200
@@ -437,22 +431,38 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 // @Router       /api/events/proposal/accept [post]
 func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
-
+	transactionInfo, err := models.UnmarshalTransactionAcceptRequest(&r.Body)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	id, ok := mux.Vars(r)["id"]
+	parsedID, err := strconv.Atoi(id)
+	if !ok || err != nil {
+		response := "there is no id for getting in URL"
+		if err != nil {
+			response = err.Error()
+		}
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
+		return
+	}
+	accept := models.AcceptRequest{
+		Accept:        transactionInfo.IsAccepted,
+		TransactionID: uint(parsedID),
+	}
 	errch := make(chan errResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		id, ok := mux.Vars(r)["id"]
-		parsedID, err := strconv.Atoi(id)
-		if !ok || err != nil {
-			response := "there is no id for getting in URL"
-			if err != nil {
-				response = err.Error()
+		err = h.validateProposalEventTransactionRequest(ctx, uint(parsedID))
+		if err != nil {
+			errch <- errResponse{
+				err: err,
 			}
-			httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
+
 			return
 		}
-		err = h.services.ProposalEvent.Accept(ctx, uint(parsedID))
+		err = h.services.ProposalEvent.Accept(ctx, accept)
 
 		errch <- errResponse{
 			err: err,

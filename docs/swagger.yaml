@@ -355,6 +355,11 @@ definitions:
       id:
         type: integer
     type: object
+  Kurajj_internal_models.TransactionAcceptRequest:
+    properties:
+      isAccepted:
+        type: boolean
+    type: object
   Kurajj_internal_models.TransactionResponse:
     properties:
       comment:
@@ -498,6 +503,12 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models.TransactionAcceptRequest'
       - description: ID
         in: path
         name: id
@@ -526,7 +537,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-      summary: Update proposal event transaction's status to models.InProcess state
+      summary: Update proposal event transaction's status to models.InProcess state.
+        When isAccepted is set to false
   /api/events/proposal/comment:
     post:
       consumes:

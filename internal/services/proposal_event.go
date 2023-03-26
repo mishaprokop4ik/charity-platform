@@ -14,7 +14,7 @@ import (
 type ProposalEventer interface {
 	ProposalEventCRUDer
 	Response(ctx context.Context, proposalEventID, responderID uint, comment string) error
-	Accept(ctx context.Context, transactionID uint) error
+	Accept(ctx context.Context, request models.AcceptRequest) error
 	UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType string) error
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
 	GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) (models.ProposalEventPagination, error)
@@ -77,14 +77,19 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 }
 
 func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responderID uint, comment string) error {
-	//transaction, err := p.repo.ProposalEvent.GetEvent(ctx, proposalEventID)
-	//if err != nil {
-	//	return err
-	//}
-	//if transaction.AuthorID == responderID {
-	//	return fmt.Errorf("event creator cannot response his/her own events")
-	//}
-	_, err := p.CreateTransaction(ctx, models.Transaction{
+	proposalEvent, err := p.repo.ProposalEvent.GetEvent(ctx, proposalEventID)
+	if err != nil {
+		return err
+	}
+	if proposalEvent.AuthorID == responderID {
+		return fmt.Errorf("event creator cannot response his/her own events")
+	}
+	for _, transaction := range proposalEvent.Transactions {
+		if transaction.CreatorID == responderID {
+			return fmt.Errorf("user already have a transaction in this event")
+		}
+	}
+	_, err = p.CreateTransaction(ctx, models.Transaction{
 		CreatorID:         responderID,
 		EventID:           proposalEventID,
 		Comment:           comment,
@@ -97,10 +102,16 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	return err
 }
 
-func (p *ProposalEvent) Accept(ctx context.Context, transactionID uint) error {
+func (p *ProposalEvent) Accept(ctx context.Context, request models.AcceptRequest) error {
+	if request.Accept {
+		return p.UpdateTransaction(ctx, models.Transaction{
+			ID:                request.TransactionID,
+			TransactionStatus: models.Accepted,
+		})
+	}
 	return p.UpdateTransaction(ctx, models.Transaction{
-		ID:                transactionID,
-		TransactionStatus: models.Accepted,
+		ID:                request.TransactionID,
+		TransactionStatus: models.Canceled,
 	})
 }
 
