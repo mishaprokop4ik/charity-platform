@@ -20,19 +20,7 @@ func NewTransactionNotification(repo *repository.Repository) *TransactionNotific
 }
 
 func (t *TransactionNotification) Read(ctx context.Context, ids []uint) error {
-	for _, id := range ids {
-		oldNotification, err := t.repo.TransactionNotification.GetByID(ctx, id)
-		if err != nil {
-			return err
-		}
-		oldNotification.IsRead = true
-		err = t.repo.TransactionNotification.Update(ctx, oldNotification)
-		if err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return t.repo.TransactionNotification.ReadNotifications(ctx, ids)
 }
 
 func (t *TransactionNotification) GetUserNotifications(ctx context.Context, userID uint) ([]models.TransactionNotification, error) {

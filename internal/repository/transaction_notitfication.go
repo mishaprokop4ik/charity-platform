@@ -12,6 +12,10 @@ type TransactionNotification struct {
 	DBConnector *Connector
 }
 
+func (t *TransactionNotification) ReadNotifications(ctx context.Context, ids []uint) error {
+	return t.DBConnector.DB.Model(&models.TransactionNotification{}).Where("id IN (?)", ids).UpdateColumn("is_read", true).WithContext(ctx).Error
+}
+
 func (t *TransactionNotification) GetByID(ctx context.Context, id uint) (models.TransactionNotification, error) {
 	notification := models.TransactionNotification{}
 	err := t.DBConnector.DB.Where("id = ?", id).First(&notification).WithContext(ctx).Error
@@ -35,7 +39,7 @@ func (t *TransactionNotification) GetByMember(ctx context.Context, userID uint) 
 	err := t.DBConnector.DB.
 		Where("member_id = ?", userID).
 		Find(&notifications).Limit(transactionLimit).
-		Order("is_read").
+		Order("is_read DESC").
 		Order("creation_date").
 		WithContext(ctx).
 		Error
@@ -75,6 +79,7 @@ func NewTransactionNotification(connector *Connector) *TransactionNotification {
 type Notifier interface {
 	Create(ctx context.Context, notification models.TransactionNotification) (uint, error)
 	Update(ctx context.Context, newNotification models.TransactionNotification) error
+	ReadNotifications(ctx context.Context, ids []uint) error
 	GetByMember(ctx context.Context, userID uint) ([]models.TransactionNotification, error)
 	GetByID(ctx context.Context, id uint) (models.TransactionNotification, error)
 }

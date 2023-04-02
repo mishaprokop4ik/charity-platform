@@ -2174,6 +2174,9 @@ const docTemplate = `{
         "Kurajj_internal_models_search.AllEventsSearch": {
             "type": "object",
             "properties": {
+                "allowOnlyTitlesSearch": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 },

@@ -87,16 +87,17 @@ func (p ProposalEventsInternal) Serialize() ([]byte, error) {
 }
 
 type ProposalEventSearchInternal struct {
-	Name       *string
-	GetOwn     *bool
-	Tags       *[]Tag
-	SortField  string
-	Order      *Order
-	SearcherID *uint
-	State      []EventStatus
-	TakingPart *bool
-	Location   *Address
-	Pagination PaginationRequest
+	Name             *string
+	GetOwn           *bool
+	Tags             *[]Tag
+	SortField        string
+	Order            *Order
+	SearcherID       *uint
+	State            []EventStatus
+	TakingPart       *bool
+	Location         *Address
+	Pagination       PaginationRequest
+	AllowTitleSearch *bool
 }
 
 func (i ProposalEventSearchInternal) GetTagsValues() []string {
