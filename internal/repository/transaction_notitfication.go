@@ -12,6 +12,12 @@ type TransactionNotification struct {
 	DBConnector *Connector
 }
 
+func (t *TransactionNotification) GetByID(ctx context.Context, id uint) (models.TransactionNotification, error) {
+	notification := models.TransactionNotification{}
+	err := t.DBConnector.DB.Where("id = ?", id).First(&notification).WithContext(ctx).Error
+	return notification, err
+}
+
 const transactionLimit = 20
 
 func (t *TransactionNotification) Create(ctx context.Context, notification models.TransactionNotification) (uint, error) {
@@ -70,4 +76,5 @@ type Notifier interface {
 	Create(ctx context.Context, notification models.TransactionNotification) (uint, error)
 	Update(ctx context.Context, newNotification models.TransactionNotification) error
 	GetByMember(ctx context.Context, userID uint) ([]models.TransactionNotification, error)
+	GetByID(ctx context.Context, id uint) (models.TransactionNotification, error)
 }
