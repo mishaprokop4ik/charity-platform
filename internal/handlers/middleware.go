@@ -4,7 +4,6 @@ import (
 	httpHelper "Kurajj/pkg/http"
 	zlog "Kurajj/pkg/logger"
 	"context"
-	"fmt"
 	"net/http"
 	"strings"
 )
@@ -42,7 +41,6 @@ func (h *Handler) SetId(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		defer r.Body.Close()
 		header := r.Header.Get("Authorization")
-		fmt.Println(header)
 		if header == "" {
 			next.ServeHTTP(w, r)
 			return

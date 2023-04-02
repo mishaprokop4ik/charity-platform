@@ -4,7 +4,6 @@ import (
 	"Kurajj/internal/models"
 	"context"
 	"errors"
-	"fmt"
 	"gorm.io/gorm"
 )
 
@@ -59,7 +58,6 @@ func (t *Tag) UpsertTags(ctx context.Context, eventType models.EventType, eventI
 	}
 	for _, tag := range tags {
 		if tag.Title == "location" {
-			fmt.Println(eventID, eventType)
 			err = tx.Model(&models.Address{}).
 				Where("event_type = ?", eventType).
 				Where("event_id = ?", eventID).

@@ -18,7 +18,7 @@ type AllEventsSearch struct {
 	Tags                  []models.TagRequest `json:"tags"`
 	SortField             string              `json:"sortField"`
 	Order                 models.Order        `json:"order"`
-	TakingPart            bool                `json:"takingPart"`
+	TakingPart            *bool               `json:"takingPart"`
 	StatusState           models.EventStatus  `json:"statusStates"`
 	PageNumber            int                 `json:"pageNumber"`
 	PageSize              int                 `json:"pageSize"`
@@ -54,10 +54,11 @@ func (s AllEventsSearch) Internal() models.ProposalEventSearchInternal {
 	if s.StatusState == "" {
 		s.StatusState = models.Active
 	}
+
 	return models.ProposalEventSearchInternal{
 		Name:       &name,
 		Tags:       &tags,
-		TakingPart: &s.TakingPart,
+		TakingPart: s.TakingPart,
 		State: []models.EventStatus{
 			s.StatusState,
 		},

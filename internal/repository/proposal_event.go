@@ -53,7 +53,7 @@ func (p *ProposalEvent) calculatePagination(ctx context.Context, searchValues mo
 
 	var count int64
 
-	err := searchQuery.Find(&[]models.ProposalEvent{}).Count(&count).WithContext(ctx).Error
+	err := searchQuery.Model(&models.ProposalEvent{}).Count(&count).WithContext(ctx).Error
 	if err != nil {
 		return nil, err
 	}
@@ -94,15 +94,12 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	if searchValues.Name != nil && *searchValues.Name != "" {
 		query = query.Where("LOWER(title) LIKE ?", "%"+*searchValues.Name+"%")
 	}
-	fmt.Println(searchValues.TakingPart != nil, searchValues.SearcherID != nil)
 	if searchValues.TakingPart != nil && searchValues.SearcherID != nil {
 		if *searchValues.TakingPart {
-			fmt.Println("teuhere 1")
 			query = query.Joins("JOIN transaction ON transaction.event_id = propositional_event.id").
 				Where("transaction.creator_id = ?", searchValues.SearcherID).
 				Distinct()
 		} else {
-			fmt.Println("teuhere 2")
 			query = query.Joins("JOIN transaction ON transaction.event_id = propositional_event.id").
 				Not("transaction.creator_id = ?", searchValues.SearcherID).
 				Distinct()
@@ -198,9 +195,7 @@ func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEven
 
 	newSearchValues.SearcherID = searchValues.SearcherID
 
-	if searchValues.TakingPart == nil {
-		newSearchValues.TakingPart = boolRef(false)
-	} else {
+	if searchValues.TakingPart != nil {
 		newSearchValues.TakingPart = searchValues.TakingPart
 	}
 
@@ -490,7 +485,6 @@ func (p *ProposalEvent) insertUserInProposalEvents(ctx context.Context, events [
 		}
 		events[i].User = member
 	}
-	fmt.Println(events)
 	return events, nil
 }
 

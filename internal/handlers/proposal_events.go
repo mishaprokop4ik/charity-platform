@@ -497,7 +497,6 @@ func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, t
 	}
 
 	if event.RemainingHelps-1 < 0 {
-		fmt.Println(event)
 		return fmt.Errorf("there is no available slot")
 	}
 	return nil
