@@ -87,11 +87,11 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	events := []models.ProposalEvent{}
 	searchValues = p.removeEmptySearchValues(searchValues)
 	query := db.
-		Order(fmt.Sprintf("%s %s", searchValues.SortField, strings.ToUpper(string(*searchValues.Order)))).
+		Order(fmt.Sprintf("propositional_event.%s %s", searchValues.SortField, strings.ToUpper(string(*searchValues.Order)))).
 		Where("status IN (?)", searchValues.State)
-
-	if searchValues.GetOwn != nil {
-		if *searchValues.GetOwn && searchValues.SearcherID != nil {
+	query = query.Debug()
+	if searchValues.GetOwn != nil && searchValues.SearcherID != nil {
+		if *searchValues.GetOwn {
 			query = query.Where("author_id = ?", searchValues.SearcherID)
 		} else {
 			query = query.Not("author_id = ?", searchValues.SearcherID)
@@ -101,16 +101,18 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	if searchValues.Name != nil && *searchValues.Name != "" {
 		query = query.Where("LOWER(title) LIKE ?", "%"+*searchValues.Name+"%")
 	}
-
-	if searchValues.TakingPart != nil {
+	fmt.Println(searchValues.TakingPart != nil, searchValues.SearcherID != nil)
+	if searchValues.TakingPart != nil && searchValues.SearcherID != nil {
 		if *searchValues.TakingPart {
+			fmt.Println("teuhere 1")
 			query = query.Joins("JOIN transaction ON transaction.event_id = propositional_event.id").
 				Where("transaction.creator_id = ?", searchValues.SearcherID).
-				Distinct("propositional_event.*")
+				Distinct()
 		} else {
+			fmt.Println("teuhere 2")
 			query = query.Joins("JOIN transaction ON transaction.event_id = propositional_event.id").
 				Not("transaction.creator_id = ?", searchValues.SearcherID).
-				Distinct("propositional_event.*")
+				Distinct()
 		}
 	}
 
@@ -207,10 +209,12 @@ func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEven
 		newSearchValues.GetOwn = searchValues.GetOwn
 	}
 
+	newSearchValues.SearcherID = searchValues.SearcherID
+
 	if searchValues.TakingPart == nil {
-		newSearchValues.GetOwn = boolRef(false)
+		newSearchValues.TakingPart = boolRef(false)
 	} else {
-		newSearchValues.GetOwn = searchValues.TakingPart
+		newSearchValues.TakingPart = searchValues.TakingPart
 	}
 
 	if searchValues.State == nil {

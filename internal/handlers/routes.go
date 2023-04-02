@@ -23,6 +23,7 @@ func (h *Handler) InitRoutes() http.Handler {
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	openAPI := r.PathPrefix("/open-api").Subrouter()
+	openAPI.Use(h.SetId)
 	openAPI.HandleFunc("/proposal-search", h.SearchProposalEvents).
 		Methods(http.MethodPost)
 	openAPI.HandleFunc("/proposal/{id}", h.GetProposalEvent).

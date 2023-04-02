@@ -954,15 +954,11 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 	}
 
 	userID := r.Context().Value("id")
-	if userID == "" {
-		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user transactionID isn't in context")
-		return
-	}
 	searchValuesInternal := searchValues.Internal()
-	if userID != nil && userID != "" && userID != 0 {
+	if userID != nil {
 		userIDParsed, ok := userID.(uint)
 		if !ok {
-			httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user transactionID isn't in context")
+			httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
 			return
 		}
 		searchValuesInternal.SearcherID = &userIDParsed
