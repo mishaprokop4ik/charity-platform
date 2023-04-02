@@ -94,14 +94,14 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	if searchValues.Name != nil && *searchValues.Name != "" {
 		query = query.Where("LOWER(title) LIKE ?", "%"+*searchValues.Name+"%")
 	}
+	if searchValues.SearcherID != nil {
+		query = query.Not("propositional_event.author_id = ?", searchValues.SearcherID)
+	}
+
 	if searchValues.TakingPart != nil && searchValues.SearcherID != nil {
 		if *searchValues.TakingPart {
 			query = query.Joins("LEFT JOIN transaction ON propositional_event.id = transaction.event_id").
 				Where("transaction.creator_id = ?", searchValues.SearcherID).
-				Distinct()
-		} else {
-			query = query.Joins("LEFT JOIN transaction ON propositional_event.id = transaction.event_id").
-				Where("transaction.creator_id <> ?", searchValues.SearcherID).
 				Distinct()
 		}
 	}
