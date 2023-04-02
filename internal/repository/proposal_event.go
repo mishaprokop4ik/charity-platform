@@ -51,17 +51,16 @@ func (p *ProposalEvent) calculatePagination(ctx context.Context, searchValues mo
 		offset = (searchValues.Pagination.PageNumber - 1) * searchValues.Pagination.PageSize
 	}
 
-	var count int64
-
-	err := searchQuery.Model(&models.ProposalEvent{}).Distinct().Count(&count).WithContext(ctx).Error
+	events := []models.ProposalEvent{}
+	err := searchQuery.Find(&events).Distinct().WithContext(ctx).Error
 	if err != nil {
 		return nil, err
 	}
 
-	totalPages := int(math.Ceil(float64(count) / float64(searchValues.Pagination.PageSize)))
+	totalPages := int(math.Ceil(float64(len(events)) / float64(searchValues.Pagination.PageSize)))
 
 	pagination := &models.Pagination{
-		TotalRecords: count,
+		TotalRecords: int64(len(events)),
 		TotalPage:    totalPages,
 		Offset:       offset,
 		Limit:        searchValues.Pagination.PageSize,
