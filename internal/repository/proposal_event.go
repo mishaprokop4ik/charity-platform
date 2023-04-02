@@ -90,8 +90,6 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 		Order(fmt.Sprintf("%s %s", searchValues.SortField, strings.ToUpper(string(*searchValues.Order)))).
 		Where("status IN (?)", searchValues.State)
 
-	query = query.Debug()
-
 	if searchValues.GetOwn != nil && searchValues.SearcherID != nil {
 		if *searchValues.GetOwn {
 			query = query.Where("author_id = ?", searchValues.SearcherID)
@@ -101,7 +99,6 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	}
 
 	if searchValues.Name != nil && *searchValues.Name != "" {
-		fmt.Println("2")
 		query = query.Where("title = ?", *searchValues.Name)
 	}
 
@@ -279,7 +276,6 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 		tx.Rollback()
 		return 0, err
 	}
-
 	if !event.Location.IsEmpty() {
 		event.Location.EventID = event.ID
 		err = tx.

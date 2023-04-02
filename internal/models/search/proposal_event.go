@@ -87,9 +87,11 @@ func (s AllEventsSearch) convertTagsRequestToInternal() []models.Tag {
 func (s AllEventsSearch) getTagFromStrings(tagID uint, values ...string) []models.TagValue {
 	tagValues := make([]models.TagValue, len(values))
 	for i, value := range values {
-		tagValues[i] = models.TagValue{
-			TagID: tagID,
-			Value: strings.ToLower(value),
+		if value != "" {
+			tagValues[i] = models.TagValue{
+				TagID: tagID,
+				Value: strings.ToLower(value),
+			}
 		}
 	}
 

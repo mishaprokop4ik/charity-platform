@@ -51,10 +51,18 @@ func (p *ProposalEventRequestCreate) InternalValue(userID uint) ProposalEvent {
 	location := Address{}
 	for i, t := range p.Tags {
 		if t.Title == "location" && len(t.Values) >= DecodedAddressLength {
-			location.Region = t.Values[0]
-			location.City = t.Values[1]
-			location.District = t.Values[2]
-			location.HomeLocation = t.Values[3]
+			if len(t.Values[0]) != 0 {
+				location.Region = t.Values[0]
+			}
+			if len(t.Values[1]) != 0 {
+				location.City = t.Values[1]
+			}
+			if len(t.Values[2]) != 0 {
+				location.District = t.Values[2]
+			}
+			if len(t.Values[3]) != 0 {
+				location.HomeLocation = t.Values[3]
+			}
 			location.EventType = ProposalEventType
 			p.Tags = append(p.Tags[:i], p.Tags[i+1:]...)
 		}
