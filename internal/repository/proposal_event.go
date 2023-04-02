@@ -118,7 +118,7 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 				Where("LOWER(tag.title) IN (?) AND LOWER(tag_value.value) IN (?) AND tag.event_type = ?",
 					searchValues.GetTagsTitle(), searchValues.GetTagsValues(), models.ProposalEventType)
 
-			query = query.Where("id IN (?)", subQuery)
+			query = query.Where("propositional_event.id IN (?)", subQuery)
 		}
 	}
 	if searchValues.Location != nil && searchValues.Location.String() != "|||" && searchValues.Location.Values() != "" {
@@ -139,7 +139,7 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 			subQuery = subQuery.Where("LOWER(home) LIKE ?", "%"+location.HomeLocation+"%")
 		}
 
-		query = query.Where("id IN (?)", subQuery)
+		query = query.Where("propositional_event.id IN (?)", subQuery)
 	}
 
 	pagination, err := p.calculatePagination(ctx, searchValues, query)
