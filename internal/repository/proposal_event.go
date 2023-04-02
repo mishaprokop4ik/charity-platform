@@ -53,7 +53,7 @@ func (p *ProposalEvent) calculatePagination(ctx context.Context, searchValues mo
 
 	var count int64
 
-	err := searchQuery.Model(&models.ProposalEvent{}).Distinct("propositional_event.id").Count(&count).WithContext(ctx).Error
+	err := searchQuery.Model(&models.ProposalEvent{}).Distinct().Count(&count).WithContext(ctx).Error
 	if err != nil {
 		return nil, err
 	}
