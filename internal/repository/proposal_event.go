@@ -53,7 +53,7 @@ func (p *ProposalEvent) calculatePagination(ctx context.Context, searchValues mo
 
 	var count int64
 
-	err := searchQuery.Model(&models.ProposalEvent{}).Count(&count).WithContext(ctx).Error
+	err := searchQuery.Model(&models.ProposalEvent{}).Distinct("propositional_event.id").Count(&count).WithContext(ctx).Error
 	if err != nil {
 		return nil, err
 	}
@@ -111,7 +111,7 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 			subQuery := db.Table("tag").Select("event_id").
 				Where("LOWER(title) IN (?) AND event_type = ?", searchValues.GetTagsTitle(), models.ProposalEventType)
 
-			query = query.Where("id IN (?)", subQuery)
+			query = query.Where("propositional_event.id IN (?)", subQuery)
 		} else if len(searchValues.GetTagsValues()) != 0 && len(searchValues.GetTagsTitle()) != 0 {
 			subQuery := db.Table("tag").Select("event_id").
 				Joins("JOIN tag_value ON tag.id = tag_value.tag_id").
