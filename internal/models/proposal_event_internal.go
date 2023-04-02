@@ -88,7 +88,6 @@ func (p ProposalEventsInternal) Serialize() ([]byte, error) {
 
 type ProposalEventSearchInternal struct {
 	Name             *string
-	GetOwn           *bool
 	Tags             *[]Tag
 	SortField        string
 	Order            *Order
