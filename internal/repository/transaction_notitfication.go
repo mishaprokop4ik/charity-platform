@@ -37,10 +37,10 @@ func (t *TransactionNotification) Update(ctx context.Context, newNotification mo
 func (t *TransactionNotification) GetByMember(ctx context.Context, userID uint) ([]models.TransactionNotification, error) {
 	notifications := []models.TransactionNotification{}
 	err := t.DBConnector.DB.
+		Order("is_read ASC, creation_time DESC").
+		Limit(transactionLimit).
 		Where("member_id = ?", userID).
-		Find(&notifications).Limit(transactionLimit).
-		Order("is_read DESC").
-		Order("creation_date").
+		Find(&notifications).
 		WithContext(ctx).
 		Error
 

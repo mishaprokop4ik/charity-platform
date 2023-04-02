@@ -90,8 +90,8 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 		Order(fmt.Sprintf("%s %s", searchValues.SortField, strings.ToUpper(string(*searchValues.Order)))).
 		Where("status IN (?)", searchValues.State)
 
-	if searchValues.GetOwn != nil && searchValues.SearcherID != nil {
-		if *searchValues.GetOwn {
+	if searchValues.GetOwn != nil {
+		if *searchValues.GetOwn && searchValues.SearcherID != nil {
 			query = query.Where("author_id = ?", searchValues.SearcherID)
 		} else {
 			query = query.Not("author_id = ?", searchValues.SearcherID)
@@ -99,7 +99,7 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	}
 
 	if searchValues.Name != nil && *searchValues.Name != "" {
-		query = query.Where("title = ?", *searchValues.Name)
+		query = query.Where("LOWER(title) LIKE ?", "%"+*searchValues.Name+"%")
 	}
 
 	if searchValues.TakingPart != nil {
