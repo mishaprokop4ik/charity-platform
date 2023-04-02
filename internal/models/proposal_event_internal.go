@@ -125,9 +125,7 @@ func (i ProposalEventSearchInternal) GetTagsTitle() []string {
 	titles := make([]string, 0)
 	for _, tag := range *i.Tags {
 		tagTitle := tag.Title
-		if len(tag.Values) != 0 {
-			titles = append(titles, tagTitle)
-		}
+		titles = append(titles, tagTitle)
 	}
 
 	return titles

@@ -1669,6 +1669,9 @@ const docTemplate = `{
                 "eventTitle": {
                     "type": "string"
                 },
+                "eventType": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },

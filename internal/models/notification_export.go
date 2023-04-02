@@ -11,6 +11,7 @@ type NotificationResponse struct {
 	Text       string    `json:"text"`
 	IsRead     bool      `json:"isRead"`
 	EventID    uint      `json:"eventID"`
+	EventType  string    `json:"eventType"`
 	EventTitle string    `json:"eventTitle"`
 	NewStatus  string    `json:"newStatus"`
 	CreatedAt  time.Time `json:"createdAt"`
@@ -43,7 +44,7 @@ func GenerateNotificationResponse(notification TransactionNotification) Notifica
 	text := ""
 	switch notification.Action {
 	case Created:
-		text = fmt.Sprintf("%s transaction was created in %s event.", notificationType, notification.EventTitle)
+		text = fmt.Sprintf("%s transaction was created in %s.", notificationType, notification.EventTitle)
 	case Updated:
 		text = fmt.Sprintf("%s status changed to %s in %s event.", notificationType, notification.NewStatus, notification.EventTitle)
 	}
@@ -52,6 +53,7 @@ func GenerateNotificationResponse(notification TransactionNotification) Notifica
 		Text:       text,
 		IsRead:     notification.IsRead,
 		EventID:    notification.EventID,
+		EventType:  string(notification.EventType),
 		EventTitle: notification.EventTitle,
 		NewStatus:  string(notification.NewStatus),
 		CreatedAt:  notification.CreationTime,

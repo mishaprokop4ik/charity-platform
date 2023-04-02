@@ -132,7 +132,6 @@ func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
 			query = query.Where("id IN (?)", subQuery)
 		}
 	}
-	fmt.Println(searchValues.Location)
 	if searchValues.Location != nil && searchValues.Location.String() != "|||" && searchValues.Location.Values() != "" {
 		location := *searchValues.Location
 		subQuery := db.Table("location").Select("event_id").

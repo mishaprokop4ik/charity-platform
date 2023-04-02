@@ -123,6 +123,8 @@ definitions:
         type: integer
       eventTitle:
         type: string
+      eventType:
+        type: string
       id:
         type: integer
       isRead:
