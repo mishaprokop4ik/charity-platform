@@ -24,6 +24,7 @@ type ProposalEventer interface {
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
 	GetEventsWithSearchAndSort(ctx context.Context,
 		searchValues models.ProposalEventSearchInternal) (models.ProposalEventPagination, error)
+	GetProposalEventByTransactionID(ctx context.Context, transactionID int) (models.ProposalEvent, error)
 }
 
 type proposalEventCRUDer interface {
@@ -37,6 +38,17 @@ type proposalEventCRUDer interface {
 type ProposalEvent struct {
 	DBConnector *Connector
 	Filer
+}
+
+func (p *ProposalEvent) GetProposalEventByTransactionID(ctx context.Context, transactionID int) (models.ProposalEvent, error) {
+	transaction := models.Transaction{}
+	err := p.DBConnector.DB.Where("id = ?", transactionID).First(&transaction).WithContext(ctx).Error
+	if err != nil {
+		return models.ProposalEvent{}, err
+	}
+	event := models.ProposalEvent{}
+	err = p.DBConnector.DB.Where("id = ?", transaction.EventID).First(&event).WithContext(ctx).Error
+	return event, err
 }
 
 const (
@@ -359,6 +371,20 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 }
 
 func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEvent) error {
+	if err := p.saveFile(ctx, &event); err != nil {
+		return err
+	}
+
+	return p.DBConnector.DB.
+		Model(&models.ProposalEvent{}).
+		Select(lo.Keys(event.GetValuesToUpdate())).
+		Where("id = ?", event.ID).
+		Updates(event.GetValuesToUpdate()).
+		WithContext(ctx).
+		Error
+}
+
+func (p *ProposalEvent) saveFile(ctx context.Context, event *models.ProposalEvent) error {
 	if event.File != nil {
 		oldEvent := models.ProposalEvent{}
 		err := p.DBConnector.DB.Where("id = ?", event.ID).First(&oldEvent).WithContext(ctx).Error
@@ -383,14 +409,7 @@ func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEv
 		}
 		event.ImagePath = filePath
 	}
-
-	return p.DBConnector.DB.
-		Model(&models.ProposalEvent{}).
-		Select(lo.Keys(event.GetValuesToUpdate())).
-		Where("id = ?", event.ID).
-		Updates(event.GetValuesToUpdate()).
-		WithContext(ctx).
-		Error
+	return nil
 }
 
 func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {

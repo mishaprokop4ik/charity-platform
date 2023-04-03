@@ -113,7 +113,7 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	//		models.InProcess,
 	//		models.Waiting,
 	//	}, transaction.TransactionStatus) {
-	//		return fmt.Errorf("user already has a transaction in this event")
+	//		return fmt.Errorf("user already has transaction in this event")
 	//	}
 	//}
 	id, err := p.CreateTransaction(ctx, models.Transaction{
@@ -171,6 +171,16 @@ func (p *ProposalEvent) Accept(ctx context.Context, request models.AcceptRequest
 		MemberID:      transaction.CreatorID,
 	})
 
+	proposalEvent, err := p.repo.ProposalEvent.GetProposalEventByTransactionID(ctx, int(request.TransactionID))
+	if err != nil {
+		return err
+	}
+
+	err = p.repo.ProposalEvent.UpdateEvent(ctx, models.ProposalEvent{
+		ID:             proposalEvent.ID,
+		RemainingHelps: proposalEvent.RemainingHelps - 1,
+	})
+
 	return err
 }
 
@@ -190,8 +200,19 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 	return p.repo.ProposalEvent.GetEvents(ctx)
 }
 
-func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEvent) error {
-	return p.repo.ProposalEvent.UpdateEvent(ctx, event)
+func (p *ProposalEvent) UpdateEvent(ctx context.Context, newEvent models.ProposalEvent) error {
+	oldEvent, err := p.repo.ProposalEvent.GetEvent(ctx, newEvent.ID)
+	if err != nil {
+		return err
+	}
+	if newEvent.MaxConcurrentRequests != 0 {
+		newEvent.RemainingHelps = p.calculateRemainingHelps(oldEvent, newEvent)
+	}
+	return p.repo.ProposalEvent.UpdateEvent(ctx, newEvent)
+}
+
+func (p *ProposalEvent) calculateRemainingHelps(oldEvent, newEvent models.ProposalEvent) int {
+	return int(newEvent.MaxConcurrentRequests-oldEvent.MaxConcurrentRequests) + oldEvent.RemainingHelps
 }
 
 func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {

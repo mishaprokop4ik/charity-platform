@@ -91,15 +91,7 @@ func (t *Transaction) UpdateTransactionByID(ctx context.Context, id uint, toUpda
 		return err
 	}
 
-	eventType, ok := toUpdate["event_type"]
-	if ok && eventType != models.ProposalEventType {
-		return tx.Commit().Error
-	}
-
-	status, ok := toUpdate["transaction_status"]
-	if !ok {
-		return tx.Commit().Error
-	}
+	status := toUpdate["transaction_status"]
 
 	if lo.Contains([]models.TransactionStatus{
 		models.Completed,
@@ -137,18 +129,6 @@ func (t *Transaction) UpdateTransactionByID(ctx context.Context, id uint, toUpda
 }
 
 func (t *Transaction) CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error) {
-	//var count int64
-	//err := t.DBConnector.DB.Model(models.Transaction{}).
-	//	Where("creator_id = ?", transaction.CreatorID).
-	//	Where("event_id = ?", transaction.EventID).Count(&count).
-	//	WithContext(ctx).
-	//	Error
-	//if err != nil {
-	//	return 0, err
-	//}
-	//if count != 0 {
-	//	return 0, fmt.Errorf("user cannot create more than one transaction per one event")
-	//}
 	err := t.DBConnector.DB.Create(&transaction).WithContext(ctx).Error
 	return transaction.ID, err
 }
