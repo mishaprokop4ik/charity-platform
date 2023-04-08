@@ -998,3 +998,60 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 }
+
+// handleGetProposalEventStatistics takes statistics of proposal event from time.Now() - 28
+// @Param        id   path int  true  "ID"
+// @Summary      Take statistics of proposal event from current date - 28 to current date
+// @SearchValuesResponse         Proposal Event
+// @Param        id   path int  true  "ID"
+// @Success      200  {object}  models.ProposalEventStatistics
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/statistics [get]
+func (h *Handler) handleGetProposalEventStatistics(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	var userIDParsed uint
+	userID := r.Context().Value("id")
+	if userID != nil {
+		_, ok := userID.(uint)
+		if !ok {
+			httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
+			return
+		}
+		userIDParsed = userID.(uint)
+	}
+
+	eventch := make(chan getProposalStatistics)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		statistics, err := h.services.ProposalEvent.GetStatistics(ctx, 28, uint(userIDParsed))
+
+		eventch <- getProposalStatistics{
+			statistics: statistics,
+			err:        err,
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "getting proposal event took too long")
+		return
+	case resp := <-eventch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.ErrNotFound.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+		err := httpHelper.SendHTTPResponse(w, resp.statistics)
+		if err != nil {
+			zlog.Log.Error(err, "got an error")
+		}
+	}
+}

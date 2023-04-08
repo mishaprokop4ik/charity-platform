@@ -18,6 +18,7 @@ type ProposalEventer interface {
 	UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType string) error
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
 	GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) (models.ProposalEventPagination, error)
+	GetStatistics(ctx context.Context, fromStart int, creatorID uint) (models.ProposalEventStatistics, error)
 }
 
 type ProposalEventCRUDer interface {
@@ -36,6 +37,123 @@ func NewProposalEvent(repo *repository.Repository) *ProposalEvent {
 type ProposalEvent struct {
 	*Transaction
 	repo *repository.Repository
+}
+
+func (p *ProposalEvent) GetStatistics(ctx context.Context, fromStart int, creatorID uint) (models.ProposalEventStatistics, error) {
+	currentTransactions, err := p.getCurrentMonthTransactions(ctx, fromStart, creatorID)
+	if err != nil {
+		return models.ProposalEventStatistics{}, err
+	}
+
+	previousTransactions, err := p.getPreviousMonthTransactions(ctx, fromStart, creatorID)
+	if err != nil {
+		return models.ProposalEventStatistics{}, err
+	}
+
+	statistics := p.generateStatistics(currentTransactions, previousTransactions)
+	return statistics, nil
+}
+
+func (p *ProposalEvent) getCurrentMonthTransactions(ctx context.Context, fromStart int, creatorID uint) ([]models.Transaction, error) {
+	currentMonthTo := time.Now()
+	currentMonthFrom := currentMonthTo.AddDate(0, 0, int(-fromStart))
+
+	currentTransactions, err := p.repo.ProposalEvent.GetStatistics(ctx, creatorID, currentMonthFrom, currentMonthTo)
+	if err != nil {
+		return nil, err
+	}
+
+	return currentTransactions, nil
+}
+
+func (p *ProposalEvent) getPreviousMonthTransactions(ctx context.Context, fromStart int, creatorID uint) ([]models.Transaction, error) {
+	previousMonthTo := time.Now().AddDate(0, 0, int(-fromStart))
+	previousMonthFrom := previousMonthTo.AddDate(0, 0, int(-fromStart))
+	previousTransactions, err := p.repo.ProposalEvent.GetStatistics(ctx, creatorID, previousMonthFrom, previousMonthTo)
+	if err != nil {
+		return nil, err
+	}
+	return previousTransactions, nil
+}
+
+func (p *ProposalEvent) generateStatistics(currentTransactions, previousTransactions []models.Transaction) models.ProposalEventStatistics {
+	statistics := models.ProposalEventStatistics{}
+	requests := make([]models.Request, 28)
+	currentMonthTo := time.Now()
+	currentMonthFrom := currentMonthTo.AddDate(0, 0, int(-28))
+	for i := 0; i < 28; i++ {
+		requests[i] = models.Request{
+			DayNumber:     int8(currentMonthFrom.AddDate(0, 0, i).Day()),
+			RequestsCount: p.getRequestsCount(currentTransactions, currentMonthFrom.AddDate(0, 0, i)),
+		}
+	}
+	statistics.Requests = requests
+
+	statistics.StartDate = currentMonthFrom
+	statistics.EndDate = currentMonthTo
+	p.generateTransactionSubStatistics(&statistics, currentTransactions, previousTransactions)
+	return statistics
+}
+
+func (p *ProposalEvent) generateTransactionSubStatistics(statistics *models.ProposalEventStatistics, currentTransactions, previousTransactions []models.Transaction) {
+	statistics.TransactionsCount = uint(len(currentTransactions))
+	if len(currentTransactions) != 0 && len(previousTransactions) != 0 {
+		statistics.TransactionsCountCompareWithPreviousMonth = compareTwoNumberInPercentage(len(previousTransactions), len(currentTransactions))
+	} else if len(previousTransactions) == 0 {
+		statistics.TransactionsCountCompareWithPreviousMonth = len(currentTransactions) * 100
+	}
+
+	doneTransactionsCount := len(getTransactionsByStatus(currentTransactions, models.Completed))
+	previousDoneTransactionsCount := len(getTransactionsByStatus(previousTransactions, models.Completed))
+	statistics.DoneTransactionsCount = uint(doneTransactionsCount)
+	if doneTransactionsCount != 0 && previousDoneTransactionsCount != 0 {
+		statistics.DoneTransactionsCountCompareWithPreviousMonth = compareTwoNumberInPercentage(previousDoneTransactionsCount, doneTransactionsCount)
+	} else if previousDoneTransactionsCount == 0 {
+		statistics.DoneTransactionsCountCompareWithPreviousMonth = doneTransactionsCount * 100
+	}
+
+	canceledTransactionsCount := len(getTransactionsByStatus(currentTransactions, models.Canceled))
+	previousCanceledTransactionsCount := len(getTransactionsByStatus(previousTransactions, models.Canceled))
+	statistics.CanceledTransactionCount = uint(canceledTransactionsCount)
+	if canceledTransactionsCount != 0 && previousCanceledTransactionsCount != 0 {
+		statistics.DoneTransactionsCountCompareWithPreviousMonth = compareTwoNumberInPercentage(previousCanceledTransactionsCount, canceledTransactionsCount)
+	} else if previousCanceledTransactionsCount == 0 {
+		statistics.DoneTransactionsCountCompareWithPreviousMonth = canceledTransactionsCount * 100
+	}
+
+	abortedTransactionsCount := len(getTransactionsByStatus(currentTransactions, models.Aborted))
+	previousAbortedTransactionsCount := len(getTransactionsByStatus(previousTransactions, models.Aborted))
+	statistics.AbortedTransactionsCount = uint(abortedTransactionsCount)
+	if abortedTransactionsCount != 0 && previousAbortedTransactionsCount != 0 {
+		statistics.AbortedTransactionsCountCompareWithPreviousMonth = compareTwoNumberInPercentage(previousAbortedTransactionsCount, abortedTransactionsCount)
+	} else if previousAbortedTransactionsCount == 0 {
+		statistics.AbortedTransactionsCountCompareWithPreviousMonth = abortedTransactionsCount * 100
+	}
+}
+
+func (p *ProposalEvent) getRequestsCount(transactions []models.Transaction, from time.Time) int {
+	count := 0
+	for _, transaction := range transactions {
+		if transaction.CreationDate.Day() == from.Day() {
+			count += 1
+		}
+	}
+
+	return count
+}
+
+func compareTwoNumberInPercentage(x, y int) int {
+	return (x/y)*100 - 100
+}
+
+func getTransactionsByStatus(transactions []models.Transaction, transactionStatus models.TransactionStatus) []models.Transaction {
+	newTransactions := []models.Transaction{}
+	for i := range transactions {
+		if transactions[i].TransactionStatus == transactionStatus {
+			newTransactions = append(newTransactions, transactions[i])
+		}
+	}
+	return newTransactions
 }
 
 func (p *ProposalEvent) GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) (models.ProposalEventPagination, error) {

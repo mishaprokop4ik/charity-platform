@@ -51,3 +51,8 @@ type getProposalEvent struct {
 	proposalEvent models.ProposalEventGetResponse
 	err           error
 }
+
+type getProposalStatistics struct {
+	statistics models.ProposalEventStatistics
+	err        error
+}
