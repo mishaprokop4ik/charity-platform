@@ -271,8 +271,8 @@ definitions:
     type: object
   Kurajj_internal_models.Request:
     properties:
-      dayNumber:
-        type: integer
+      date:
+        type: string
       requestsCount:
         type: integer
     type: object

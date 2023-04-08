@@ -82,8 +82,9 @@ func (p *ProposalEvent) generateStatistics(currentTransactions, previousTransact
 	currentMonthTo := time.Now()
 	currentMonthFrom := currentMonthTo.AddDate(0, 0, int(-28))
 	for i := 0; i < 28; i++ {
+		currenntDateResponse := currentMonthFrom.AddDate(0, 0, i)
 		requests[i] = models.Request{
-			DayNumber:     int8(currentMonthFrom.AddDate(0, 0, i).Day()),
+			Date:          fmt.Sprintf("%s %d", currenntDateResponse.Month().String(), currenntDateResponse.Day()),
 			RequestsCount: p.getRequestsCount(currentTransactions, currentMonthFrom.AddDate(0, 0, i)),
 		}
 	}

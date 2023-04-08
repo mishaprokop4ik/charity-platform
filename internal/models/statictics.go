@@ -25,6 +25,6 @@ func (s ProposalEventStatistics) Bytes() []byte {
 }
 
 type Request struct {
-	DayNumber     int8 `json:"dayNumber"`
-	RequestsCount int  `json:"requestsCount"`
+	Date          string `json:"date"`
+	RequestsCount int    `json:"requestsCount"`
 }

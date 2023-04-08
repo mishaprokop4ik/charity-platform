@@ -1938,8 +1938,8 @@ const docTemplate = `{
         "Kurajj_internal_models.Request": {
             "type": "object",
             "properties": {
-                "dayNumber": {
-                    "type": "integer"
+                "date": {
+                    "type": "string"
                 },
                 "requestsCount": {
                     "type": "integer"
