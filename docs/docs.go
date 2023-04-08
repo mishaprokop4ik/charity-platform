@@ -698,22 +698,6 @@ const docTemplate = `{
         "/api/events/proposal/statistics": {
             "get": {
                 "summary": "Take statistics of proposal event from current date - 28 to current date",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "OK",

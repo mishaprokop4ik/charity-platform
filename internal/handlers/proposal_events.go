@@ -1000,10 +1000,8 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleGetProposalEventStatistics takes statistics of proposal event from time.Now() - 28
-// @Param        id   path int  true  "ID"
 // @Summary      Take statistics of proposal event from current date - 28 to current date
 // @SearchValuesResponse         Proposal Event
-// @Param        id   path int  true  "ID"
 // @Success      200  {object}  models.ProposalEventStatistics
 // @Failure      401  {object}  models.ErrResponse
 // @Failure      403  {object}  models.ErrResponse

@@ -968,17 +968,6 @@ paths:
       summary: Get proposal event by id
   /api/events/proposal/statistics:
     get:
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
       responses:
         "200":
           description: OK
