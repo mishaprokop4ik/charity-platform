@@ -695,6 +695,49 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/events/proposal/statistics": {
+            "get": {
+                "summary": "Take statistics of proposal event from current date - 28 to current date",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ProposalEventStatistics"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/events/proposal/transactions/{id}": {
             "get": {
                 "consumes": [
@@ -1800,6 +1843,47 @@ const docTemplate = `{
                 }
             }
         },
+        "Kurajj_internal_models.ProposalEventStatistics": {
+            "type": "object",
+            "properties": {
+                "abortedTransactionsCount": {
+                    "type": "integer"
+                },
+                "abortedTransactionsCountCompare": {
+                    "type": "integer"
+                },
+                "canceledTransactionCount": {
+                    "type": "integer"
+                },
+                "canceledTransactionCountCompare": {
+                    "type": "integer"
+                },
+                "doneTransactionsCount": {
+                    "type": "integer"
+                },
+                "doneTransactionsCountCompare": {
+                    "type": "integer"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "requests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.Request"
+                    }
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "transactionsCount": {
+                    "type": "integer"
+                },
+                "transactionsCountCompare": {
+                    "type": "integer"
+                }
+            }
+        },
         "Kurajj_internal_models.ProposalEvents": {
             "type": "object",
             "properties": {
@@ -1848,6 +1932,17 @@ const docTemplate = `{
             "properties": {
                 "refreshToken": {
                     "type": "string"
+                }
+            }
+        },
+        "Kurajj_internal_models.Request": {
+            "type": "object",
+            "properties": {
+                "dayNumber": {
+                    "type": "integer"
+                },
+                "requestsCount": {
+                    "type": "integer"
                 }
             }
         },

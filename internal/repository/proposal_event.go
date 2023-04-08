@@ -25,6 +25,7 @@ type ProposalEventer interface {
 	GetEventsWithSearchAndSort(ctx context.Context,
 		searchValues models.ProposalEventSearchInternal) (models.ProposalEventPagination, error)
 	GetProposalEventByTransactionID(ctx context.Context, transactionID int) (models.ProposalEvent, error)
+	GetStatistics(ctx context.Context, id uint, from, to time.Time) ([]models.Transaction, error)
 }
 
 type proposalEventCRUDer interface {
@@ -38,6 +39,25 @@ type proposalEventCRUDer interface {
 type ProposalEvent struct {
 	DBConnector *Connector
 	Filer
+}
+
+func (p *ProposalEvent) GetStatistics(ctx context.Context, creatorID uint, from, to time.Time) ([]models.Transaction, error) {
+	transactions := []models.Transaction{}
+	err := p.DBConnector.DB.
+		Where("event_type = ?", models.ProposalEventType).
+		Where("creator_id = ?", creatorID).
+		Where("creation_date >= ? AND creation_date <= ?",
+			from, to).
+		Find(&transactions).
+		WithContext(ctx).
+		Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		zlog.Log.Error(err, "could not get any transactions")
+		return transactions, nil
+	}
+
+	return transactions, err
 }
 
 func (p *ProposalEvent) GetProposalEventByTransactionID(ctx context.Context, transactionID int) (models.ProposalEvent, error) {

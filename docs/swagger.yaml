@@ -209,6 +209,33 @@ definitions:
       title:
         type: string
     type: object
+  Kurajj_internal_models.ProposalEventStatistics:
+    properties:
+      abortedTransactionsCount:
+        type: integer
+      abortedTransactionsCountCompare:
+        type: integer
+      canceledTransactionCount:
+        type: integer
+      canceledTransactionCountCompare:
+        type: integer
+      doneTransactionsCount:
+        type: integer
+      doneTransactionsCountCompare:
+        type: integer
+      endDate:
+        type: string
+      requests:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.Request'
+        type: array
+      startDate:
+        type: string
+      transactionsCount:
+        type: integer
+      transactionsCountCompare:
+        type: integer
+    type: object
   Kurajj_internal_models.ProposalEvents:
     properties:
       proposalEvents:
@@ -241,6 +268,13 @@ definitions:
     properties:
       refreshToken:
         type: string
+    type: object
+  Kurajj_internal_models.Request:
+    properties:
+      dayNumber:
+        type: integer
+      requestsCount:
+        type: integer
     type: object
   Kurajj_internal_models.SearchValueResponse:
     properties:
@@ -932,6 +966,35 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Get proposal event by id
+  /api/events/proposal/statistics:
+    get:
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ProposalEventStatistics'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Take statistics of proposal event from current date - 28 to current
+        date
   /api/events/proposal/transactions/{id}:
     get:
       consumes:
