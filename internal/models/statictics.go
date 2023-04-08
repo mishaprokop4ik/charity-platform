@@ -28,5 +28,3 @@ type Request struct {
 	DayNumber     int8 `json:"dayNumber"`
 	RequestsCount int  `json:"requestsCount"`
 }
-
-const Day = time.Hour * 24
