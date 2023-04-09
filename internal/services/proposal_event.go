@@ -98,8 +98,9 @@ func (p *ProposalEvent) generateStatistics(currentTransactions, previousTransact
 
 func (p *ProposalEvent) generateTransactionSubStatistics(statistics *models.ProposalEventStatistics, currentTransactions, previousTransactions []models.Transaction) {
 	statistics.TransactionsCount = uint(len(currentTransactions))
+
 	if len(currentTransactions) != 0 && len(previousTransactions) != 0 {
-		statistics.TransactionsCountCompareWithPreviousMonth = compareTwoNumberInPercentage(len(previousTransactions), len(currentTransactions))
+		statistics.TransactionsCountCompareWithPreviousMonth = compareTwoNumberInPercentage(len(currentTransactions), len(previousTransactions))
 	} else if len(previousTransactions) == 0 {
 		statistics.TransactionsCountCompareWithPreviousMonth = len(currentTransactions) * 100
 	}
@@ -108,7 +109,7 @@ func (p *ProposalEvent) generateTransactionSubStatistics(statistics *models.Prop
 	previousDoneTransactionsCount := len(getTransactionsByStatus(previousTransactions, models.Completed))
 	statistics.DoneTransactionsCount = uint(doneTransactionsCount)
 	if doneTransactionsCount != 0 && previousDoneTransactionsCount != 0 {
-		statistics.DoneTransactionsCountCompareWithPreviousMonth = compareTwoNumberInPercentage(previousDoneTransactionsCount, doneTransactionsCount)
+		statistics.DoneTransactionsCountCompareWithPreviousMonth = compareTwoNumberInPercentage(doneTransactionsCount, previousDoneTransactionsCount)
 	} else if previousDoneTransactionsCount == 0 {
 		statistics.DoneTransactionsCountCompareWithPreviousMonth = doneTransactionsCount * 100
 	}
@@ -117,16 +118,16 @@ func (p *ProposalEvent) generateTransactionSubStatistics(statistics *models.Prop
 	previousCanceledTransactionsCount := len(getTransactionsByStatus(previousTransactions, models.Canceled))
 	statistics.CanceledTransactionCount = uint(canceledTransactionsCount)
 	if canceledTransactionsCount != 0 && previousCanceledTransactionsCount != 0 {
-		statistics.DoneTransactionsCountCompareWithPreviousMonth = compareTwoNumberInPercentage(previousCanceledTransactionsCount, canceledTransactionsCount)
+		statistics.CanceledTransactionCountCompareWithPreviousMonth = compareTwoNumberInPercentage(canceledTransactionsCount, previousCanceledTransactionsCount)
 	} else if previousCanceledTransactionsCount == 0 {
-		statistics.DoneTransactionsCountCompareWithPreviousMonth = canceledTransactionsCount * 100
+		statistics.CanceledTransactionCountCompareWithPreviousMonth = canceledTransactionsCount * 100
 	}
 
 	abortedTransactionsCount := len(getTransactionsByStatus(currentTransactions, models.Aborted))
 	previousAbortedTransactionsCount := len(getTransactionsByStatus(previousTransactions, models.Aborted))
 	statistics.AbortedTransactionsCount = uint(abortedTransactionsCount)
 	if abortedTransactionsCount != 0 && previousAbortedTransactionsCount != 0 {
-		statistics.AbortedTransactionsCountCompareWithPreviousMonth = compareTwoNumberInPercentage(previousAbortedTransactionsCount, abortedTransactionsCount)
+		statistics.AbortedTransactionsCountCompareWithPreviousMonth = compareTwoNumberInPercentage(abortedTransactionsCount, previousAbortedTransactionsCount)
 	} else if previousAbortedTransactionsCount == 0 {
 		statistics.AbortedTransactionsCountCompareWithPreviousMonth = abortedTransactionsCount * 100
 	}
@@ -150,7 +151,8 @@ func compareTwoNumberInPercentage(x, y int) int {
 func getTransactionsByStatus(transactions []models.Transaction, transactionStatus models.TransactionStatus) []models.Transaction {
 	newTransactions := []models.Transaction{}
 	for i := range transactions {
-		if transactions[i].TransactionStatus == transactionStatus {
+		if transactions[i].TransactionStatus == transactionStatus ||
+			transactions[i].ResponderStatus == transactionStatus {
 			newTransactions = append(newTransactions, transactions[i])
 		}
 	}

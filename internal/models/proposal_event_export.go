@@ -216,8 +216,10 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 	if event.Location.Street != "" {
 		homeLocation = event.Location.Street
 	}
-	if event.Location.HomeLocation != "" {
-		homeLocation += homeLocation + " " + event.Location.HomeLocation
+	if event.Location.HomeLocation != "" && event.Location.Street != "" {
+		homeLocation = homeLocation + " " + event.Location.HomeLocation
+	} else if event.Location.HomeLocation != "" && event.Location.Street == "" {
+		homeLocation = event.Location.HomeLocation
 	}
 	tags = append(tags, TagResponse{
 		ID:    event.Location.ID,

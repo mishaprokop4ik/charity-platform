@@ -42,10 +42,24 @@ type ProposalEvent struct {
 }
 
 func (p *ProposalEvent) GetStatistics(ctx context.Context, creatorID uint, from, to time.Time) ([]models.Transaction, error) {
-	transactions := []models.Transaction{}
+	proposalEvents := []models.ProposalEvent{}
 	err := p.DBConnector.DB.
+		Where("author_id = ?", creatorID).
+		Find(&proposalEvents).
+		WithContext(ctx).Error
+	if err != nil {
+		return nil, err
+	}
+
+	proposalEventIds := make([]uint, len(proposalEvents))
+	for i := range proposalEvents {
+		proposalEventIds[i] = proposalEvents[i].ID
+	}
+	fmt.Println(proposalEventIds)
+	transactions := []models.Transaction{}
+	err = p.DBConnector.DB.
 		Where("event_type = ?", models.ProposalEventType).
-		Where("creator_id = ?", creatorID).
+		Where("event_id IN (?)", proposalEventIds).
 		Where("creation_date >= ? AND creation_date <= ?",
 			from, to).
 		Find(&transactions).
