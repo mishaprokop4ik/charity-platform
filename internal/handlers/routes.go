@@ -17,6 +17,30 @@ func New(s *service.Service) Handler {
 	return Handler{services: s}
 }
 
+type HelpEventer interface {
+	GetHelpEventByID(w http.ResponseWriter, r *http.Request)
+	GetUserHelpEvents(w http.ResponseWriter, r *http.Request)
+	SearchHelpEvents(w http.ResponseWriter, r *http.Request)
+	GetHelpEvents(w http.ResponseWriter, r *http.Request)
+
+	// Event POST
+
+	CreateHelpEvent(w http.ResponseWriter, r *http.Request)
+
+	// Transactions Get
+	GetTransactionByID(w http.ResponseWriter, r *http.Request)
+	GetTransactions(w http.ResponseWriter, r *http.Request)
+
+	// Transactions POST
+
+	ResponseTransaction(w http.ResponseWriter, r *http.Request)
+
+	// Transaction PUT
+
+	AcceptTransaction(w http.ResponseWriter, r *http.Request)
+	UpdateStatus(w http.ResponseWriter, r *http.Request)
+}
+
 func (h *Handler) InitRoutes() http.Handler {
 	r := mux.NewRouter()
 

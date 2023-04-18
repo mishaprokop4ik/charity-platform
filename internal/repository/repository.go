@@ -1,5 +1,14 @@
 package repository
 
+import (
+	"Kurajj/internal/models"
+	"context"
+)
+
+type HelpEventer interface {
+	CreateEvent(ctx context.Context, event *models.HelpEvent) (uint, error)
+}
+
 type Repository struct {
 	User                    Userer
 	Admin                   adminCRUDer
@@ -10,6 +19,7 @@ type Repository struct {
 	UserSearchValue         UserSearcher
 	File                    Filer
 	TransactionNotification Notifier
+	HelpEventer
 }
 
 func New(dbConnector *Connector, config AWSConfig) *Repository {

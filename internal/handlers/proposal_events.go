@@ -15,11 +15,6 @@ import (
 	"time"
 )
 
-type proposalEventCreateResponse struct {
-	id  uint
-	err error
-}
-
 // CreateProposalEvent creates a new proposal event
 // @Summary      Create a new proposal event
 // @SearchValuesResponse         Proposal Event
@@ -46,14 +41,14 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventch := make(chan proposalEventCreateResponse)
+	eventch := make(chan idResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
 		id, err := h.services.ProposalEvent.CreateEvent(ctx, event.InternalValue(userID.(uint)))
 
-		eventch <- proposalEventCreateResponse{
-			id:  id,
+		eventch <- idResponse{
+			id:  int(id),
 			err: err,
 		}
 	}()
