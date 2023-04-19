@@ -2780,8 +2780,6 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "Kurajj Charity Platform",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
 }
 
 func init() {
