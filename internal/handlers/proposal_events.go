@@ -15,11 +15,6 @@ import (
 	"time"
 )
 
-type proposalEventCreateResponse struct {
-	id  uint
-	err error
-}
-
 // CreateProposalEvent creates a new proposal event
 // @Summary      Create a new proposal event
 // @SearchValuesResponse         Proposal Event
@@ -46,14 +41,14 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	eventch := make(chan proposalEventCreateResponse)
+	eventch := make(chan idResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
 		id, err := h.services.ProposalEvent.CreateEvent(ctx, event.InternalValue(userID.(uint)))
 
-		eventch <- proposalEventCreateResponse{
-			id:  id,
+		eventch <- idResponse{
+			id:  int(id),
 			err: err,
 		}
 	}()
@@ -374,7 +369,7 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/events/proposal/dto [post]
+// @Router       /api/events/proposal/response [post]
 func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	transactionInfo, err := models.UnmarshalTransactionAcceptCreateRequest(&r.Body)

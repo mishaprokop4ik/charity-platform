@@ -4,6 +4,8 @@ Kurajj.iml
 /db_data
 # Ignore Gradle project-specific cache directory
 .gradle
+build/docker-compose/pgadmin
+build/docker-compose/queries.yaml
 
 # Ignore Gradle build output directory
 kurajj-openssl-ca.cnf

@@ -11,11 +11,11 @@ VALUES
     ('Volunteer Day', 'A day of volunteering at a local community center.', '2022-03-01 00:00:00', '2022-03-01 00:00:00', 'inactive', 10, 0, 2, false, 'https://charity-platform.s3.amazonaws.com/images/volunteer-care-old-people-nurse-isolated-young-human-helping-senior-volunteers-service-helpful-person-nursing-elderly-decent-vector-set_53562-17770.avif'),
     ('Community Cleanup', 'A day of cleaning up a local park.', '2022-04-01 00:00:00', '2022-04-01 00:00:00', 'active', 20, 5, 3, false, 'https://charity-platform.s3.amazonaws.com/images/volunteer-care-old-people-nurse-isolated-young-human-helping-senior-volunteers-service-helpful-person-nursing-elderly-decent-vector-set_53562-17770.avif');
 
-INSERT INTO help_event (title, description, creation_date, author_id, category, address, competition_date, rate)
+INSERT INTO help_event (title, description, creation_date, author_id, category, competition_date, rate)
 VALUES
-    ('Emergency Assistance', 'Assistance needed for an emergency situation.', '2022-02-01 00:00:00', 1, 'emergency', '123 Main St, Anytown, USA', '2022-02-05 00:00:00', 'normal'),
-    ('Moving Help', 'Assistance needed for moving to a new home.', '2022-03-01 00:00:00', 2, 'moving', '456 Elm St, Anytown, USA', '2022-03-05 00:00:00', 'fast'),
-    ('Yard Work', 'Assistance needed for yard work.', '2022-04-01 00:00:00', 3, 'gardening', '789 Oak St, Anytown, USA', '2022-04-05 00:00:00', 'very fast');
+    ('Emergency Assistance', 'Assistance needed for an emergency situation.', '2022-02-01 00:00:00', 1, 'emergency', '2022-02-05 00:00:00', 'normal'),
+    ('Moving Help', 'Assistance needed for moving to a new home.', '2022-03-01 00:00:00', 2, 'moving', '2022-03-05 00:00:00', 'fast'),
+    ('Yard Work', 'Assistance needed for yard work.', '2022-04-01 00:00:00', 3, 'gardening', '2022-04-05 00:00:00', 'very fast');
 
 INSERT INTO tag (title, event_id, event_type)
 VALUES
