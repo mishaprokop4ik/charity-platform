@@ -41,13 +41,13 @@ func (h *HelpEventTransactionUpdateRequest) needsToInternal(isEventCreator bool,
 func (h *HelpEventTransactionUpdateRequest) ToInternal(eventCreator bool, helpEventID ID, requesterID uint) HelpEventTransaction {
 	transaction := HelpEventTransaction{
 		Needs:           h.needsToInternal(eventCreator, uint(helpEventID)),
-		CompetitionDate: time.Now().String(),
+		CompetitionDate: time.Now(),
 		HelpEventID:     (*uint)(&helpEventID),
 		TransactionID:   &h.ID,
 	}
 	transaction.EventCreator = eventCreator
 	if eventCreator {
-		transaction.CompetitionDate = time.Now().String()
+		transaction.CompetitionDate = time.Now()
 		transaction.TransactionStatus = h.Status
 		transaction.HelpEventCreatorID = requesterID
 	} else {

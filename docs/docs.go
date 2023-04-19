@@ -2008,11 +2008,26 @@ const docTemplate = `{
         "Kurajj_internal_models.HelpEventTransactionResponse": {
             "type": "object",
             "properties": {
+                "comment": {
+                    "type": "string"
+                },
                 "competitionDate": {
                     "type": "string"
                 },
                 "completionPercentages": {
                     "type": "number"
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorID": {
+                    "type": "integer"
+                },
+                "eventID": {
+                    "type": "integer"
+                },
+                "eventType": {
+                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
                 },
                 "isApproved": {
                     "type": "boolean"
@@ -2023,8 +2038,23 @@ const docTemplate = `{
                         "$ref": "#/definitions/Kurajj_internal_models.NeedResponse"
                     }
                 },
+                "receiver": {
+                    "$ref": "#/definitions/Kurajj_internal_models.UserShortInfo"
+                },
+                "reportURL": {
+                    "type": "string"
+                },
+                "responder": {
+                    "$ref": "#/definitions/Kurajj_internal_models.UserShortInfo"
+                },
+                "responderStatus": {
+                    "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
+                },
                 "transactionID": {
                     "type": "integer"
+                },
+                "transactionStatus": {
+                    "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
                 }
             }
         },

@@ -24,7 +24,7 @@ type HelpEventTransaction struct {
 	Needs                                    []Need
 	Received                                 int
 	ReceivedTotal                            int
-	CompetitionDate                          string
+	CompetitionDate                          time.Time
 	CompletionPercentages                    int
 	HelpEventCreatorID, TransactionCreatorID uint
 	TransactionID                            *uint

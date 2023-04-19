@@ -101,10 +101,7 @@ func (h *HelpEvent) Response() HelpEventResponse {
 				Unit:          h.Needs[j].Unit,
 			}
 		}
-		finishData := ""
-		if !h.Transactions[i].CompetitionDate.Time.IsZero() {
-			finishData = h.Transactions[i].CompetitionDate.Time.String()
-		}
+
 		isApproved := h.Transactions[i].TransactionStatus == Completed
 
 		allTransactions := float64(len(h.TransactionNeeds[ID(h.Transactions[i].ID)]))
@@ -129,7 +126,7 @@ func (h *HelpEvent) Response() HelpEventResponse {
 			Responder:             h.Transactions[i].Creator.ToShortInfo(),
 			EventID:               h.ID,
 			Comment:               h.Transactions[i].Comment,
-			CompetitionDate:       finishData,
+			CompetitionDate:       h.Transactions[i].CompetitionDate.Time.Format(time.RFC3339),
 			IsApproved:            isApproved,
 			CompletionPercentages: completionPercentages,
 		}
