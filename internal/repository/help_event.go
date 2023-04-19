@@ -92,15 +92,21 @@ func (h *HelpEvent) GetEventByID(ctx context.Context, id models.ID) (models.Help
 	if err != nil {
 		return models.HelpEvent{}, err
 	}
-	for _, t := range transactions {
+	for i, t := range transactions {
 		transactionNeeds := make([]models.Need, 0)
 		err = h.DB.Where("transaction_id = ?", t.ID).Find(&transactionNeeds).WithContext(ctx).Error
 		if err != nil {
 			return models.HelpEvent{}, err
 		}
 		event.TransactionNeeds[models.ID(t.ID)] = transactionNeeds
+		transactionCreator := models.User{}
+		err = h.DB.Where("id = ?", t.CreatorID).Find(&transactionCreator).WithContext(ctx).Error
+		if err != nil {
+			return models.HelpEvent{}, err
+		}
+		transactions[i].Creator = transactionCreator
 	}
-	fmt.Printf("%+v", event)
+
 	return event, err
 }
 
