@@ -1,6 +1,7 @@
 package models
 
 import (
+	"bytes"
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
 	"io"
@@ -17,7 +18,7 @@ type HelpEventCreateRequest struct {
 	Tags        []TagRequestCreate  `json:"tags"`
 }
 
-func (h *HelpEventCreateRequest) validateFile(fl validator.FieldLevel) bool {
+func validateFile(fl validator.FieldLevel) bool {
 	fileBytes := fl.Field().Interface().([]byte)
 	fileType := fl.Parent().Elem().FieldByName("FileType").String()
 	if len(fileBytes) == 0 && fileType == "" {
@@ -37,7 +38,7 @@ func (h *HelpEventCreateRequest) Validate() error {
 	}
 
 	helpEventValidator := validator.New()
-	helpEventValidator.RegisterValidation("fileFields", h.validateFile)
+	helpEventValidator.RegisterValidation("fileFields", validateFile)
 	if err := helpEventValidator.Struct(h); err != nil {
 		return err
 	}
@@ -45,7 +46,7 @@ func (h *HelpEventCreateRequest) Validate() error {
 	return nil
 }
 
-func (h *HelpEventCreateRequest) ToInternal() *HelpEvent {
+func (h *HelpEventCreateRequest) ToInternal(authorID uint) *HelpEvent {
 	needs := make([]Need, len(h.Needs))
 	for i, n := range h.Needs {
 		needs[i] = n.ToInternal()
@@ -54,9 +55,14 @@ func (h *HelpEventCreateRequest) ToInternal() *HelpEvent {
 		Title:       h.Title,
 		Description: h.Description,
 		Needs:       needs,
+		Status:      string(InActive),
+		CreatedBy:   authorID,
 	}
 	if len(h.FileBytes) == 0 {
 		event.ImagePath = defaultImagePath
+	} else {
+		event.FileType = h.FileType
+		event.File = bytes.NewBuffer(h.FileBytes)
 	}
 
 	return event

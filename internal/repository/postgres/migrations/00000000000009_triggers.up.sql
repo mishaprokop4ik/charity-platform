@@ -7,7 +7,7 @@ BEGIN
         IF NOT EXISTS (SELECT 1 FROM proposal_event WHERE id = NEW.event_id) THEN
             RAISE EXCEPTION 'Proposal event with id % does not exist', NEW.event_id;
         END IF;
-    ELSIF NEW.event_type = 'help-event' THEN
+    ELSIF NEW.event_type = 'help' THEN
         IF NOT EXISTS (SELECT 1 FROM help_event WHERE id = NEW.event_id) THEN
             RAISE EXCEPTION 'Help event with id % does not exist', NEW.event_id;
         END IF;
@@ -31,7 +31,7 @@ BEGIN
         IF NOT EXISTS (SELECT 1 FROM proposal_event WHERE id = NEW.event_id) THEN
             RAISE EXCEPTION 'Proposal event with id % does not exist', NEW.event_id;
         END IF;
-    ELSIF NEW.event_type = 'help-event' THEN
+    ELSIF NEW.event_type = 'help' THEN
         IF NOT EXISTS (SELECT 1 FROM help_event WHERE id = NEW.event_id) THEN
             RAISE EXCEPTION 'Help event with id % does not exist', NEW.event_id;
         END IF;
@@ -55,7 +55,7 @@ BEGIN
         IF NOT EXISTS (SELECT 1 FROM proposal_event WHERE id = NEW.event_id) THEN
             RAISE EXCEPTION 'Proposal event with id % does not exist', NEW.event_id;
         END IF;
-    ELSIF NEW.event_type = 'help-event' THEN
+    ELSIF NEW.event_type = 'help' THEN
         IF NOT EXISTS (SELECT 1 FROM help_event WHERE id = NEW.event_id) THEN
             RAISE EXCEPTION 'Help event with id % does not exist', NEW.event_id;
         END IF;

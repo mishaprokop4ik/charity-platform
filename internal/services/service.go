@@ -9,6 +9,10 @@ import (
 
 type HelpEventer interface {
 	CreateHelpEvent(ctx context.Context, event *models.HelpEvent) (uint, error)
+	GetHelpEventByID(ctx context.Context, id models.ID) (models.HelpEvent, error)
+	GetHelpEventByTransactionID(ctx context.Context, transactionID models.ID) (models.HelpEvent, error)
+	CreateRequest(ctx context.Context, userID models.ID, transactionInfo models.TransactionAcceptCreateRequest) error
+	UpdateTransactionStatus(ctx context.Context, transaction models.HelpEventTransaction) error
 }
 
 type Service struct {

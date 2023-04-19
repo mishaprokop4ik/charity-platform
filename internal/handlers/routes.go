@@ -112,6 +112,8 @@ func (h *Handler) InitRoutes() http.Handler {
 
 	proposalEventSubRouter.HandleFunc("/tags/{id}", h.GetProposalEventTags).Methods(http.MethodGet)
 
+	h.initHelpEventHandlers(eventsSubRouter)
+
 	tags := apiRouter.PathPrefix("/tags").Subrouter()
 	tags.HandleFunc("/upsert", h.UpsertTags).Methods(http.MethodPost)
 	tags.HandleFunc("/user-search", h.UpsertUserSearch).Methods(http.MethodPost)

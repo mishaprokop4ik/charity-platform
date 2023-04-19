@@ -4,6 +4,7 @@ import (
 	"Kurajj/internal/models"
 	zlog "Kurajj/pkg/logger"
 	"context"
+	"fmt"
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 )
@@ -42,16 +43,18 @@ func (t *Transaction) updateTransactionUsers(ctx context.Context, transaction mo
 	}
 
 	transaction.Creator = creatorInfo
-
-	rootEvent := models.ProposalEvent{}
-
-	err = t.DBConnector.DB.Where("id = ?", transaction.EventID).First(&rootEvent).WithContext(ctx).Error
-	if err != nil {
-		return models.Transaction{}, err
+	var authorID uint
+	switch transaction.EventType {
+	case models.ProposalEventType:
+		authorID, err = t.getProposalEventCreator(ctx, transaction.EventID)
+	case models.HelpEventType:
+		authorID, err = t.getHelpEventCreator(ctx, transaction.EventID)
+	default:
+		return models.Transaction{}, fmt.Errorf("unexpected event type %s", transaction.EventType)
 	}
 
 	responderInfo := models.User{}
-	err = t.DBConnector.DB.Where("id = ?", rootEvent.AuthorID).First(&responderInfo).WithContext(ctx).Error
+	err = t.DBConnector.DB.Where("id = ?", authorID).First(&responderInfo).WithContext(ctx).Error
 	if err != nil {
 		return models.Transaction{}, err
 	}
@@ -59,6 +62,28 @@ func (t *Transaction) updateTransactionUsers(ctx context.Context, transaction mo
 	transaction.Responder = responderInfo
 
 	return transaction, nil
+}
+
+func (t *Transaction) getProposalEventCreator(ctx context.Context, eventID uint) (uint, error) {
+	rootEvent := models.ProposalEvent{}
+
+	err := t.DBConnector.DB.Where("id = ?", eventID).First(&rootEvent).WithContext(ctx).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return rootEvent.AuthorID, nil
+}
+
+func (t *Transaction) getHelpEventCreator(ctx context.Context, eventID uint) (uint, error) {
+	rootEvent := models.HelpEvent{}
+
+	err := t.DBConnector.DB.Where("id = ?", eventID).First(&rootEvent).WithContext(ctx).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return rootEvent.CreatedBy, nil
 }
 
 func (t *Transaction) UpdateTransactionByEvent(ctx context.Context, eventID uint, eventType models.EventType, toUpdate map[string]any) error {

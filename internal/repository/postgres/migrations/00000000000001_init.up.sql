@@ -46,9 +46,8 @@ CREATE TABLE help_event (
     creation_date timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     author_id bigint,
     category varchar,
-    address varchar,
     competition_date timestamp,
-    rate priority_rate,
+    rate priority_rate DEFAULT 'normal' NOT NULL,
     CONSTRAINT author_fk FOREIGN KEY(author_id) REFERENCES members(id)
 );
 
@@ -91,7 +90,7 @@ CREATE TABLE comment (
 );
 
 CREATE type responder_status AS ENUM ('not_started', 'in_progress', 'completed', 'aborted');
-CREATE type transaction_status AS ENUM ('waiting', 'in_progress', 'completed', 'aborted', 'canceled', 'accepted');
+CREATE type transaction_status AS ENUM ('waiting', 'in_progress', 'completed', 'aborted', 'canceled', 'accepted', 'waiting_for_approve');
 
 CREATE TABLE transaction (
     id bigserial PRIMARY KEY,
