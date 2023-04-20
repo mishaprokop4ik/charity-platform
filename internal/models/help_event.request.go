@@ -55,15 +55,34 @@ func (h *HelpEventCreateRequest) ToInternal(authorID uint) *HelpEvent {
 		Title:       h.Title,
 		Description: h.Description,
 		Needs:       needs,
-		Status:      string(InActive),
+		Status:      InActive,
 		CreatedBy:   authorID,
 	}
-	if len(h.FileBytes) == 0 {
+	if len(h.FileBytes) == 0 || h.FileType == "" {
 		event.ImagePath = defaultImagePath
-	} else {
+	} else if len(h.FileBytes) != 0 && h.FileType != "" {
 		event.FileType = h.FileType
 		event.File = bytes.NewBuffer(h.FileBytes)
 	}
+
+	tags := make([]Tag, len(h.Tags))
+	for i := 0; i < len(h.Tags); i++ {
+
+		tagValues := make([]TagValue, len(h.Tags[i].Values))
+		for j, value := range h.Tags[i].Values {
+			tagValues[j] = TagValue{
+				Value: value,
+			}
+		}
+
+		tags[i] = Tag{
+			Title:     h.Tags[i].Title,
+			EventType: HelpEventType,
+			Values:    tagValues,
+		}
+	}
+
+	event.Tags = tags
 
 	return event
 }

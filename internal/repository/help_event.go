@@ -17,6 +17,11 @@ type HelpEvent struct {
 	Filer
 }
 
+func (h *HelpEvent) UpdateHelpEvent(ctx context.Context, event models.HelpEvent) error {
+	err := h.DB.Model(&event).Updates(event).WithContext(ctx).Error
+	return err
+}
+
 func (h *HelpEvent) UpdateNeeds(ctx context.Context, needs ...models.Need) error {
 	tx := h.DB.Begin()
 	for _, need := range needs {
@@ -135,6 +140,9 @@ func (h *HelpEvent) CreateEvent(ctx context.Context, event *models.HelpEvent) (u
 		return 0, err
 	}
 	if len(event.Tags) != 0 {
+		for i := range event.Tags {
+			event.Tags[i].EventID = event.ID
+		}
 		if err := tx.Create(event.Tags).WithContext(ctx).Error; err != nil {
 			tx.Rollback()
 			return 0, err

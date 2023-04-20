@@ -48,8 +48,15 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 				return fmt.Errorf("cannot find need with %s title", eventNeeds[i].Title)
 			}
 			eventNeeds[i].ReceivedTotal = transactionNeed.ReceivedTotal
+			//transaction.Needs[transactionNeedIndex].ReceivedTotal = transactionNeed.ReceivedTotal
+			//transaction.Needs[transactionNeedIndex].Received = transactionNeed.ReceivedTotal
 		}
 		err = h.updateNeeds(ctx, eventNeeds...)
+		if err != nil {
+			return err
+		}
+
+		err = h.CompleteHelpEvent(ctx, *transaction.HelpEventID, eventNeeds)
 		if err != nil {
 			return err
 		}
@@ -78,6 +85,28 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 	})
 
 	return err
+}
+
+func (h *HelpEvent) CompleteHelpEvent(ctx context.Context, helpEventID uint, eventNeeds []models.Need) error {
+	allNeedsCompleted := lo.CountBy(eventNeeds, func(n models.Need) bool {
+		return n.Amount == n.ReceivedTotal
+	}) == len(eventNeeds)
+
+	if allNeedsCompleted {
+		oldHelpEvent, err := h.repo.HelpEvent.GetEventByID(ctx, models.ID(helpEventID))
+		if err != nil {
+			return err
+		}
+
+		oldHelpEvent.Status = models.Done
+
+		err = h.repo.HelpEvent.UpdateHelpEvent(ctx, oldHelpEvent)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (h *HelpEvent) CreateHelpEvent(ctx context.Context, event *models.HelpEvent) (uint, error) {
