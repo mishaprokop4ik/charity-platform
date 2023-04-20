@@ -97,9 +97,14 @@ func (u User) GetUserFullResponse(tokens Tokens) SignedInUser {
 		secondName = fullName[1]
 	}
 	address, _ := u.getAddress()
-	searchValues := make([]SearchValueResponse, len(u.UserSearchValues))
-	for i, searchValue := range u.UserSearchValues {
-		searchValues[i] = searchValue.Response()
+	proposalSearchValues := make([]SearchValueResponse, 0)
+	helpEventSearchValues := make([]SearchValueResponse, 0)
+	for _, searchValue := range u.UserSearchValues {
+		if searchValue.EventType == ProposalEventType {
+			proposalSearchValues = append(proposalSearchValues, searchValue.Response())
+		} else if searchValue.EventType == HelpEventType {
+			helpEventSearchValues = append(helpEventSearchValues, searchValue.Response())
+		}
 	}
 	return SignedInUser{
 		ID:                        int(u.ID),
@@ -112,7 +117,8 @@ func (u User) GetUserFullResponse(tokens Tokens) SignedInUser {
 		Avatar:                    u.AvatarImagePath,
 		AccessToken:               tokens.Access,
 		RefreshToken:              tokens.Refresh,
-		ProposalEventSearchValues: searchValues,
+		ProposalEventSearchValues: proposalSearchValues,
+		HelpEventSearchValues:     helpEventSearchValues,
 		TransactionNotifications:  GenerateNotificationResponses(u.TransactionNotification),
 	}
 }
