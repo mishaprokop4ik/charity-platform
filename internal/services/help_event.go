@@ -94,10 +94,10 @@ func (h *HelpEvent) GetHelpEventByID(ctx context.Context, id models.ID) (models.
 	return helpEvent, nil
 }
 
-func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transactionInfo models.TransactionAcceptCreateRequest) error {
+func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transactionInfo models.TransactionAcceptCreateRequest) (uint, error) {
 	helpEvent, err := h.repo.HelpEvent.GetEventByID(ctx, models.ID(transactionInfo.ID))
 	if err != nil {
-		return err
+		return 0, err
 	}
 	//if models.ID(helpEvent.CreatedBy) == userID {
 	//	return fmt.Errorf("event creator cannot response his/her own events")
@@ -122,12 +122,12 @@ func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transac
 		ResponderStatus:   models.NotStarted,
 	})
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	helpEventNeeds, err := h.repo.HelpEvent.GetHelpEventNeeds(ctx, models.ID(transactionInfo.ID))
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	for i := range helpEventNeeds {
@@ -136,7 +136,7 @@ func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transac
 		helpEventNeeds[i].Received = 0
 		_, err := h.repo.HelpEvent.CreateNeed(ctx, helpEventNeeds[i])
 		if err != nil {
-			return err
+			return 0, err
 		}
 	}
 
@@ -150,7 +150,7 @@ func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transac
 		MemberID:      helpEvent.CreatedBy,
 	})
 
-	return err
+	return transactionID, err
 }
 
 func (h *HelpEvent) createNotification(ctx context.Context, notification models.TransactionNotification) error {

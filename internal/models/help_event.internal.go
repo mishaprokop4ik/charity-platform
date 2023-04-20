@@ -89,7 +89,6 @@ func (h *HelpEvent) Response() HelpEventResponse {
 	helpEventResponse.Tags = tags
 	transactions := make([]HelpEventTransactionResponse, len(h.Transactions))
 	for i := range h.Transactions {
-		// TODO add old transaction fields
 		needs := make([]NeedResponse, len(h.TransactionNeeds[ID(h.Transactions[i].ID)]))
 		for j := range h.TransactionNeeds[ID(h.Transactions[i].ID)] {
 			needs[j] = NeedResponse{

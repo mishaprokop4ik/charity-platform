@@ -54,6 +54,7 @@ func (h *Handler) InitRoutes() http.Handler {
 		Methods(http.MethodGet)
 	openAPI.HandleFunc("/proposal/", h.GetProposalEvents).
 		Methods(http.MethodGet)
+	openAPI.HandleFunc("/help/{id}", h.handleGetHelpEventByID).Methods(http.MethodGet)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(h.Authentication)

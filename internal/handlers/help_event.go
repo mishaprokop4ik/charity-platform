@@ -17,7 +17,6 @@ func (h *Handler) initHelpEventHandlers(events *mux.Router) {
 	helpEvent.HandleFunc("/create", h.handleCreateHelpEvent).Methods(http.MethodPost)
 	helpEvent.HandleFunc("/response", h.handleApplyTransaction).Methods(http.MethodPost)
 	helpEvent.HandleFunc("/transaction", h.handleUpdateTransactionResponseHelpEvent).Methods(http.MethodPut)
-	helpEvent.HandleFunc("/{id}", h.handleGetHelpEventByID).Methods(http.MethodGet)
 }
 
 // GetHelpEventByID gets help event by id
@@ -33,7 +32,7 @@ func (h *Handler) initHelpEventHandlers(events *mux.Router) {
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/events/help/{id} [get]
+// @Router       /api/open-api/help/{id} [get]
 func (h *Handler) handleGetHelpEventByID(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -274,7 +273,7 @@ func (h *Handler) handleApplyTransaction(w http.ResponseWriter, r *http.Request)
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
 		return
 	}
-	eventch := make(chan errResponse)
+	eventch := make(chan idResponse)
 	transactionInfo, err := models.UnmarshalTransactionAcceptCreateRequest(&r.Body)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
@@ -283,9 +282,10 @@ func (h *Handler) handleApplyTransaction(w http.ResponseWriter, r *http.Request)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err := h.services.HelpEvent.CreateRequest(ctx, models.ID(userID.(uint)), transactionInfo)
+		transactionID, err := h.services.HelpEvent.CreateRequest(ctx, models.ID(userID.(uint)), transactionInfo)
 
-		eventch <- errResponse{
+		eventch <- idResponse{
+			id:  int(transactionID),
 			err: err,
 		}
 	}()
@@ -303,7 +303,7 @@ func (h *Handler) handleApplyTransaction(w http.ResponseWriter, r *http.Request)
 			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
 			return
 		}
-		w.WriteHeader(http.StatusOK)
+		httpHelper.SendHTTPResponse(w, models.CreationResponse{ID: resp.id})
 	}
 }
 

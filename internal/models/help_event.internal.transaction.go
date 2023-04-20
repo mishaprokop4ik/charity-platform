@@ -3,12 +3,12 @@ package models
 import "time"
 
 type HelpEventTransactionResponse struct {
-	TransactionID         uint              `json:"transactionID"`
+	TransactionID         uint              `json:"id"`
 	Needs                 []NeedResponse    `json:"needs"`
 	CompetitionDate       string            `json:"competitionDate"`
 	IsApproved            bool              `json:"isApproved"`
 	CompletionPercentages float64           `json:"completionPercentages"`
-	CreatorID             uint              `json:"creatorID"`
+	CreatorID             uint              `json:"receiverID"`
 	Receiver              UserShortInfo     `json:"receiver"`
 	CreationDate          time.Time         `json:"creationDate"`
 	EventID               uint              `json:"eventID"`
@@ -22,8 +22,8 @@ type HelpEventTransactionResponse struct {
 
 type HelpEventTransaction struct {
 	Needs                                    []Need
-	Received                                 int
-	ReceivedTotal                            int
+	Received                                 float64
+	ReceivedTotal                            float64
 	CompetitionDate                          time.Time
 	CompletionPercentages                    int
 	HelpEventCreatorID, TransactionCreatorID uint

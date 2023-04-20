@@ -7,9 +7,9 @@ import (
 )
 
 type NeedRequestCreate struct {
-	Title  string `json:"title" validate:"required"`
-	Amount int    `json:"amount" validate:"required,gte=0,lte=50"`
-	Unit   Unit   `json:"unit" validate:"oneof=kilogram liter item work"`
+	Title  string  `json:"title" validate:"required"`
+	Amount float64 `json:"amount" validate:"required,gte=0,lte=50"`
+	Unit   Unit    `json:"unit" validate:"oneof=kilogram liter item work"`
 }
 
 func (n *NeedRequestCreate) Validate() error {
@@ -40,19 +40,19 @@ const (
 )
 
 type NeedResponse struct {
-	ID            uint   `json:"id"`
-	Title         string `json:"title"`
-	Amount        int    `json:"amount"`
-	ReceivedTotal int    `json:"receivedTotal"`
-	Received      int    `json:"received"`
-	Unit          Unit   `json:"unit"`
+	ID            uint    `json:"id"`
+	Title         string  `json:"title"`
+	Amount        float64 `json:"amount"`
+	ReceivedTotal float64 `json:"receivedTotal"`
+	Received      float64 `json:"received"`
+	Unit          Unit    `json:"unit"`
 }
 
 type NeedTransactionUpdateRequest struct {
-	ID       uint   `json:"id"`
-	Title    string `json:"title"`
-	Received int    `json:"received"`
-	Unit     Unit   `json:"unit"`
+	ID       uint    `json:"id"`
+	Title    string  `json:"title"`
+	Received float64 `json:"received"`
+	Unit     Unit    `json:"unit"`
 }
 
 type HelpEventResponse struct {

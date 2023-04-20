@@ -4,7 +4,7 @@ CREATE OR REPLACE FUNCTION check_event_exists()
 BEGIN
     -- Check if the event with corresponding id exists based on event_type
     IF NEW.event_type = 'proposal-event' THEN
-        IF NOT EXISTS (SELECT 1 FROM proposal_event WHERE id = NEW.event_id) THEN
+        IF NOT EXISTS (SELECT 1 FROM propositional_event WHERE id = NEW.event_id) THEN
             RAISE EXCEPTION 'Proposal event with id % does not exist', NEW.event_id;
         END IF;
     ELSIF NEW.event_type = 'help' THEN
@@ -28,7 +28,7 @@ CREATE OR REPLACE FUNCTION transaction_check_event_exists()
 BEGIN
     -- Check if the event with corresponding id exists based on event_type
     IF NEW.event_type = 'proposal-event' THEN
-        IF NOT EXISTS (SELECT 1 FROM proposal_event WHERE id = NEW.event_id) THEN
+        IF NOT EXISTS (SELECT 1 FROM propositional_event WHERE id = NEW.event_id) THEN
             RAISE EXCEPTION 'Proposal event with id % does not exist', NEW.event_id;
         END IF;
     ELSIF NEW.event_type = 'help' THEN
@@ -52,7 +52,7 @@ CREATE OR REPLACE FUNCTION notification_check_event_exists()
 BEGIN
     -- Check if the event with corresponding id exists based on event_type
     IF NEW.event_type = 'proposal-event' THEN
-        IF NOT EXISTS (SELECT 1 FROM proposal_event WHERE id = NEW.event_id) THEN
+        IF NOT EXISTS (SELECT 1 FROM propositional_event WHERE id = NEW.event_id) THEN
             RAISE EXCEPTION 'Proposal event with id % does not exist', NEW.event_id;
         END IF;
     ELSIF NEW.event_type = 'help' THEN
