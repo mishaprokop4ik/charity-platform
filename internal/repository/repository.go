@@ -13,6 +13,9 @@ type HelpEventer interface {
 	UpdateNeeds(ctx context.Context, needs ...models.Need) error
 	GetHelpEventByTransactionID(ctx context.Context, transactionID models.ID) (models.HelpEvent, error)
 	UpdateHelpEvent(ctx context.Context, event models.HelpEvent) error
+	GetUserHelpEvents(ctx context.Context, userID models.ID) ([]models.HelpEvent, error)
+	GetEventsWithSearchAndSort(ctx context.Context,
+		searchValues models.HelpSearchInternal) (models.HelpEventPagination, error)
 }
 
 type Repository struct {

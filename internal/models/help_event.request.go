@@ -94,3 +94,33 @@ func NewHelpEventCreateRequest(reader *io.ReadCloser) (*HelpEventCreateRequest, 
 
 	return event, err
 }
+
+type HelpEventsResponse struct {
+	Events []HelpEventResponse `json:"events"`
+}
+
+type HelpEventsItems struct {
+	HelpEvents []HelpEventResponse `json:"items"`
+}
+
+type HelpEventsWithPagination struct {
+	HelpEventsItems
+	Pagination
+}
+
+func CreateHelpEventsResponse(events []HelpEvent) HelpEventsResponse {
+	response := HelpEventsResponse{
+		Events: make([]HelpEventResponse, len(events)),
+	}
+
+	for i := range events {
+		response.Events[i] = events[i].Response()
+	}
+
+	return response
+}
+
+func (h *HelpEventsResponse) Bytes() []byte {
+	bytes, _ := json.Marshal(h)
+	return bytes
+}
