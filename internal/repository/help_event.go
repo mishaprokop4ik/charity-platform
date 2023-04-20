@@ -4,6 +4,7 @@ import (
 	"Kurajj/internal/models"
 	zlog "Kurajj/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
@@ -301,6 +302,15 @@ func (h *HelpEvent) insertHelpEventMissingData(ctx context.Context, event *model
 	if err != nil {
 		return err
 	}
+	for i := range tags {
+		tagValues := make([]models.TagValue, 0)
+		err = h.DB.Where("tag_id = ?", tags[i].ID).Find(&tagValues).WithContext(ctx).Error
+		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+		fmt.Println(tagValues)
+		tags[i].Values = tagValues
+	}
 	event.Tags = tags
 	comments := make([]models.Comment, 0)
 	err = h.DB.Where("event_type = ?", models.HelpEventType).Where("event_id = ?", event.ID).Find(&comments).WithContext(ctx).Error
@@ -366,6 +376,14 @@ func (h *HelpEvent) CreateEvent(ctx context.Context, event *models.HelpEvent) (u
 		if err := tx.Create(event.Tags).WithContext(ctx).Error; err != nil {
 			tx.Rollback()
 			return 0, err
+		}
+		for i := range event.Tags {
+			if len(event.Tags[i].Values) != 0 {
+				if err := tx.Create(event.Tags[i].Values).WithContext(ctx).Error; err != nil {
+					tx.Rollback()
+					return 0, err
+				}
+			}
 		}
 	}
 
