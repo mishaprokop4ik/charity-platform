@@ -28,6 +28,11 @@ type getProposalEventPagination struct {
 	err  error
 }
 
+type getHelpEventPagination struct {
+	resp models.HelpEventsWithPagination
+	err  error
+}
+
 type getTagsResponse struct {
 	tags []models.Tag
 	err  error
@@ -55,6 +60,11 @@ type getProposalEvent struct {
 type getHelpEvent struct {
 	helpEvent models.HelpEvent
 	err       error
+}
+
+type helpEventsResponse struct {
+	events []models.HelpEvent
+	err    error
 }
 
 type getProposalStatistics struct {

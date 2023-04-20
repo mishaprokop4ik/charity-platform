@@ -1,0 +1,3 @@
+BEGIN;
+ALTER TABLE help_event ADD COLUMN is_deleted BOOLEAN DEFAULT false NOT NULL;
+END;

@@ -13,6 +13,9 @@ type HelpEventer interface {
 	GetHelpEventByTransactionID(ctx context.Context, transactionID models.ID) (models.HelpEvent, error)
 	CreateRequest(ctx context.Context, userID models.ID, transactionInfo models.TransactionAcceptCreateRequest) (uint, error)
 	UpdateTransactionStatus(ctx context.Context, transaction models.HelpEventTransaction) error
+	GetUserHelpEvents(ctx context.Context, userID models.ID) ([]models.HelpEvent, error)
+	GetHelpEventBySearch(ctx context.Context, search models.HelpSearchInternal) (models.HelpEventPagination, error)
+	UpdateEvent(ctx context.Context, event models.HelpEvent) error
 }
 
 type Service struct {

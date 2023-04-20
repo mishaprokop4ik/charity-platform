@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"Kurajj/internal/models"
+	"Kurajj/internal/models/search"
 	httpHelper "Kurajj/pkg/http"
 	zlog "Kurajj/pkg/logger"
 	"context"
@@ -17,6 +18,8 @@ func (h *Handler) initHelpEventHandlers(events *mux.Router) {
 	helpEvent.HandleFunc("/create", h.handleCreateHelpEvent).Methods(http.MethodPost)
 	helpEvent.HandleFunc("/response", h.handleApplyTransaction).Methods(http.MethodPost)
 	helpEvent.HandleFunc("/transaction", h.handleUpdateTransactionResponseHelpEvent).Methods(http.MethodPut)
+	helpEvent.HandleFunc("/own", h.handleGetOwnHelpEvents).Methods(http.MethodGet)
+	helpEvent.HandleFunc("/{id}", h.handleUpdateHelpEvent).Methods(http.MethodPut)
 }
 
 // GetHelpEventByID gets help event by id
@@ -164,15 +167,137 @@ func (h *Handler) GetTransactionByID(w http.ResponseWriter, r *http.Request) {
 	panic("implement me")
 }
 
-func (h *Handler) GetTransactions(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+// handleUpdateHelpEvent updates a help event
+// @Summary      Update help event
+// @SearchValuesResponse         Help Event
+// @Accept       json
+// @Produce      json
+// @Param request body models.HelpEventRequestUpdate true "query params"
+// @Param        id   path int  true  "ID"
+// @Success      200
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/update/{id} [put]
+func (h *Handler) handleUpdateHelpEvent(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	event, err := models.UnmarshalHelpEventUpdate(&r.Body)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	id, ok := mux.Vars(r)["id"]
+	parsedID, err := strconv.Atoi(id)
+	if !ok || err != nil {
+		response := "there is no id for updating proposal event in URL"
+		if err != nil {
+			response = err.Error()
+		}
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
+		return
+	}
+	event.ID = uint(parsedID)
+
+	eventch := make(chan errResponse)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		err = h.services.HelpEvent.UpdateEvent(ctx, event.Internal())
+
+		eventch <- errResponse{
+			err: err,
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "creating proposal event took too long")
+		return
+	case resp := <-eventch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.ErrNotFound.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		if err != nil {
+			return
+		}
+	}
 }
 
-func (h *Handler) handleResponseHelpEvent(w http.ResponseWriter, r *http.Request) {
-	// TODO create transaction
+// handleSearchHelpEvents gets models.HelpEventsResponse by given order and filter values
+// @Param        id   path int  true  "ID"
+// @Summary      Return help events by given order and filter values
+// @Param request body search.AllEventsSearch true "query params"
+// @SearchValuesResponse         Proposal Event
+// @Accept       json
+// @Success      200  {object}  models.HelpEventsWithPagination
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /open-api/help-search [post]
+func (h *Handler) handleSearchHelpEvents(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
 
-	panic("implement me")
+	searchValues, err := search.UnmarshalAllEventsSearch(&r.Body)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	userID := r.Context().Value(MemberIDContextKey)
+	searchValuesInternal := searchValues.Internal()
+	if userID != nil {
+		userIDParsed, ok := userID.(uint)
+		if !ok {
+			httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
+			return
+		}
+		searchValuesInternal.SearcherID = &userIDParsed
+	}
+	eventch := make(chan getHelpEventPagination)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		events, respError := h.services.HelpEvent.GetHelpEventBySearch(ctx, models.HelpSearchInternal(searchValuesInternal))
+
+		eventch <- getHelpEventPagination{
+			resp: models.HelpEventsWithPagination{
+				HelpEventsItems: models.GetHelpEventItems(events.Events...),
+				Pagination:      events.Pagination,
+			},
+			err: respError,
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "getting all transactions for proposal event took too long")
+		return
+	case resp := <-eventch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.ErrNotFound.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+
+		w.WriteHeader(http.StatusOK)
+		err = httpHelper.SendHTTPResponse(w, resp.resp)
+		if err != nil {
+			zlog.Log.Error(err, "could not send proposal events")
+		}
+	}
 }
 
 // handleUpdateTransactionResponseHelpEvent updates transaction status and if requester is a creator of event updates event.
@@ -312,15 +437,48 @@ func (h *Handler) handleApplyTransaction(w http.ResponseWriter, r *http.Request)
 // @Tags         Help Event
 // @Accept       json
 // @Produce      json
-// @Param request body models.TransactionAcceptCreateRequest true "query params"
-// @Success      201  {object}  models.CreationResponse
+// @Success      201  {object}  models.HelpEventsResponse
 // @Failure      401  {object}  models.ErrResponse
 // @Failure      403  {object}  models.ErrResponse
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/events/help/response [post]
+// @Router       /api/events/help/own [get]
 func (h *Handler) handleGetOwnHelpEvents(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+	defer r.Body.Close()
+	userID := r.Context().Value("id")
+	if userID == "" {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
+		return
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	eventch := make(chan helpEventsResponse)
+	defer cancel()
+	go func() {
+		events, err := h.services.HelpEvent.GetUserHelpEvents(ctx, models.ID(userID.(uint)))
+
+		eventch <- helpEventsResponse{
+			events: events,
+			err:    err,
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "getting help events took too long")
+		return
+	case resp := <-eventch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.ErrNotFound.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+
+		helpEventsResponse := models.CreateHelpEventsResponse(resp.events)
+
+		httpHelper.SendHTTPResponse(w, &helpEventsResponse)
+	}
 }

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
 	"io"
+	"time"
 )
 
 const defaultImagePath = "https://charity-platform.s3.amazonaws.com/images/volunteer-care-old-people-nurse-isolated-young-human-helping-senior-volunteers-service-helpful-person-nursing-elderly-decent-vector-set_53562-17770.avif"
@@ -93,4 +94,66 @@ func NewHelpEventCreateRequest(reader *io.ReadCloser) (*HelpEventCreateRequest, 
 	err := decoder.Decode(&event)
 
 	return event, err
+}
+
+type HelpEventsResponse struct {
+	Events []HelpEventResponse `json:"events"`
+}
+
+type HelpEventsItems struct {
+	HelpEvents []HelpEventResponse `json:"items"`
+}
+
+type HelpEventsWithPagination struct {
+	HelpEventsItems
+	Pagination
+}
+
+func CreateHelpEventsResponse(events []HelpEvent) HelpEventsResponse {
+	response := HelpEventsResponse{
+		Events: make([]HelpEventResponse, len(events)),
+	}
+
+	for i := range events {
+		response.Events[i] = events[i].Response()
+	}
+
+	return response
+}
+
+func (h *HelpEventsResponse) Bytes() []byte {
+	bytes, _ := json.Marshal(h)
+	return bytes
+}
+
+type HelpEventRequestUpdate struct {
+	ID              uint        `json:"id"`
+	Title           string      `json:"title"`
+	Description     string      `json:"description"`
+	CompetitionDate time.Time   `json:"competitionDate"`
+	Status          EventStatus `json:"status"`
+	FileBytes       []byte      `json:"fileBytes"`
+	FileType        string      `json:"fileType"`
+}
+
+func UnmarshalHelpEventUpdate(r *io.ReadCloser) (HelpEventRequestUpdate, error) {
+	e := HelpEventRequestUpdate{}
+	err := json.NewDecoder(*r).Decode(&e)
+	return e, err
+}
+
+func (p *HelpEventRequestUpdate) Internal() HelpEvent {
+	event := HelpEvent{
+		ID:             p.ID,
+		Title:          p.Title,
+		Description:    p.Description,
+		Status:         p.Status,
+		CompletionTime: p.CompetitionDate,
+	}
+	if len(p.FileBytes) != 0 {
+		event.File = bytes.NewReader(p.FileBytes)
+		event.FileType = p.FileType
+	}
+
+	return event
 }

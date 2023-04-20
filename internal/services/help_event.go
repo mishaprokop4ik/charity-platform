@@ -19,6 +19,18 @@ type HelpEvent struct {
 	repo *repository.Repository
 }
 
+func (h *HelpEvent) UpdateEvent(ctx context.Context, event models.HelpEvent) error {
+	return h.repo.HelpEvent.UpdateHelpEvent(ctx, event)
+}
+
+func (h *HelpEvent) GetHelpEventBySearch(ctx context.Context, search models.HelpSearchInternal) (models.HelpEventPagination, error) {
+	return h.repo.HelpEvent.GetEventsWithSearchAndSort(ctx, search)
+}
+
+func (h *HelpEvent) GetUserHelpEvents(ctx context.Context, userID models.ID) ([]models.HelpEvent, error) {
+	return h.repo.HelpEvent.GetUserHelpEvents(ctx, userID)
+}
+
 func (h *HelpEvent) GetHelpEventByTransactionID(ctx context.Context, transactionID models.ID) (models.HelpEvent, error) {
 	return h.repo.HelpEvent.GetHelpEventByTransactionID(ctx, transactionID)
 }
@@ -55,10 +67,11 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 		if err != nil {
 			return err
 		}
-
-		err = h.CompleteHelpEvent(ctx, *transaction.HelpEventID, eventNeeds)
-		if err != nil {
-			return err
+		if transaction.TransactionStatus == models.Completed {
+			err = h.CompleteHelpEvent(ctx, *transaction.HelpEventID, eventNeeds)
+			if err != nil {
+				return err
+			}
 		}
 	} else {
 		notificationReceiver = transaction.HelpEventCreatorID
