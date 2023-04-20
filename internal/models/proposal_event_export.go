@@ -144,7 +144,7 @@ type ProposalEventRequestUpdate struct {
 
 func (p *ProposalEventRequestUpdate) Internal() ProposalEvent {
 	event := ProposalEvent{
-		ID:          uint(p.ID),
+		ID:          p.ID,
 		Title:       p.Title,
 		Description: p.Description,
 		Status:      p.Status,

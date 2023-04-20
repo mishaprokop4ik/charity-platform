@@ -19,6 +19,10 @@ type HelpEvent struct {
 	repo *repository.Repository
 }
 
+func (h *HelpEvent) UpdateEvent(ctx context.Context, event models.HelpEvent) error {
+	return h.repo.HelpEvent.UpdateHelpEvent(ctx, event)
+}
+
 func (h *HelpEvent) GetHelpEventBySearch(ctx context.Context, search models.HelpSearchInternal) (models.HelpEventPagination, error) {
 	return h.repo.HelpEvent.GetEventsWithSearchAndSort(ctx, search)
 }

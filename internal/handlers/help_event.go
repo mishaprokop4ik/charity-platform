@@ -19,6 +19,7 @@ func (h *Handler) initHelpEventHandlers(events *mux.Router) {
 	helpEvent.HandleFunc("/response", h.handleApplyTransaction).Methods(http.MethodPost)
 	helpEvent.HandleFunc("/transaction", h.handleUpdateTransactionResponseHelpEvent).Methods(http.MethodPut)
 	helpEvent.HandleFunc("/own", h.handleGetOwnHelpEvents).Methods(http.MethodGet)
+	helpEvent.HandleFunc("/{id}", h.handleUpdateHelpEvent).Methods(http.MethodPut)
 }
 
 // GetHelpEventByID gets help event by id
@@ -166,9 +167,68 @@ func (h *Handler) GetTransactionByID(w http.ResponseWriter, r *http.Request) {
 	panic("implement me")
 }
 
-func (h *Handler) GetTransactions(w http.ResponseWriter, r *http.Request) {
-	//TODO implement me
-	panic("implement me")
+// handleUpdateHelpEvent updates a help event
+// @Summary      Update help event
+// @SearchValuesResponse         Help Event
+// @Accept       json
+// @Produce      json
+// @Param request body models.HelpEventRequestUpdate true "query params"
+// @Param        id   path int  true  "ID"
+// @Success      200
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /api/events/proposal/update/{id} [put]
+func (h *Handler) handleUpdateHelpEvent(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	event, err := models.UnmarshalHelpEventUpdate(&r.Body)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	id, ok := mux.Vars(r)["id"]
+	parsedID, err := strconv.Atoi(id)
+	if !ok || err != nil {
+		response := "there is no id for updating proposal event in URL"
+		if err != nil {
+			response = err.Error()
+		}
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
+		return
+	}
+	event.ID = uint(parsedID)
+
+	eventch := make(chan errResponse)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		err = h.services.HelpEvent.UpdateEvent(ctx, event.Internal())
+
+		eventch <- errResponse{
+			err: err,
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "creating proposal event took too long")
+		return
+	case resp := <-eventch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.ErrNotFound.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+		w.WriteHeader(http.StatusOK)
+		if err != nil {
+			return
+		}
+	}
 }
 
 // handleSearchHelpEvents gets models.HelpEventsResponse by given order and filter values

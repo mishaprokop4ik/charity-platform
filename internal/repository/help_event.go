@@ -228,7 +228,7 @@ func (h *HelpEvent) calculatePagination(ctx context.Context, searchValues models
 }
 
 func (h *HelpEvent) UpdateHelpEvent(ctx context.Context, event models.HelpEvent) error {
-	err := h.DB.Model(&event).Updates(event).WithContext(ctx).Error
+	err := h.DB.Model(&event).Updates(event).Where("id = ?", event.ID).WithContext(ctx).Error
 	return err
 }
 
