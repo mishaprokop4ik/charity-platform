@@ -2020,14 +2020,14 @@ const docTemplate = `{
                 "creationDate": {
                     "type": "string"
                 },
-                "creatorID": {
-                    "type": "integer"
-                },
                 "eventID": {
                     "type": "integer"
                 },
                 "eventType": {
                     "$ref": "#/definitions/Kurajj_internal_models.EventType"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "isApproved": {
                     "type": "boolean"
@@ -2041,6 +2041,9 @@ const docTemplate = `{
                 "receiver": {
                     "$ref": "#/definitions/Kurajj_internal_models.UserShortInfo"
                 },
+                "receiverID": {
+                    "type": "integer"
+                },
                 "reportURL": {
                     "type": "string"
                 },
@@ -2049,9 +2052,6 @@ const docTemplate = `{
                 },
                 "responderStatus": {
                     "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
-                },
-                "transactionID": {
-                    "type": "integer"
                 },
                 "transactionStatus": {
                     "$ref": "#/definitions/Kurajj_internal_models.TransactionStatus"
@@ -2131,7 +2131,7 @@ const docTemplate = `{
             ],
             "properties": {
                 "amount": {
-                    "type": "integer",
+                    "type": "number",
                     "maximum": 50,
                     "minimum": 0
                 },
@@ -2153,16 +2153,16 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "amount": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "id": {
                     "type": "integer"
                 },
                 "received": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "receivedTotal": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "title": {
                     "type": "string"
@@ -2179,7 +2179,7 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "received": {
-                    "type": "integer"
+                    "type": "number"
                 },
                 "title": {
                     "type": "string"
