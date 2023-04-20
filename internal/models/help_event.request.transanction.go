@@ -66,7 +66,7 @@ func (h *HelpEventTransactionUpdateRequest) Validate() error {
 	if err := helpEventValidator.Struct(h); err != nil {
 		return err
 	}
-	if h.Status == Completed && (len(h.FileBytes) == 0 || h.FileType == "") {
+	if h.Status == WaitingForApprove && (len(h.FileBytes) == 0 || h.FileType == "") {
 		return fmt.Errorf("requires file when status is changed to completed")
 	}
 
