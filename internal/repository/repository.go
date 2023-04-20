@@ -12,6 +12,7 @@ type HelpEventer interface {
 	CreateNeed(ctx context.Context, need models.Need) (uint, error)
 	UpdateNeeds(ctx context.Context, needs ...models.Need) error
 	GetHelpEventByTransactionID(ctx context.Context, transactionID models.ID) (models.HelpEvent, error)
+	UpdateHelpEvent(ctx context.Context, event models.HelpEvent) error
 }
 
 type Repository struct {

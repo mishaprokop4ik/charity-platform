@@ -14,7 +14,7 @@ type HelpEvent struct {
 	Description           string        `gorm:"column:description"`
 	Needs                 []Need        `gorm:"gorm:foreignkey:HelpEventID"`
 	Tags                  []Tag         `gorm:"-"`
-	Status                string        `gorm:"column:status"`
+	Status                EventStatus   `gorm:"column:status"`
 	CreatedBy             uint          `gorm:"column:created_by"`
 	CreatedAt             time.Time     `gorm:"column:created_at"`
 	CompletionTime        time.Time     `gorm:"column:completion_time"`
