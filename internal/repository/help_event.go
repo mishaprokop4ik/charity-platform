@@ -21,6 +21,12 @@ type HelpEvent struct {
 	Filer
 }
 
+func (h *HelpEvent) GetTransactionNeeds(ctx context.Context, transactionID models.ID) ([]models.Need, error) {
+	needs := make([]models.Need, 0)
+	err := h.DB.Where("transaction_id = ?", transactionID).Find(&needs).WithContext(ctx).Error
+	return needs, err
+}
+
 const defaultHelpSortField = "created_at"
 
 func (h *HelpEvent) GetEventsWithSearchAndSort(ctx context.Context,
