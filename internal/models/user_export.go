@@ -166,6 +166,7 @@ type SignedInUser struct {
 	Avatar                    string                 `json:"profileImageURL"`
 	RefreshToken              string                 `json:"refreshToken"`
 	ProposalEventSearchValues []SearchValueResponse  `json:"proposalEventSearchValues"`
+	HelpEventSearchValues     []SearchValueResponse  `json:"helpEventSearchValues"`
 	TransactionNotifications  []NotificationResponse `json:"transactionNotifications"`
 }
 

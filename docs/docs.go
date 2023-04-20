@@ -2290,6 +2290,9 @@ const docTemplate = `{
         "Kurajj_internal_models.MemberSearchRequestCreate": {
             "type": "object",
             "properties": {
+                "eventType": {
+                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
+                },
                 "title": {
                     "type": "string"
                 },
@@ -2701,6 +2704,12 @@ const docTemplate = `{
                 },
                 "firstName": {
                     "type": "string"
+                },
+                "helpEventSearchValues": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.SearchValueResponse"
+                    }
                 },
                 "id": {
                     "type": "integer"

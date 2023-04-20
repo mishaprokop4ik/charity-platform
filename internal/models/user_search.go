@@ -12,10 +12,11 @@ func UnmarshalSearchValuesGroupCreateRequest(r *io.ReadCloser) (MemberSearchValu
 }
 
 type MemberSearch struct {
-	ID     uint          `gorm:"primaryKey"`
-	Title  string        `gorm:"column:title"`
-	UserID uint          `gorm:"column:member_id"`
-	Values []SearchValue `gorm:"-"`
+	ID        uint          `gorm:"primaryKey"`
+	Title     string        `gorm:"column:title"`
+	EventType EventType     `gorm:"column:event_type"`
+	UserID    uint          `gorm:"column:member_id"`
+	Values    []SearchValue `gorm:"-"`
 }
 
 func (s MemberSearch) Response() SearchValueResponse {
@@ -61,8 +62,9 @@ func (s SearchValuesResponse) Bytes() []byte {
 }
 
 type MemberSearchRequestCreate struct {
-	Title  string   `json:"title"`
-	Values []string `json:"values"`
+	Title     string    `json:"title"`
+	EventType EventType `json:"eventType"`
+	Values    []string  `json:"values"`
 }
 
 type MemberSearchValuesRequestCreate struct {
@@ -81,8 +83,9 @@ func (t MemberSearchValuesRequestCreate) Internal() []MemberSearch {
 		}
 
 		search[i] = MemberSearch{
-			Title:  t.Tags[i].Title,
-			Values: searchValues,
+			EventType: t.Tags[i].EventType,
+			Title:     t.Tags[i].Title,
+			Values:    searchValues,
 		}
 	}
 	return search
