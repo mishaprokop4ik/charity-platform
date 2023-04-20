@@ -89,15 +89,16 @@ func (h *HelpEvent) Response() HelpEventResponse {
 	helpEventResponse.Tags = tags
 	transactions := make([]HelpEventTransactionResponse, len(h.Transactions))
 	for i := range h.Transactions {
-		needs := make([]NeedResponse, len(h.TransactionNeeds[ID(h.Transactions[i].ID)]))
-		for j := range h.TransactionNeeds[ID(h.Transactions[i].ID)] {
+		transactionNeeds := h.TransactionNeeds[ID(h.Transactions[i].ID)]
+		needs := make([]NeedResponse, len(transactionNeeds))
+		for j := range transactionNeeds {
 			needs[j] = NeedResponse{
-				ID:            h.Needs[j].ID,
-				Title:         h.Needs[j].Title,
-				Amount:        h.Needs[j].Amount,
-				ReceivedTotal: h.Needs[j].ReceivedTotal,
-				Received:      h.Needs[j].Received,
-				Unit:          h.Needs[j].Unit,
+				ID:            transactionNeeds[j].ID,
+				Title:         transactionNeeds[j].Title,
+				Amount:        transactionNeeds[j].Amount,
+				ReceivedTotal: transactionNeeds[j].ReceivedTotal,
+				Received:      transactionNeeds[j].Received,
+				Unit:          transactionNeeds[j].Unit,
 			}
 		}
 
