@@ -378,6 +378,9 @@ func (h *HelpEvent) CreateEvent(ctx context.Context, event *models.HelpEvent) (u
 			return 0, err
 		}
 		for i := range event.Tags {
+			for j := range event.Tags[i].Values {
+				event.Tags[i].Values[j].TagID = event.Tags[i].ID
+			}
 			if len(event.Tags[i].Values) != 0 {
 				if err := tx.Create(event.Tags[i].Values).WithContext(ctx).Error; err != nil {
 					tx.Rollback()
