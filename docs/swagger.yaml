@@ -117,6 +117,25 @@ definitions:
     - needs
     - title
     type: object
+  Kurajj_internal_models.HelpEventRequestUpdate:
+    properties:
+      competitionDate:
+        type: string
+      description:
+        type: string
+      fileBytes:
+        items:
+          type: integer
+        type: array
+      fileType:
+        type: string
+      id:
+        type: integer
+      status:
+        $ref: '#/definitions/Kurajj_internal_models.EventStatus'
+      title:
+        type: string
+    type: object
   Kurajj_internal_models.HelpEventResponse:
     properties:
       authorInfo:
@@ -142,7 +161,7 @@ definitions:
           $ref: '#/definitions/Kurajj_internal_models.NeedResponse'
         type: array
       status:
-        type: string
+        $ref: '#/definitions/Kurajj_internal_models.EventStatus'
       tags:
         items:
           $ref: '#/definitions/Kurajj_internal_models.TagResponse'
@@ -207,6 +226,34 @@ definitions:
         $ref: '#/definitions/Kurajj_internal_models.TransactionStatus'
     required:
     - status
+    type: object
+  Kurajj_internal_models.HelpEventsResponse:
+    properties:
+      events:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.HelpEventResponse'
+        type: array
+    type: object
+  Kurajj_internal_models.HelpEventsWithPagination:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/Kurajj_internal_models.HelpEventResponse'
+        type: array
+      limit:
+        type: integer
+      nextPage:
+        type: integer
+      offset:
+        type: integer
+      pageNumber:
+        type: integer
+      previousPage:
+        type: integer
+      totalPageCount:
+        type: integer
+      totalRecords:
+        type: integer
     type: object
   Kurajj_internal_models.Ids:
     properties:
@@ -729,46 +776,6 @@ paths:
       summary: Create a new admin
       tags:
       - Admin
-  /api/events/help/{id}:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.HelpEventResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "403":
-          description: Forbidden
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "408":
-          description: Request Timeout
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-      summary: Get help event by id
-      tags:
-      - Help Event
   /api/events/help/create:
     post:
       consumes:
@@ -810,10 +817,46 @@ paths:
       summary: Create a new Help event
       tags:
       - Help Event
+  /api/events/help/own:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.HelpEventsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Return all help events created by user.
+      tags:
+      - Help Event
   /api/events/help/response:
     post:
       consumes:
       - application/json
+      description: Create a new help event transaction with TransactionStatus - waiting,
+        ResponderStatus - not_started.
       parameters:
       - description: query params
         in: body
@@ -848,7 +891,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
-      summary: Return all help events created by user.
+      summary: Create a new help event transaction with TransactionStatus - waiting,
+        ResponderStatus - not_started.
       tags:
       - Help Event
   /api/events/help/transaction:
@@ -1439,6 +1483,46 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Update proposal event
+  /api/open-api/help/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.HelpEventResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Get help event by id
+      tags:
+      - Help Event
   /api/read-notifications:
     put:
       consumes:
@@ -1791,6 +1875,48 @@ paths:
       summary: Signs Up new user
       tags:
       - Auth
+  /open-api/help-search:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models_search.AllEventsSearch'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.HelpEventsWithPagination'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: Return help events by given order and filter values
   /open-api/proposal-search:
     post:
       consumes:
