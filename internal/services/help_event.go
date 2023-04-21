@@ -166,10 +166,6 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 		return err
 	}
 	var notificationReceiver uint
-	transactionNeeds, err := h.repo.HelpEvent.GetTransactionNeeds(ctx, models.ID(*transaction.TransactionID))
-	if err != nil {
-		return err
-	}
 	if transaction.EventCreator {
 		oldTransaction.UpdateStatus(!transaction.EventCreator, transaction.TransactionStatus)
 		notificationReceiver = transaction.TransactionCreatorID
@@ -182,6 +178,10 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 			return err
 		}
 		if transaction.TransactionStatus == models.Completed {
+			transactionNeeds, err := h.repo.HelpEvent.GetTransactionNeeds(ctx, models.ID(*transaction.TransactionID))
+			if err != nil {
+				return err
+			}
 			for i := range eventNeeds {
 				transactionNeed, transactionNeedIndex, _ := lo.FindIndexOf(transactionNeeds, func(n models.Need) bool {
 					return n.Title == eventNeeds[i].Title && n.Unit == eventNeeds[i].Unit && n.Amount == eventNeeds[i].Amount
@@ -189,7 +189,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 				if transactionNeedIndex == -1 {
 					continue
 				}
-				eventNeeds[i].ReceivedTotal = transactionNeed.Received
+				eventNeeds[i].ReceivedTotal = transactionNeed.Received + eventNeeds[i].ReceivedTotal
 			}
 			err = h.updateNeeds(ctx, eventNeeds...)
 			if err != nil {
