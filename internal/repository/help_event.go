@@ -400,7 +400,19 @@ func (h *HelpEvent) insertHelpEventMissingData(ctx context.Context, event *model
 		transactions[i].Creator = transactionCreator
 	}
 	event.Transactions = transactions
-	fmt.Println(event.Transactions)
+	location := models.Address{}
+	err = h.DB.
+		Where("event_type = ?", models.HelpEventType).
+		Where("event_id = ?", event.ID).
+		Find(&location).
+		WithContext(ctx).
+		Error
+
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return err
+	} else if err == nil {
+		event.Location = location
+	}
 	return nil
 }
 
