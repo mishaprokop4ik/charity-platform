@@ -182,7 +182,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 				return n.ID == eventNeeds[i].ID
 			})
 			if transactionNeedIndex == -1 {
-				return fmt.Errorf("cannot find need with %s title", eventNeeds[i].Title)
+				continue
 			}
 			eventNeeds[i].ReceivedTotal = transactionNeed.ReceivedTotal
 		}
