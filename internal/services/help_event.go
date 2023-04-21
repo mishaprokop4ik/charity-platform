@@ -182,15 +182,13 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 			return err
 		}
 		for i := range eventNeeds {
-			transactionNeed, transactionNeedIndex, _ := lo.FindIndexOf(transactionNeeds, func(n models.Need) bool {
+			transactionNeed, transactionNeedIndex, _ := lo.FindIndexOf(transaction.Needs, func(n models.Need) bool {
 				return n.Title == eventNeeds[i].Title
 			})
 			if transactionNeedIndex == -1 {
 				return fmt.Errorf("cannot find need with %s title", eventNeeds[i].Title)
 			}
 			eventNeeds[i].ReceivedTotal = transactionNeed.ReceivedTotal
-			//transaction.Needs[transactionNeedIndex].ReceivedTotal = transactionNeed.ReceivedTotal
-			//transaction.Needs[transactionNeedIndex].Received = transactionNeed.ReceivedTotal
 		}
 		err = h.updateNeeds(ctx, eventNeeds...)
 		if err != nil {
@@ -214,7 +212,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 			}
 			transactionNeeds[i].Received = transactionNeed.Received
 		}
-		err = h.updateNeeds(ctx, transactionNeeds...)
+		err = h.updateNeeds(ctx, transaction.Needs...)
 		if err != nil {
 			return err
 		}
