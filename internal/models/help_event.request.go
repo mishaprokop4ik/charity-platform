@@ -66,26 +66,47 @@ func (h *HelpEventCreateRequest) ToInternal(authorID uint) *HelpEvent {
 		event.File = bytes.NewBuffer(h.FileBytes)
 	}
 
-	tags := make([]Tag, len(h.Tags))
-	for i := 0; i < len(h.Tags); i++ {
+	location := Address{}
+	for i, t := range h.Tags {
+		if t.Title == "location" && len(t.Values) >= DecodedAddressLength {
+			if len(t.Values[0]) != 0 {
+				location.Region = t.Values[0]
+			}
+			if len(t.Values[1]) != 0 {
+				location.City = t.Values[1]
+			}
+			if len(t.Values[2]) != 0 {
+				location.District = t.Values[2]
+			}
+			if len(t.Values[3]) != 0 {
+				location.HomeLocation = t.Values[3]
+			}
+			location.EventType = HelpEventType
+			h.Tags = append(h.Tags[:i], h.Tags[i+1:]...)
+		}
+	}
 
-		tagValues := make([]TagValue, len(h.Tags[i].Values))
-		for j, value := range h.Tags[i].Values {
-			tagValues[j] = TagValue{
-				Value: value,
+	event.Tags = h.TagsInternal()
+
+	return event
+}
+
+func (h *HelpEventCreateRequest) TagsInternal() []Tag {
+	tags := make([]Tag, len(h.Tags))
+	for i, tag := range h.Tags {
+		tagValues := make([]TagValue, len(tag.Values))
+		for _, tagValue := range tag.Values {
+			tagValues[i] = TagValue{
+				Value: tagValue,
 			}
 		}
-
 		tags[i] = Tag{
-			Title:     h.Tags[i].Title,
+			Title:     tag.Title,
 			EventType: HelpEventType,
 			Values:    tagValues,
 		}
 	}
-
-	event.Tags = tags
-
-	return event
+	return tags
 }
 
 func NewHelpEventCreateRequest(reader *io.ReadCloser) (*HelpEventCreateRequest, error) {
