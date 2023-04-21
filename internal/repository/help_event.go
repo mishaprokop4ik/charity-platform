@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm"
 	"math"
 	"strings"
+	"time"
 )
 
 func NewHelpEvent(config AWSConfig, DBConnector *Connector) *HelpEvent {
@@ -21,13 +22,30 @@ type HelpEvent struct {
 	Filer
 }
 
+func (h *HelpEvent) GetStatistics(ctx context.Context, creatorID uint, from, to time.Time) ([]models.Transaction, error) {
+	transactions := []models.Transaction{}
+	err := h.DB.
+		Where("event_type = ?", models.HelpEventType).
+		Where("creator_id IN (?)", creatorID).
+		Where("creation_date >= ? AND creation_date <= ?",
+			from, to).
+		Find(&transactions).
+		WithContext(ctx).
+		Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		zlog.Log.Error(err, "could not get any transactions")
+		return transactions, nil
+	}
+
+	return transactions, err
+}
+
 func (h *HelpEvent) GetTransactionNeeds(ctx context.Context, transactionID models.ID) ([]models.Need, error) {
 	needs := make([]models.Need, 0)
 	err := h.DB.Where("transaction_id = ?", transactionID).Find(&needs).WithContext(ctx).Error
 	return needs, err
 }
-
-const defaultHelpSortField = "created_at"
 
 func (h *HelpEvent) GetEventsWithSearchAndSort(ctx context.Context,
 	searchValues models.HelpSearchInternal) (models.HelpEventPagination, error) {
@@ -120,7 +138,7 @@ func (h *HelpEvent) removeEmptySearchValues(searchValues models.HelpSearchIntern
 	}
 	newSearchValues := models.HelpSearchInternal{}
 	if searchValues.SortField == "" {
-		newSearchValues.SortField = defaultHelpSortField
+		newSearchValues.SortField = defaultSortField
 	} else {
 		newSearchValues.SortField = searchValues.SortField
 	}
@@ -297,12 +315,6 @@ func (h *HelpEvent) insertHelpEventMissingData(ctx context.Context, event *model
 		return err
 	}
 	event.Needs = eventNeeds
-	transactions := make([]models.Transaction, 0)
-	err = h.DB.Where("event_type = ?", models.HelpEventType).Where("event_id = ?", event.ID).Find(&transactions).WithContext(ctx).Error
-	if err != nil {
-		return err
-	}
-	event.Transactions = transactions
 	tags := make([]models.Tag, 0)
 	err = h.DB.Where("event_type = ?", models.HelpEventType).Where("event_id = ?", event.ID).Find(&tags).WithContext(ctx).Error
 	if err != nil {
@@ -314,12 +326,13 @@ func (h *HelpEvent) insertHelpEventMissingData(ctx context.Context, event *model
 		if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
 		}
-		fmt.Println(tagValues)
 		tags[i].Values = tagValues
 	}
 	event.Tags = tags
-	comments := make([]models.Comment, 0)
-	err = h.DB.Where("event_type = ?", models.HelpEventType).Where("event_id = ?", event.ID).Find(&comments).WithContext(ctx).Error
+	comments, err := h.getHelpEventComments(ctx, event.ID)
+	if err != nil {
+		return err
+	}
 	event.Comments = comments
 	if err != nil {
 		return err
@@ -332,7 +345,11 @@ func (h *HelpEvent) insertHelpEventMissingData(ctx context.Context, event *model
 	}
 
 	event.TransactionNeeds = map[models.ID][]models.Need{}
-
+	transactions := make([]models.Transaction, 0)
+	err = h.DB.Where("event_type = ?", models.HelpEventType).Where("event_id = ?", event.ID).Find(&transactions).WithContext(ctx).Error
+	if err != nil {
+		return err
+	}
 	for i, t := range transactions {
 		transactionNeeds := make([]models.Need, 0)
 		err = h.DB.Where("transaction_id = ?", t.ID).Find(&transactionNeeds).WithContext(ctx).Error
@@ -340,6 +357,7 @@ func (h *HelpEvent) insertHelpEventMissingData(ctx context.Context, event *model
 			return err
 		}
 		event.TransactionNeeds[models.ID(t.ID)] = transactionNeeds
+		transactions[i].Needs = transactionNeeds
 		transactionCreator := models.User{}
 		err = h.DB.Where("id = ?", t.CreatorID).Find(&transactionCreator).WithContext(ctx).Error
 		if err != nil {
@@ -347,8 +365,50 @@ func (h *HelpEvent) insertHelpEventMissingData(ctx context.Context, event *model
 		}
 		transactions[i].Creator = transactionCreator
 	}
-
+	event.Transactions = transactions
+	fmt.Println(event.Transactions)
 	return nil
+}
+
+func (h *HelpEvent) getHelpEventComments(ctx context.Context, eventID uint) ([]models.Comment, error) {
+	comments := []models.Comment{}
+	err := h.DB.
+		Where("event_type = ?", models.HelpEventType).
+		Where("event_id = ?", eventID).
+		Where("is_deleted = ?", false).
+		Find(&comments).
+		WithContext(ctx).
+		Error
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		return comments, err
+	}
+
+	for i, comment := range comments {
+		newComment, err := h.updateCommentUsers(ctx, comment)
+		if err != nil {
+			return nil, err
+		}
+		comments[i] = newComment
+	}
+
+	return comments, nil
+}
+
+func (h *HelpEvent) updateCommentUsers(ctx context.Context, comment models.Comment) (models.Comment, error) {
+	creatorInfo := models.User{}
+	err := h.DB.Where("id = ?", comment.UserID).First(&creatorInfo).WithContext(ctx).Error
+	if err != nil {
+		return models.Comment{}, err
+	}
+
+	comment.UserValues = models.UserShortInfo{
+		ID:              creatorInfo.ID,
+		Username:        creatorInfo.FullName,
+		ProfileImageURL: creatorInfo.AvatarImagePath,
+		PhoneNumber:     models.Telephone(creatorInfo.Telephone),
+	}
+
+	return comment, nil
 }
 
 func (h *HelpEvent) CreateEvent(ctx context.Context, event *models.HelpEvent) (uint, error) {

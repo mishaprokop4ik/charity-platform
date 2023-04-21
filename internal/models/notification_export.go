@@ -40,6 +40,8 @@ func GenerateNotificationResponse(notification TransactionNotification) Notifica
 	switch notification.EventType {
 	case ProposalEventType:
 		notificationType = "Propositional Event"
+	case HelpEventType:
+		notificationType = "Help Event"
 	}
 	text := ""
 	switch notification.Action {

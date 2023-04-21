@@ -47,11 +47,6 @@ type transactionsResponse struct {
 	err          error
 }
 
-type proposalEventsResponse struct {
-	events    []models.ProposalEvent
-	respError error
-}
-
 type getProposalEvent struct {
 	proposalEvent models.ProposalEventGetResponse
 	err           error
@@ -69,5 +64,10 @@ type helpEventsResponse struct {
 
 type getProposalStatistics struct {
 	statistics models.ProposalEventStatistics
+	err        error
+}
+
+type geHelpStatistics struct {
+	statistics models.HelpEventStatistics
 	err        error
 }

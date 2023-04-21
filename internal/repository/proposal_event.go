@@ -55,7 +55,6 @@ func (p *ProposalEvent) GetStatistics(ctx context.Context, creatorID uint, from,
 	for i := range proposalEvents {
 		proposalEventIds[i] = proposalEvents[i].ID
 	}
-	fmt.Println(proposalEventIds)
 	transactions := []models.Transaction{}
 	err = p.DBConnector.DB.
 		Where("event_type = ?", models.ProposalEventType).

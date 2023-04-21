@@ -80,10 +80,10 @@ func (p *ProposalEvent) generateStatistics(currentTransactions, previousTransact
 	statistics := models.ProposalEventStatistics{}
 	requests := make([]models.Request, 28)
 	currentMonthTo := time.Now()
-	currentMonthFrom := currentMonthTo.AddDate(0, 0, int(-28))
-	for i := 0; i < 28; i++ {
+	currentMonthFrom := currentMonthTo.AddDate(0, 0, -28)
+	for i := 1; i <= 28; i++ {
 		currenntDateResponse := currentMonthFrom.AddDate(0, 0, i)
-		requests[i] = models.Request{
+		requests[i-1] = models.Request{
 			Date:          fmt.Sprintf("%s %d", currenntDateResponse.Month().String(), currenntDateResponse.Day()),
 			RequestsCount: p.getRequestsCount(currentTransactions, currentMonthFrom.AddDate(0, 0, i)),
 		}
@@ -227,6 +227,11 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	if proposalEvent.AuthorID == responderID {
 		return fmt.Errorf("event creator cannot response his/her own events")
 	}
+
+	err = p.repo.ProposalEvent.UpdateEvent(ctx, models.ProposalEvent{
+		ID:             proposalEvent.ID,
+		RemainingHelps: proposalEvent.RemainingHelps - 1,
+	})
 	//TODO remove after debug
 	//for _, transaction := range proposalEvent.Transactions {
 	//	if transaction.CreatorID == responderID && lo.Contains([]models.TransactionStatus{
@@ -290,16 +295,6 @@ func (p *ProposalEvent) Accept(ctx context.Context, request models.AcceptRequest
 		IsRead:        false,
 		CreationTime:  time.Now(),
 		MemberID:      transaction.CreatorID,
-	})
-
-	proposalEvent, err := p.repo.ProposalEvent.GetProposalEventByTransactionID(ctx, int(request.TransactionID))
-	if err != nil {
-		return err
-	}
-
-	err = p.repo.ProposalEvent.UpdateEvent(ctx, models.ProposalEvent{
-		ID:             proposalEvent.ID,
-		RemainingHelps: proposalEvent.RemainingHelps - 1,
 	})
 
 	return err

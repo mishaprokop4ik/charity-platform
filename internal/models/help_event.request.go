@@ -56,7 +56,7 @@ func (h *HelpEventCreateRequest) ToInternal(authorID uint) *HelpEvent {
 		Title:       h.Title,
 		Description: h.Description,
 		Needs:       needs,
-		Status:      InActive,
+		Status:      Active,
 		CreatedBy:   authorID,
 	}
 	if len(h.FileBytes) == 0 || h.FileType == "" {

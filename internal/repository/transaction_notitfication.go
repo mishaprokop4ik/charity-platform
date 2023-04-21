@@ -60,8 +60,15 @@ func (t *TransactionNotification) GetByMember(ctx context.Context, userID uint) 
 		case models.ProposalEventType:
 			event := models.ProposalEvent{}
 			err = t.DBConnector.DB.Where("id = ?", transaction.EventID).First(&event).WithContext(ctx).Error
-			if err != nil {
-				zlog.Log.Error(err, "could not find any of proposal event")
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+				return nil, err
+			}
+
+			notifications[i].EventTitle = event.Title
+		case models.HelpEventType:
+			event := models.HelpEvent{}
+			err = t.DBConnector.DB.Where("id = ?", transaction.EventID).First(&event).WithContext(ctx).Error
+			if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil, err
 			}
 

@@ -3,6 +3,7 @@ package repository
 import (
 	"Kurajj/internal/models"
 	"context"
+	"time"
 )
 
 type HelpEventer interface {
@@ -17,6 +18,7 @@ type HelpEventer interface {
 	GetEventsWithSearchAndSort(ctx context.Context,
 		searchValues models.HelpSearchInternal) (models.HelpEventPagination, error)
 	GetTransactionNeeds(ctx context.Context, transactionID models.ID) ([]models.Need, error)
+	GetStatistics(ctx context.Context, id uint, from, to time.Time) ([]models.Transaction, error)
 }
 
 type Repository struct {
