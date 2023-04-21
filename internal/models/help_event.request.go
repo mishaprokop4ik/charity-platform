@@ -85,6 +85,7 @@ func (h *HelpEventCreateRequest) ToInternal(authorID uint) *HelpEvent {
 			h.Tags = append(h.Tags[:i], h.Tags[i+1:]...)
 		}
 	}
+	event.Location = location
 
 	event.Tags = h.TagsInternal()
 
