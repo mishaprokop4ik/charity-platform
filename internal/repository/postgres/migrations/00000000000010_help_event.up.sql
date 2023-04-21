@@ -17,7 +17,6 @@ BEGIN;
     );
 
     ALTER TABLE help_event RENAME COLUMN competition_date TO completion_time;
-    ALTER TABLE help_event RENAME COLUMN creation_date TO created_at;
     ALTER TABLE help_event RENAME COLUMN author_id TO created_by;
     ALTER TABLE help_event ADD COLUMN status event_status DEFAULT 'inactive';
     ALTER TABLE help_event ADD COLUMN image_path varchar;

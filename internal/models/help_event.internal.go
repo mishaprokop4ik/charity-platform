@@ -16,7 +16,7 @@ type HelpEvent struct {
 	Tags                  []Tag         `gorm:"-"`
 	Status                EventStatus   `gorm:"column:status"`
 	CreatedBy             uint          `gorm:"column:created_by"`
-	CreatedAt             time.Time     `gorm:"column:created_at"`
+	CreatedAt             time.Time     `gorm:"column:creation_date"`
 	CompletionTime        time.Time     `gorm:"column:completion_time"`
 	Comments              []Comment     `gorm:"-"`
 	Transactions          []Transaction `gorm:"-"`
@@ -42,6 +42,9 @@ func (h *HelpEvent) CalculateCompletionPercentages() {
 func (h *HelpEvent) CalculateTransactionsCompletionPercentages() {
 	for i, transaction := range h.Transactions {
 		allNeedsCount := len(transaction.Needs)
+		if allNeedsCount == 0 {
+			return
+		}
 		finishedNeeds := len(lo.Filter(transaction.Needs, func(need Need, index int) bool {
 			return need.ReceivedTotal == need.Amount
 		}))

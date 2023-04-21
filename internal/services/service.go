@@ -5,6 +5,7 @@ import (
 	"Kurajj/internal/models"
 	"Kurajj/internal/repository"
 	"context"
+	"io"
 )
 
 type HelpEventer interface {
@@ -12,10 +13,11 @@ type HelpEventer interface {
 	GetHelpEventByID(ctx context.Context, id models.ID) (models.HelpEvent, error)
 	GetHelpEventByTransactionID(ctx context.Context, transactionID models.ID) (models.HelpEvent, error)
 	CreateRequest(ctx context.Context, userID models.ID, transactionInfo models.TransactionAcceptCreateRequest) (uint, error)
-	UpdateTransactionStatus(ctx context.Context, transaction models.HelpEventTransaction) error
+	UpdateTransactionStatus(ctx context.Context, transaction models.HelpEventTransaction, file io.Reader, fileType string) error
 	GetUserHelpEvents(ctx context.Context, userID models.ID) ([]models.HelpEvent, error)
 	GetHelpEventBySearch(ctx context.Context, search models.HelpSearchInternal) (models.HelpEventPagination, error)
 	UpdateEvent(ctx context.Context, event models.HelpEvent) error
+	GetStatistics(ctx context.Context, fromStart int, creatorID uint) (models.HelpEventStatistics, error)
 }
 
 type Service struct {
