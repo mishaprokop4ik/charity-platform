@@ -189,7 +189,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 				if transactionNeedIndex == -1 {
 					continue
 				}
-				eventNeeds[i].ReceivedTotal += transactionNeed.Received
+				eventNeeds[i].ReceivedTotal = transactionNeed.Received + eventNeeds[i].ReceivedTotal
 			}
 			err = h.updateNeeds(ctx, eventNeeds...)
 			if err != nil {
