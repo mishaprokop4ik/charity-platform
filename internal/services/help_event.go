@@ -242,7 +242,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 
 func (h *HelpEvent) CompleteHelpEvent(ctx context.Context, helpEventID uint, eventNeeds []models.Need) error {
 	allNeedsCompleted := lo.CountBy(eventNeeds, func(n models.Need) bool {
-		return n.Amount == n.Received
+		return n.Amount == n.ReceivedTotal
 	}) == len(eventNeeds)
 
 	if allNeedsCompleted {
