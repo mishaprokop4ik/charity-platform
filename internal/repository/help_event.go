@@ -413,6 +413,7 @@ func (h *HelpEvent) insertHelpEventMissingData(ctx context.Context, event *model
 	} else if err == nil {
 		event.Location = location
 	}
+
 	return nil
 }
 
