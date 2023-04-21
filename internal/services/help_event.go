@@ -179,7 +179,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 		}
 		for i := range eventNeeds {
 			transactionNeed, transactionNeedIndex, _ := lo.FindIndexOf(transaction.Needs, func(n models.Need) bool {
-				return n.ID == eventNeeds[i].ID
+				return n.Title == eventNeeds[i].Title && n.Unit == eventNeeds[i].Unit && n.Amount == eventNeeds[i].Amount
 			})
 			if transactionNeedIndex == -1 {
 				continue
