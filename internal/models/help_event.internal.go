@@ -83,6 +83,25 @@ func (h *HelpEvent) Response() HelpEventResponse {
 	}
 	helpEventResponse.Comments = comments
 	tags := make([]TagResponse, len(h.Tags))
+	homeLocation := ""
+	if h.Location.Street != "" {
+		homeLocation = h.Location.Street
+	}
+	if h.Location.HomeLocation != "" && h.Location.Street != "" {
+		homeLocation = homeLocation + " " + h.Location.HomeLocation
+	} else if h.Location.HomeLocation != "" && h.Location.Street == "" {
+		homeLocation = h.Location.HomeLocation
+	}
+	tags = append(tags, TagResponse{
+		ID:    h.Location.ID,
+		Title: "location",
+		Values: []string{
+			h.Location.Region,
+			h.Location.City,
+			h.Location.District,
+			homeLocation,
+		},
+	})
 	for i, tag := range h.Tags {
 		tags[i] = TagResponse{
 			ID:     tag.ID,
