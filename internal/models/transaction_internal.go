@@ -25,6 +25,10 @@ type Transaction struct {
 }
 
 func (t *Transaction) UpdateStatus(transactionCreator bool, newStatus TransactionStatus) {
+	if newStatus == Aborted {
+		t.TransactionStatus = newStatus
+		return
+	}
 	if transactionCreator {
 		switch newStatus {
 		case InProcess:

@@ -253,8 +253,42 @@ func (h *HelpEvent) calculatePagination(ctx context.Context, searchValues models
 }
 
 func (h *HelpEvent) UpdateHelpEvent(ctx context.Context, event models.HelpEvent) error {
+	if event.File != nil && event.FileType != "" {
+		err := h.saveFile(ctx, &event)
+		if err != nil {
+			return err
+		}
+	}
 	err := h.DB.Model(&event).Updates(event).Where("id = ?", event.ID).WithContext(ctx).Error
 	return err
+}
+
+func (h *HelpEvent) saveFile(ctx context.Context, event *models.HelpEvent) error {
+	if event.File != nil {
+		oldEvent := models.HelpEvent{}
+		err := h.DB.Where("id = ?", event.ID).First(&oldEvent).WithContext(ctx).Error
+		if err != nil {
+			return err
+		}
+
+		imagePath := strings.Split(oldEvent.ImagePath, "/")
+		imageName := imagePath[len(imagePath)-1]
+		err = h.Filer.Delete(ctx, imageName)
+		if err != nil {
+			return err
+		}
+		fileName, err := uuid.NewUUID()
+		if err != nil {
+			return err
+		}
+		filePath, err := h.Filer.Upload(ctx, fmt.Sprintf("%s.%s", fileName.String(), event.FileType), event.File)
+		if err != nil {
+			zlog.Log.Error(err, "could not upload file")
+			return err
+		}
+		event.ImagePath = filePath
+	}
+	return nil
 }
 
 func (h *HelpEvent) UpdateNeeds(ctx context.Context, needs ...models.Need) error {

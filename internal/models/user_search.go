@@ -62,13 +62,13 @@ func (s SearchValuesResponse) Bytes() []byte {
 }
 
 type MemberSearchRequestCreate struct {
-	Title     string    `json:"title"`
-	EventType EventType `json:"eventType"`
-	Values    []string  `json:"values"`
+	Title  string   `json:"title"`
+	Values []string `json:"values"`
 }
 
 type MemberSearchValuesRequestCreate struct {
-	Tags []MemberSearchRequestCreate `json:"tags"`
+	Tags      []MemberSearchRequestCreate `json:"tags"`
+	EventType EventType                   `json:"eventType"`
 }
 
 func (t MemberSearchValuesRequestCreate) Internal() []MemberSearch {
@@ -83,7 +83,7 @@ func (t MemberSearchValuesRequestCreate) Internal() []MemberSearch {
 		}
 
 		search[i] = MemberSearch{
-			EventType: t.Tags[i].EventType,
+			EventType: t.EventType,
 			Title:     t.Tags[i].Title,
 			Values:    searchValues,
 		}
