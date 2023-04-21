@@ -194,6 +194,15 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 			Time:  time.Now(),
 			Valid: true,
 		}
+		proposalEvent, err := p.repo.ProposalEvent.GetEvent(ctx, transaction.EventID)
+		if err != nil {
+			return err
+		}
+		proposalEvent.RemainingHelps = proposalEvent.RemainingHelps + 1
+		err = p.repo.ProposalEvent.UpdateEvent(ctx, proposalEvent)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = p.UpdateTransaction(ctx, transaction)
