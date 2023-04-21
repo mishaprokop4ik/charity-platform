@@ -166,10 +166,6 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 		return err
 	}
 	var notificationReceiver uint
-	transactionNeeds, err := h.repo.HelpEvent.GetTransactionNeeds(ctx, models.ID(*transaction.TransactionID))
-	if err != nil {
-		return err
-	}
 	if transaction.EventCreator {
 		oldTransaction.UpdateStatus(!transaction.EventCreator, transaction.TransactionStatus)
 		notificationReceiver = transaction.TransactionCreatorID
@@ -183,7 +179,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 		}
 		for i := range eventNeeds {
 			transactionNeed, transactionNeedIndex, _ := lo.FindIndexOf(transaction.Needs, func(n models.Need) bool {
-				return n.Title == eventNeeds[i].Title
+				return n.ID == eventNeeds[i].ID
 			})
 			if transactionNeedIndex == -1 {
 				return fmt.Errorf("cannot find need with %s title", eventNeeds[i].Title)
@@ -203,15 +199,6 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 	} else {
 		notificationReceiver = transaction.HelpEventCreatorID
 		oldTransaction.UpdateStatus(!transaction.EventCreator, transaction.ResponderStatus)
-		for i := range transactionNeeds {
-			transactionNeed, _, ok := lo.FindIndexOf(transaction.Needs, func(n models.Need) bool {
-				return n.Title == transactionNeeds[i].Title
-			})
-			if !ok {
-				continue
-			}
-			transactionNeeds[i].Received = transactionNeed.Received
-		}
 		err = h.updateNeeds(ctx, transaction.Needs...)
 		if err != nil {
 			return err
