@@ -27,11 +27,7 @@ func (h *HelpEventTransactionUpdateRequest) needsToInternal(isEventCreator bool,
 			HelpEventID:   eventID,
 			Unit:          h.Needs[i].Unit,
 		}
-		if isEventCreator {
-			need.ReceivedTotal = h.Needs[i].Received
-		} else {
-			need.Received = h.Needs[i].Received
-		}
+		need.Received = h.Needs[i].Received
 		needs[i] = need
 	}
 

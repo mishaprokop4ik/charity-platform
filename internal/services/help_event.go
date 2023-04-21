@@ -184,7 +184,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 			if transactionNeedIndex == -1 {
 				continue
 			}
-			eventNeeds[i].ReceivedTotal = transactionNeed.ReceivedTotal
+			eventNeeds[i].ReceivedTotal = transactionNeed.Received
 		}
 		err = h.updateNeeds(ctx, eventNeeds...)
 		if err != nil {
@@ -216,7 +216,6 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 			}
 			oldTransaction.ReportURL = filePath
 		}
-
 	}
 
 	err = h.UpdateTransaction(ctx, oldTransaction)
@@ -239,7 +238,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 
 func (h *HelpEvent) CompleteHelpEvent(ctx context.Context, helpEventID uint, eventNeeds []models.Need) error {
 	allNeedsCompleted := lo.CountBy(eventNeeds, func(n models.Need) bool {
-		return n.Amount == n.ReceivedTotal
+		return n.Amount == n.Received
 	}) == len(eventNeeds)
 
 	if allNeedsCompleted {
