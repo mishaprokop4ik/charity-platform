@@ -137,7 +137,7 @@ func (i SignUpUser) GetInternalUser() User {
 		Password:    i.Password,
 		Address:     i.Address.String(),
 	}
-	if len(i.FileBytes) != 0 {
+	if len(i.FileBytes) != 0 && user.FileType != "" {
 		user.Image = bytes.NewReader(i.FileBytes)
 		user.FileType = i.FileType
 	}
