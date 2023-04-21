@@ -20,6 +20,7 @@ type HelpEvent struct {
 	CompletionTime        time.Time     `gorm:"column:completion_time"`
 	Comments              []Comment     `gorm:"-"`
 	Transactions          []Transaction `gorm:"-"`
+	Location              Address       `gorm:"-"`
 	TransactionNeeds      map[ID][]Need `gorm:"-"`
 	User                  User          `gorm:"-"`
 	ImagePath             string        `gorm:"column:image_path"`

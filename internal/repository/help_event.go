@@ -490,5 +490,18 @@ func (h *HelpEvent) CreateEvent(ctx context.Context, event *models.HelpEvent) (u
 		}
 	}
 
+	if !event.Location.IsEmpty() {
+		event.Location.EventID = event.ID
+		err := tx.
+			Create(&event.Location).
+			WithContext(ctx).
+			Error
+
+		if err != nil {
+			tx.Rollback()
+			return 0, err
+		}
+	}
+
 	return event.ID, tx.Commit().Error
 }
