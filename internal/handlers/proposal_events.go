@@ -479,12 +479,8 @@ func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Req
 	}
 }
 
-func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, transactionID uint) error {
-	transaction, err := h.services.Transaction.GetTransactionByID(ctx, transactionID)
-	if err != nil {
-		return err
-	}
-	event, err := h.services.ProposalEvent.GetEvent(ctx, transaction.EventID)
+func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, proposalEventID uint) error {
+	event, err := h.services.ProposalEvent.GetEvent(ctx, proposalEventID)
 	if err != nil {
 		return err
 	}
