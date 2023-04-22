@@ -233,6 +233,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 		Action:        models.Updated,
 		TransactionID: oldTransaction.ID,
 		IsRead:        false,
+		NewStatus:     transaction.TransactionStatus,
 		CreationTime:  time.Now(),
 		MemberID:      notificationReceiver,
 	})
@@ -283,9 +284,9 @@ func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transac
 	if err != nil {
 		return 0, err
 	}
-	//if models.ID(helpEvent.CreatedBy) == userID {
-	//	return fmt.Errorf("event creator cannot response his/her own events")
-	//}
+	if models.ID(helpEvent.CreatedBy) == userID {
+		return 0, fmt.Errorf("event creator cannot response his/her own events")
+	}
 	//TODO remove after debug
 	//for _, transaction := range helpEvent.Transactions {
 	//	if transaction.CreatorID == responderID && lo.Contains([]models.TransactionStatus{
