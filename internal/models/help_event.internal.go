@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"github.com/samber/lo"
 	"io"
 	"time"
@@ -31,15 +30,13 @@ type HelpEvent struct {
 }
 
 func (h *HelpEvent) CalculateCompletionPercentages() {
-	if len(h.Transactions) == 0 {
+	h.CalculateTransactionsCompletionPercentages()
+	if len(h.Needs) == 0 {
 		return
 	}
-	h.CalculateTransactionsCompletionPercentages()
-	eventCompletionPercentages := 0
-	for _, t := range h.Transactions {
-		eventCompletionPercentages += t.CompletionPercentages
-	}
-	h.CompletionPercentages = float64(eventCompletionPercentages / len(h.Transactions))
+	eventCompletionPercentages := h.calculateCompletionPercentagesForNeeds(h.Needs)
+
+	h.CompletionPercentages = eventCompletionPercentages / float64(len(h.Needs))
 }
 
 func (h *HelpEvent) CalculateTransactionsCompletionPercentages() {
@@ -49,12 +46,22 @@ func (h *HelpEvent) CalculateTransactionsCompletionPercentages() {
 			if need.Amount == 0 {
 				continue
 			}
-			needsCompetitionPercentages += int(need.ReceivedTotal/need.Amount) * 100
-			fmt.Println(needsCompetitionPercentages, need.ReceivedTotal, need.Amount, "test")
+			needsCompetitionPercentages += int(need.Received/need.Amount) * 100
 		}
 
 		h.Transactions[i].CompletionPercentages = needsCompetitionPercentages
 	}
+}
+
+func (h *HelpEvent) calculateCompletionPercentagesForNeeds(needs []Need) float64 {
+	needsCompetitionPercentages := float64(0)
+	for _, need := range needs {
+		if need.Amount == 0 {
+			continue
+		}
+		needsCompetitionPercentages += float64(need.ReceivedTotal/need.Amount) * 100
+	}
+	return needsCompetitionPercentages
 }
 
 func (h *HelpEvent) Response() HelpEventResponse {

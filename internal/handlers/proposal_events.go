@@ -388,10 +388,7 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 	defer cancel()
 	err = h.validateProposalEventTransactionRequest(ctx, uint(transactionInfo.ID))
 	if err != nil {
-		errch <- errResponse{
-			err: err,
-		}
-
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
 	go func() {
