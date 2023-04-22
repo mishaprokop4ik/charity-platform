@@ -166,7 +166,9 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 		return err
 	}
 	var notificationReceiver uint
+	notificationStatus := models.TransactionStatus("")
 	if transaction.EventCreator {
+		notificationStatus = transaction.TransactionStatus
 		oldTransaction.UpdateStatus(!transaction.EventCreator, transaction.TransactionStatus)
 		notificationReceiver = transaction.TransactionCreatorID
 		oldTransaction.CompetitionDate = sql.NullTime{
@@ -201,6 +203,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 			}
 		}
 	} else {
+		notificationStatus = transaction.ResponderStatus
 		notificationReceiver = transaction.HelpEventCreatorID
 		oldTransaction.UpdateStatus(!transaction.EventCreator, transaction.ResponderStatus)
 		err = h.updateNeeds(ctx, transaction.Needs...)
@@ -229,11 +232,11 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 
 	err = h.createNotification(ctx, models.TransactionNotification{
 		EventType:     models.HelpEventType,
-		EventID:       *transaction.HelpEventID,
+		EventID:       oldTransaction.EventID,
 		Action:        models.Updated,
 		TransactionID: oldTransaction.ID,
 		IsRead:        false,
-		NewStatus:     transaction.TransactionStatus,
+		NewStatus:     notificationStatus,
 		CreationTime:  time.Now(),
 		MemberID:      notificationReceiver,
 	})
