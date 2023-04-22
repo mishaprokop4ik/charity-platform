@@ -382,9 +382,18 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
 		return
 	}
+
 	errch := make(chan errResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+	err = h.validateProposalEventTransactionRequest(ctx, uint(transactionInfo.ID))
+	if err != nil {
+		errch <- errResponse{
+			err: err,
+		}
+
+		return
+	}
 	go func() {
 		err = h.services.ProposalEvent.Response(ctx, uint(transactionInfo.ID), userID.(uint), transactionInfo.Comment)
 
@@ -449,14 +458,6 @@ func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Req
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err = h.validateProposalEventTransactionRequest(ctx, uint(parsedID))
-		if err != nil {
-			errch <- errResponse{
-				err: err,
-			}
-
-			return
-		}
 		err = h.services.ProposalEvent.Accept(ctx, accept)
 
 		errch <- errResponse{
