@@ -167,28 +167,28 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 	if transaction.EventCreator {
 		notificationStatus = transaction.TransactionStatus
 		oldTransaction.UpdateStatus(!transaction.EventCreator, transaction.TransactionStatus)
-		notificationReceiver = oldTransaction.CreatorID
 		oldTransaction.CompetitionDate = sql.NullTime{
 			Time:  time.Now(),
 			Valid: true,
 		}
-		eventNeeds, err := h.repo.HelpEvent.GetHelpEventNeeds(ctx, models.ID(*transaction.HelpEventID))
-		if err != nil {
-			return err
-		}
+		notificationReceiver = oldTransaction.CreatorID
 		if transaction.TransactionStatus == models.Completed {
+			eventNeeds, err := h.repo.HelpEvent.GetHelpEventNeeds(ctx, models.ID(*transaction.HelpEventID))
+			if err != nil {
+				return err
+			}
 			transactionNeeds, err := h.repo.HelpEvent.GetTransactionNeeds(ctx, models.ID(*transaction.TransactionID))
 			if err != nil {
 				return err
 			}
-			for i := range eventNeeds {
+			for i, eventNeed := range eventNeeds {
 				transactionNeed, transactionNeedIndex, _ := lo.FindIndexOf(transactionNeeds, func(n models.Need) bool {
-					return n.Title == eventNeeds[i].Title && n.Unit == eventNeeds[i].Unit && n.Amount == eventNeeds[i].Amount
+					return n.Title == eventNeed.Title && n.Unit == eventNeed.Unit && n.Amount == eventNeed.Amount
 				})
 				if transactionNeedIndex == -1 {
 					continue
 				}
-				eventNeeds[i].ReceivedTotal = transactionNeed.Received + eventNeeds[i].ReceivedTotal
+				eventNeeds[i].ReceivedTotal += transactionNeed.Received
 			}
 			err = h.updateNeeds(ctx, eventNeeds...)
 			if err != nil {
