@@ -236,11 +236,8 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	if proposalEvent.AuthorID == responderID {
 		return fmt.Errorf("event creator cannot response his/her own events")
 	}
-
-	err = p.repo.ProposalEvent.UpdateEvent(ctx, models.ProposalEvent{
-		ID:             proposalEvent.ID,
-		RemainingHelps: proposalEvent.RemainingHelps - 1,
-	})
+	proposalEvent.RemainingHelps = proposalEvent.RemainingHelps - 1
+	err = p.repo.ProposalEvent.UpdateEvent(ctx, proposalEvent)
 	//TODO remove after debug
 	//for _, transaction := range proposalEvent.Transactions {
 	//	if transaction.CreatorID == responderID && lo.Contains([]models.TransactionStatus{
@@ -330,7 +327,7 @@ func (p *ProposalEvent) UpdateEvent(ctx context.Context, newEvent models.Proposa
 	if err != nil {
 		return err
 	}
-	if newEvent.MaxConcurrentRequests-oldEvent.MaxConcurrentRequests != 0 {
+	if newEvent.MaxConcurrentRequests-oldEvent.MaxConcurrentRequests != 0 && newEvent.MaxConcurrentRequests != 0 {
 		newEvent.RemainingHelps = p.calculateRemainingHelps(oldEvent, newEvent)
 	}
 	return p.repo.ProposalEvent.UpdateEvent(ctx, newEvent)
