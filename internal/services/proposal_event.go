@@ -330,7 +330,7 @@ func (p *ProposalEvent) UpdateEvent(ctx context.Context, newEvent models.Proposa
 	if err != nil {
 		return err
 	}
-	if newEvent.MaxConcurrentRequests != 0 {
+	if newEvent.MaxConcurrentRequests-oldEvent.MaxConcurrentRequests != 0 {
 		newEvent.RemainingHelps = p.calculateRemainingHelps(oldEvent, newEvent)
 	}
 	return p.repo.ProposalEvent.UpdateEvent(ctx, newEvent)

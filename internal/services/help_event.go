@@ -70,7 +70,6 @@ func (h *HelpEvent) generateStatistics(currentTransactions, previousTransactions
 			RequestsCount: h.getRequestsCount(currentTransactions, currentMonthFrom.AddDate(0, 0, i)),
 		}
 	}
-	fmt.Println(requests)
 	statistics.Requests = requests
 
 	statistics.StartDate = currentMonthFrom
@@ -138,7 +137,6 @@ func (h *HelpEvent) GetHelpEventBySearch(ctx context.Context, search models.Help
 	}
 	for i := range events.Events {
 		events.Events[i].CalculateCompletionPercentages()
-		events.Events[i].CalculateTransactionsCompletionPercentages()
 	}
 	return events, nil
 }
@@ -150,7 +148,6 @@ func (h *HelpEvent) GetUserHelpEvents(ctx context.Context, userID models.ID) ([]
 	}
 	for i := range events {
 		events[i].CalculateCompletionPercentages()
-		events[i].CalculateTransactionsCompletionPercentages()
 	}
 	return events, nil
 }
@@ -170,7 +167,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 	if transaction.EventCreator {
 		notificationStatus = transaction.TransactionStatus
 		oldTransaction.UpdateStatus(!transaction.EventCreator, transaction.TransactionStatus)
-		notificationReceiver = transaction.TransactionCreatorID
+		notificationReceiver = oldTransaction.CreatorID
 		oldTransaction.CompetitionDate = sql.NullTime{
 			Time:  time.Now(),
 			Valid: true,
@@ -204,7 +201,11 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 		}
 	} else {
 		notificationStatus = transaction.ResponderStatus
-		notificationReceiver = transaction.HelpEventCreatorID
+		helpEvent, err := h.repo.HelpEvent.GetEventByID(ctx, models.ID(oldTransaction.EventID))
+		if err != nil {
+			return err
+		}
+		notificationReceiver = helpEvent.CreatedBy
 		oldTransaction.UpdateStatus(!transaction.EventCreator, transaction.ResponderStatus)
 		err = h.updateNeeds(ctx, transaction.Needs...)
 		if err != nil {
@@ -275,8 +276,6 @@ func (h *HelpEvent) GetHelpEventByID(ctx context.Context, id models.ID) (models.
 	if err != nil {
 		return models.HelpEvent{}, err
 	}
-
-	helpEvent.CalculateTransactionsCompletionPercentages()
 
 	helpEvent.CalculateCompletionPercentages()
 	return helpEvent, nil

@@ -307,14 +307,12 @@ func (h *HelpEvent) UpdateNeeds(ctx context.Context, needs ...models.Need) error
 func (h *HelpEvent) GetHelpEventByTransactionID(ctx context.Context, transactionID models.ID) (models.HelpEvent, error) {
 	transaction := models.Transaction{}
 	err := h.DB.First(&transaction, "id = ?", transactionID).WithContext(ctx).Error
-	fmt.Printf("%+v", transaction)
 	if err != nil {
 		return models.HelpEvent{}, err
 	}
 
 	event := models.HelpEvent{}
 	err = h.DB.First(&event, "id = ?", transaction.EventID).WithContext(ctx).Error
-	fmt.Printf("%+v", event)
 	return event, err
 }
 
