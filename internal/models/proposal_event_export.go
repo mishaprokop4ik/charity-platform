@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io"
-	"strings"
 	"time"
 )
 
@@ -33,12 +32,12 @@ type ProposalEventRequestCreate struct {
 func (p *ProposalEventRequestCreate) TagsInternal() []Tag {
 	tags := make([]Tag, len(p.Tags))
 	for i, tag := range p.Tags {
-		tagValues := make([]TagValue, len(tag.Values))
-		for j, tagValue := range tag.Values {
-			if len(strings.ReplaceAll(tagValue, " ", "")) != 0 && tagValue != "" {
-				tagValues[j] = TagValue{
+		tagValues := make([]TagValue, 0)
+		for _, tagValue := range tag.Values {
+			if tagValue != "" {
+				tagValues = append(tagValues, TagValue{
 					Value: tagValue,
-				}
+				})
 			}
 		}
 		tags[i] = Tag{
