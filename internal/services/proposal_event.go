@@ -199,6 +199,8 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 			Valid: true,
 		}
 
+	}
+	if status != models.InProcess {
 		err = p.repo.ProposalEvent.UpdateRemainingHelps(ctx, models.ID(transaction.EventID), true, 1)
 		if err != nil {
 			return err
