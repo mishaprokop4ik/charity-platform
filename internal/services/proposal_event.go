@@ -173,6 +173,10 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 		return fmt.Errorf("transaction cannot be changed when it it in %s state", transaction.TransactionStatus)
 	}
 
+	if transaction.TransactionStatus == status {
+		return fmt.Errorf("transaction already has %s status", status)
+	}
+
 	transaction.TransactionStatus = status
 	transaction.ResponderStatus = status
 
@@ -189,17 +193,13 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 		transaction.ReportURL = filePath
 	}
 
-	if status == models.Completed || status == models.Canceled || status == models.Interrupted {
+	if status == models.Completed || status == models.Canceled || status == models.Interrupted || status == models.Aborted {
 		transaction.CompetitionDate = sql.NullTime{
 			Time:  time.Now(),
 			Valid: true,
 		}
-		proposalEvent, err := p.repo.ProposalEvent.GetEvent(ctx, transaction.EventID)
-		if err != nil {
-			return err
-		}
-		proposalEvent.RemainingHelps = proposalEvent.RemainingHelps + 1
-		err = p.repo.ProposalEvent.UpdateEvent(ctx, proposalEvent)
+
+		err = p.repo.ProposalEvent.UpdateRemainingHelps(ctx, models.ID(transaction.EventID), true, 1)
 		if err != nil {
 			return err
 		}
@@ -236,8 +236,7 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	if proposalEvent.AuthorID == responderID {
 		return fmt.Errorf("event creator cannot response his/her own events")
 	}
-	proposalEvent.RemainingHelps = proposalEvent.RemainingHelps - 1
-	err = p.repo.ProposalEvent.UpdateEvent(ctx, proposalEvent)
+	err = p.repo.ProposalEvent.UpdateRemainingHelps(ctx, models.ID(proposalEventID), false, 1)
 	//TODO remove after debug
 	//for _, transaction := range proposalEvent.Transactions {
 	//	if transaction.CreatorID == responderID && lo.Contains([]models.TransactionStatus{

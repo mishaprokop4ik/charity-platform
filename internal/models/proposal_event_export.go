@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io"
+	"strings"
 	"time"
 )
 
@@ -33,9 +34,11 @@ func (p *ProposalEventRequestCreate) TagsInternal() []Tag {
 	tags := make([]Tag, len(p.Tags))
 	for i, tag := range p.Tags {
 		tagValues := make([]TagValue, len(tag.Values))
-		for _, tagValue := range tag.Values {
-			tagValues[i] = TagValue{
-				Value: tagValue,
+		for j, tagValue := range tag.Values {
+			if len(strings.ReplaceAll(tagValue, " ", "")) != 0 {
+				tagValues[j] = TagValue{
+					Value: tagValue,
+				}
 			}
 		}
 		tags[i] = Tag{

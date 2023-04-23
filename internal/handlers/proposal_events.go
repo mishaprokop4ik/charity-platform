@@ -42,6 +42,7 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	}
 
 	eventch := make(chan idResponse)
+	defer close(eventch)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
@@ -108,6 +109,7 @@ func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	event.ID = uint(parsedID)
 
 	eventch := make(chan errResponse)
+	defer close(eventch)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
@@ -155,6 +157,7 @@ func (h *Handler) DeleteProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	eventch := make(chan errResponse)
+	defer close(eventch)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
@@ -209,6 +212,7 @@ func (h *Handler) GetProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	eventch := make(chan getProposalEvent)
+	defer close(eventch)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
@@ -266,6 +270,7 @@ func (h *Handler) GetProposalEvents(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	eventch := make(chan getProposalEvents)
+	defer close(eventch)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
@@ -317,6 +322,7 @@ func (h *Handler) GetUsersProposalEvents(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	eventch := make(chan getProposalEvents)
+	defer close(eventch)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
@@ -384,6 +390,7 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 	}
 
 	errch := make(chan errResponse)
+	defer close(errch)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	err = h.validateProposalEventTransactionRequest(ctx, uint(transactionInfo.ID))
@@ -429,7 +436,7 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/events/proposal/accept [post]
+// @Router       /api/events/proposal/accept/{id} [post]
 func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	transactionInfo, err := models.UnmarshalTransactionAcceptRequest(&r.Body)
@@ -452,6 +459,7 @@ func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Req
 		TransactionID: uint(parsedID),
 	}
 	errch := make(chan errResponse)
+	defer close(errch)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
