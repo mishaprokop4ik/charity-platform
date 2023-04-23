@@ -35,7 +35,7 @@ func (p *ProposalEventRequestCreate) TagsInternal() []Tag {
 	for i, tag := range p.Tags {
 		tagValues := make([]TagValue, len(tag.Values))
 		for j, tagValue := range tag.Values {
-			if len(strings.ReplaceAll(tagValue, " ", "")) != 0 {
+			if len(strings.ReplaceAll(tagValue, " ", "")) != 0 && tagValue != "" {
 				tagValues[j] = TagValue{
 					Value: tagValue,
 				}
