@@ -33,12 +33,33 @@ type proposalEventCRUDer interface {
 	GetEvent(ctx context.Context, id uint) (models.ProposalEvent, error)
 	GetEvents(ctx context.Context) ([]models.ProposalEvent, error)
 	UpdateEvent(ctx context.Context, event models.ProposalEvent) error
+	UpdateRemainingHelps(ctx context.Context, eventID models.ID, increase bool, number int) error
 	DeleteEvent(ctx context.Context, id uint) error
 }
 
 type ProposalEvent struct {
 	DBConnector *Connector
 	Filer
+}
+
+func (p *ProposalEvent) UpdateRemainingHelps(ctx context.Context, eventID models.ID, increase bool, number int) error {
+	oldEvent, err := p.GetEvent(ctx, uint(eventID))
+	if err != nil {
+		return err
+	}
+	if increase {
+		oldEvent.RemainingHelps += number
+	} else {
+		oldEvent.RemainingHelps -= number
+	}
+	err = p.DBConnector.DB.
+		Where("id = ?", eventID).
+		Model(&models.ProposalEvent{}).
+		Select("RemainingHelps").
+		Updates(&oldEvent).
+		WithContext(ctx).
+		Error
+	return err
 }
 
 func (p *ProposalEvent) GetStatistics(ctx context.Context, creatorID uint, from, to time.Time) ([]models.Transaction, error) {
@@ -324,7 +345,6 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 			return 0, err
 		}
 	}
-
 	for _, tag := range event.Tags {
 		tag.EventID = event.ID
 		err = tx.Create(&tag).WithContext(ctx).Error
@@ -332,8 +352,10 @@ func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEv
 			tx.Rollback()
 			return 0, err
 		}
+		fmt.Println(tag, "123proposal123")
 		for _, tagValue := range tag.Values {
 			tagValue.TagID = tag.ID
+			fmt.Println(tagValue, "321proposal321")
 			err = tx.Create(&tagValue).WithContext(ctx).Error
 			if err != nil {
 				tx.Rollback()
@@ -349,8 +371,8 @@ func (p *ProposalEvent) GetEvent(ctx context.Context, id uint) (models.ProposalE
 	event := models.ProposalEvent{}
 	err := p.DBConnector.DB.
 		Where("id = ?", id).
-		First(&event).
 		Where("is_deleted = ?", false).
+		First(&event).
 		WithContext(ctx).
 		Error
 
@@ -404,10 +426,12 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 }
 
 func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEvent) error {
-	if err := p.saveFile(ctx, &event); err != nil {
-		return err
+	if event.File != nil {
+		if err := p.saveFile(ctx, &event); err != nil {
+			return err
+		}
 	}
-
+	fmt.Println(event.GetValuesToUpdate(), lo.Keys(event.GetValuesToUpdate()))
 	return p.DBConnector.DB.
 		Model(&models.ProposalEvent{}).
 		Select(lo.Keys(event.GetValuesToUpdate())).
@@ -415,6 +439,15 @@ func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEv
 		Updates(event.GetValuesToUpdate()).
 		WithContext(ctx).
 		Error
+}
+func (p *ProposalEvent) UpdateEvent2(ctx context.Context, event models.ProposalEvent) error {
+	if event.File != nil {
+		if err := p.saveFile(ctx, &event); err != nil {
+			return err
+		}
+	}
+	err := p.DBConnector.DB.Model(&event).Updates(event).Where("id = ?", event.ID).WithContext(ctx).Error
+	return err
 }
 
 func (p *ProposalEvent) saveFile(ctx context.Context, event *models.ProposalEvent) error {
