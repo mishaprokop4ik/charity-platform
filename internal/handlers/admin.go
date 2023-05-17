@@ -45,7 +45,7 @@ func (h *Handler) AdminSignIn(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		user, err := h.services.Authentication.SignIn(ctx,
+		user, err := h.services.SignIn(ctx,
 			models.User{
 				Email:    string(admin.Email),
 				Password: admin.Password,
@@ -79,7 +79,7 @@ func (h *Handler) AdminSignIn(w http.ResponseWriter, r *http.Request) {
 }
 
 // CreateNewAdmin godoc
-// @Summary      Create a new admin
+// @Summary      CreateNotification a new admin
 // @Tags         Admin
 // @Accept       json
 // @Produce      json
@@ -116,7 +116,7 @@ func (h *Handler) CreateNewAdmin(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		id, err := h.services.Admin.CreateAdmin(ctx, newAdmin)
+		id, err := h.services.CreateAdmin(ctx, newAdmin)
 		userch <- idResponse{
 			id:  int(id),
 			err: err,

@@ -57,7 +57,7 @@ func (h *Handler) UserSignIn(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		user, err := h.services.Authentication.SignIn(ctx, models.User{Email: string(user.Email), Password: user.Password})
+		user, err := h.services.SignIn(ctx, models.User{Email: string(user.Email), Password: user.Password})
 		userch <- userSignInResponse{
 			resp: user,
 			err:  err,
@@ -133,7 +133,7 @@ func (h *Handler) UserSignUp(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		userID, err := h.services.Authentication.SignUp(ctx, user.GetInternalUser())
+		userID, err := h.services.SignUp(ctx, user.GetInternalUser())
 		userch <- idResponse{
 			id:  int(userID),
 			err: err,
@@ -189,7 +189,7 @@ func (h *Handler) ConfirmEmail(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err := h.services.Authentication.ConfirmEmail(ctx, email)
+		err := h.services.ConfirmEmail(ctx, email)
 		userch <- errResponse{
 			err: err,
 		}
@@ -236,7 +236,7 @@ func (h *Handler) RefreshTokens(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		tokens, err := h.services.Authentication.RefreshTokens(ctx, token.RefreshToken)
+		tokens, err := h.services.RefreshTokens(ctx, token.RefreshToken)
 		refreshch <- refreshTokenResponse{
 			tokens: tokens,
 			err:    err,
@@ -301,7 +301,7 @@ func (h *Handler) RefreshUserData(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		member, err := h.services.Authentication.GetUserByRefreshToken(ctx, token.RefreshToken)
+		member, err := h.services.GetUserByRefreshToken(ctx, token.RefreshToken)
 		userch <- userSignInResponse{
 			resp: member,
 			err:  err,
@@ -354,7 +354,7 @@ func (h *Handler) ReadNotifications(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*30)
 	defer cancel()
 	go func() {
-		err := h.services.TransactionNotification.Read(ctx, ids)
+		err := h.services.Read(ctx, ids)
 		errch <- errResponse{
 			err: err,
 		}

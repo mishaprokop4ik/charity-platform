@@ -2,7 +2,6 @@ package service
 
 import (
 	"Kurajj/internal/models"
-	"Kurajj/internal/repository"
 	"context"
 	"database/sql"
 	"fmt"
@@ -12,16 +11,16 @@ import (
 	"time"
 )
 
-func NewHelpEvent(r *repository.Repository) *HelpEvent {
+func NewHelpEvent(r Repositorier) *HelpEvent {
 	return &HelpEvent{repo: r, Transaction: NewTransaction(r)}
 }
 
 type HelpEvent struct {
 	*Transaction
-	repo *repository.Repository
+	repo Repositorier
 }
 
-func (h *HelpEvent) GetStatistics(ctx context.Context, fromStart int, creatorID uint) (models.HelpEventStatistics, error) {
+func (h *HelpEvent) GetHelpEventStatistics(ctx context.Context, fromStart int, creatorID uint) (models.HelpEventStatistics, error) {
 	currentTransactions, err := h.getCurrentMonthTransactions(ctx, fromStart, creatorID)
 	if err != nil {
 		return models.HelpEventStatistics{}, err
@@ -40,7 +39,7 @@ func (h *HelpEvent) getCurrentMonthTransactions(ctx context.Context, fromStart i
 	currentMonthTo := time.Now()
 	currentMonthFrom := currentMonthTo.AddDate(0, 0, int(-fromStart))
 
-	currentTransactions, err := h.repo.HelpEvent.GetStatistics(ctx, creatorID, currentMonthFrom, currentMonthTo)
+	currentTransactions, err := h.repo.GetHelpEventStatistics(ctx, creatorID, currentMonthFrom, currentMonthTo)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +50,7 @@ func (h *HelpEvent) getCurrentMonthTransactions(ctx context.Context, fromStart i
 func (h *HelpEvent) getPreviousMonthTransactions(ctx context.Context, fromStart int, creatorID uint) ([]models.Transaction, error) {
 	previousMonthTo := time.Now().AddDate(0, 0, int(-fromStart))
 	previousMonthFrom := previousMonthTo.AddDate(0, 0, int(-fromStart))
-	previousTransactions, err := h.repo.HelpEvent.GetStatistics(ctx, creatorID, previousMonthFrom, previousMonthTo)
+	previousTransactions, err := h.repo.GetHelpEventStatistics(ctx, creatorID, previousMonthFrom, previousMonthTo)
 	if err != nil {
 		return nil, err
 	}
@@ -126,12 +125,12 @@ func (h *HelpEvent) getRequestsCount(transactions []models.Transaction, from tim
 	return count
 }
 
-func (h *HelpEvent) UpdateEvent(ctx context.Context, event models.HelpEvent) error {
-	return h.repo.HelpEvent.UpdateHelpEvent(ctx, event)
+func (h *HelpEvent) UpdateHelpEvent(ctx context.Context, event models.HelpEvent) error {
+	return h.repo.UpdateHelpEvent(ctx, event)
 }
 
 func (h *HelpEvent) GetHelpEventBySearch(ctx context.Context, search models.HelpSearchInternal) (models.HelpEventPagination, error) {
-	events, err := h.repo.HelpEvent.GetEventsWithSearchAndSort(ctx, search)
+	events, err := h.repo.GetHelpEventsWithSearchAndSort(ctx, search)
 	if err != nil {
 		return models.HelpEventPagination{}, err
 	}
@@ -142,7 +141,7 @@ func (h *HelpEvent) GetHelpEventBySearch(ctx context.Context, search models.Help
 }
 
 func (h *HelpEvent) GetUserHelpEvents(ctx context.Context, userID models.ID) ([]models.HelpEvent, error) {
-	events, err := h.repo.HelpEvent.GetUserHelpEvents(ctx, userID)
+	events, err := h.repo.GetUserHelpEvents(ctx, userID)
 	if err != nil {
 		return nil, err
 	}
@@ -153,7 +152,7 @@ func (h *HelpEvent) GetUserHelpEvents(ctx context.Context, userID models.ID) ([]
 }
 
 func (h *HelpEvent) GetHelpEventByTransactionID(ctx context.Context, transactionID models.ID) (models.HelpEvent, error) {
-	return h.repo.HelpEvent.GetHelpEventByTransactionID(ctx, transactionID)
+	return h.repo.GetHelpEventByTransactionID(ctx, transactionID)
 }
 
 func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction models.HelpEventTransaction,
@@ -173,11 +172,11 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 		}
 		notificationReceiver = oldTransaction.CreatorID
 		if transaction.TransactionStatus == models.Completed {
-			eventNeeds, err := h.repo.HelpEvent.GetHelpEventNeeds(ctx, models.ID(*transaction.HelpEventID))
+			eventNeeds, err := h.repo.GetHelpEventNeeds(ctx, models.ID(*transaction.HelpEventID))
 			if err != nil {
 				return err
 			}
-			transactionNeeds, err := h.repo.HelpEvent.GetTransactionNeeds(ctx, models.ID(*transaction.TransactionID))
+			transactionNeeds, err := h.repo.GetTransactionNeeds(ctx, models.ID(*transaction.TransactionID))
 			if err != nil {
 				return err
 			}
@@ -201,7 +200,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 		}
 	} else {
 		notificationStatus = transaction.ResponderStatus
-		helpEvent, err := h.repo.HelpEvent.GetEventByID(ctx, models.ID(oldTransaction.EventID))
+		helpEvent, err := h.repo.GetEventByID(ctx, models.ID(oldTransaction.EventID))
 		if err != nil {
 			return err
 		}
@@ -218,7 +217,7 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 				return err
 			}
 			fileName := fmt.Sprintf("%s.%s", fileUniqueID.String(), fileType)
-			filePath, err := h.repo.File.Upload(ctx, fileName, file)
+			filePath, err := h.repo.Upload(ctx, fileName, file)
 			if err != nil {
 				return err
 			}
@@ -251,14 +250,14 @@ func (h *HelpEvent) CompleteHelpEvent(ctx context.Context, helpEventID uint, eve
 	}) == len(eventNeeds)
 
 	if allNeedsCompleted {
-		oldHelpEvent, err := h.repo.HelpEvent.GetEventByID(ctx, models.ID(helpEventID))
+		oldHelpEvent, err := h.repo.GetEventByID(ctx, models.ID(helpEventID))
 		if err != nil {
 			return err
 		}
 
 		oldHelpEvent.Status = models.Done
 
-		err = h.repo.HelpEvent.UpdateHelpEvent(ctx, oldHelpEvent)
+		err = h.repo.UpdateHelpEvent(ctx, oldHelpEvent)
 		if err != nil {
 			return err
 		}
@@ -268,11 +267,11 @@ func (h *HelpEvent) CompleteHelpEvent(ctx context.Context, helpEventID uint, eve
 }
 
 func (h *HelpEvent) CreateHelpEvent(ctx context.Context, event *models.HelpEvent) (uint, error) {
-	return h.repo.HelpEvent.CreateEvent(ctx, event)
+	return h.repo.CreateEvent(ctx, event)
 }
 
 func (h *HelpEvent) GetHelpEventByID(ctx context.Context, id models.ID) (models.HelpEvent, error) {
-	helpEvent, err := h.repo.HelpEvent.GetEventByID(ctx, id)
+	helpEvent, err := h.repo.GetEventByID(ctx, id)
 	if err != nil {
 		return models.HelpEvent{}, err
 	}
@@ -282,7 +281,7 @@ func (h *HelpEvent) GetHelpEventByID(ctx context.Context, id models.ID) (models.
 }
 
 func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transactionInfo models.TransactionAcceptCreateRequest) (uint, error) {
-	helpEvent, err := h.repo.HelpEvent.GetEventByID(ctx, models.ID(transactionInfo.ID))
+	helpEvent, err := h.repo.GetEventByID(ctx, models.ID(transactionInfo.ID))
 	if err != nil {
 		return 0, err
 	}
@@ -290,7 +289,7 @@ func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transac
 		return 0, fmt.Errorf("event creator cannot response his/her own events")
 	}
 	//TODO remove after debug
-	//for _, transaction := range helpEvent.Transactions {
+	//for _, transaction := range Transactions {
 	//	if transaction.CreatorID == responderID && lo.Contains([]models.TransactionStatus{
 	//		models.Accepted,
 	//		models.InProcess,
@@ -312,7 +311,7 @@ func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transac
 		return 0, err
 	}
 
-	helpEventNeeds, err := h.repo.HelpEvent.GetHelpEventNeeds(ctx, models.ID(transactionInfo.ID))
+	helpEventNeeds, err := h.repo.GetHelpEventNeeds(ctx, models.ID(transactionInfo.ID))
 	if err != nil {
 		return 0, err
 	}
@@ -321,7 +320,7 @@ func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transac
 		helpEventNeeds[i].TransactionID = &transactionID
 		helpEventNeeds[i].ID = 0
 		helpEventNeeds[i].Received = 0
-		_, err := h.repo.HelpEvent.CreateNeed(ctx, helpEventNeeds[i])
+		_, err := h.repo.CreateNeed(ctx, helpEventNeeds[i])
 		if err != nil {
 			return 0, err
 		}
@@ -341,10 +340,10 @@ func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transac
 }
 
 func (h *HelpEvent) createNotification(ctx context.Context, notification models.TransactionNotification) error {
-	_, err := h.repo.TransactionNotification.Create(ctx, notification)
+	_, err := h.repo.CreateNotification(ctx, notification)
 	return err
 }
 
 func (h *HelpEvent) updateNeeds(ctx context.Context, needs ...models.Need) error {
-	return h.repo.HelpEvent.UpdateNeeds(ctx, needs...)
+	return h.repo.UpdateNeeds(ctx, needs...)
 }

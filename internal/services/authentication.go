@@ -3,7 +3,6 @@ package service
 import (
 	"Kurajj/configs"
 	"Kurajj/internal/models"
-	"Kurajj/internal/repository"
 	zlog "Kurajj/pkg/logger"
 	"bytes"
 	"context"
@@ -28,13 +27,13 @@ type Authenticator interface {
 }
 
 type Authentication struct {
-	repo        *repository.Repository
+	repo        Repositorier
 	authConfig  *configs.AuthenticationConfig
 	emailSender Sender
 }
 
 func (a *Authentication) GetUserShortInfo(ctx context.Context, id uint) (models.UserShortInfo, error) {
-	fullUser, err := a.repo.User.GetUserInfo(ctx, id)
+	fullUser, err := a.repo.GetUserInfo(ctx, id)
 	if err != nil {
 		return models.UserShortInfo{}, err
 	}
@@ -49,7 +48,7 @@ func (a *Authentication) GetUserShortInfo(ctx context.Context, id uint) (models.
 }
 
 func (a *Authentication) GetUserByRefreshToken(ctx context.Context, token string) (models.SignedInUser, error) {
-	user, err := a.repo.User.GetByRefreshToken(ctx, token)
+	user, err := a.repo.GetByRefreshToken(ctx, token)
 	if err != nil {
 		return models.SignedInUser{}, err
 	}
@@ -73,7 +72,7 @@ func GenerateRandomPassword() string {
 	return string(s)
 }
 
-func NewAuthentication(repo *repository.Repository, authConfig *configs.AuthenticationConfig, emailConfig *configs.Email) *Authentication {
+func NewAuthentication(repo Repositorier, authConfig *configs.AuthenticationConfig, emailConfig *configs.Email) *Authentication {
 	return &Authentication{repo: repo, authConfig: authConfig, emailSender: Sender{
 		email:        emailConfig.Email,
 		password:     emailConfig.Password,
@@ -96,7 +95,7 @@ func (a *Authentication) SignUp(ctx context.Context, user models.User) (uint, er
 	//if isEmailTaken {
 	//	return 0, fmt.Errorf("email %s is taken", user.Email)
 	//}
-	id, err := a.repo.User.CreateUser(ctx, user)
+	id, err := a.repo.CreateUser(ctx, user)
 	if err != nil {
 		return 0, err
 	}
@@ -173,7 +172,7 @@ func (a *Authentication) ParseToken(accessToken string) (uint, error) {
 
 func (a *Authentication) SignIn(ctx context.Context, user models.User) (models.SignedInUser, error) {
 	user.Password = GeneratePasswordHash(user.Password, a.authConfig.Salt)
-	userInformation, err := a.repo.User.GetEntity(ctx, user.Email, user.Password, user.IsAdmin, false)
+	userInformation, err := a.repo.GetEntity(ctx, user.Email, user.Password, user.IsAdmin, false)
 	if err != nil {
 		return models.SignedInUser{}, err
 	}
@@ -190,7 +189,7 @@ func (a *Authentication) ConfirmEmail(ctx context.Context, email string) error {
 		IsActivated: true,
 	}.GetValuesToUpdate()
 
-	return a.repo.User.UpdateUserByEmail(ctx, email, userValues)
+	return a.repo.UpdateUserByEmail(ctx, email, userValues)
 }
 
 func (a *Authentication) NewRefreshToken() (string, error) {
@@ -208,7 +207,7 @@ func (a *Authentication) NewRefreshToken() (string, error) {
 }
 
 func (a *Authentication) RefreshTokens(ctx context.Context, refreshToken string) (models.Tokens, error) {
-	member, err := a.repo.User.GetByRefreshToken(ctx, refreshToken)
+	member, err := a.repo.GetByRefreshToken(ctx, refreshToken)
 	if err != nil {
 		return models.Tokens{}, err
 	}
@@ -237,7 +236,7 @@ func (a *Authentication) createSession(ctx context.Context, userID uint, isAdmin
 		ExpiresAt:    time.Now().Add(a.authConfig.RefreshTokenTTL),
 	}
 
-	err = a.repo.User.SetSession(ctx, userID, session)
+	err = a.repo.SetSession(ctx, userID, session)
 
 	return res, err
 }

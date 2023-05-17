@@ -35,7 +35,7 @@ const docTemplate = `{
                 "tags": [
                     "Admin"
                 ],
-                "summary": "Create a new admin",
+                "summary": "CreateNotification a new admin",
                 "parameters": [
                     {
                         "description": "query params",
@@ -95,7 +95,7 @@ const docTemplate = `{
                 "tags": [
                     "Help Event"
                 ],
-                "summary": "Create new comment in help event",
+                "summary": "CreateNotification new comment in help event",
                 "parameters": [
                     {
                         "description": "query params",
@@ -333,7 +333,7 @@ const docTemplate = `{
                 "tags": [
                     "Help Event"
                 ],
-                "summary": "Create a new Help event",
+                "summary": "CreateNotification a new Help event",
                 "parameters": [
                     {
                         "description": "query params",
@@ -439,7 +439,7 @@ const docTemplate = `{
         },
         "/api/events/help/response": {
             "post": {
-                "description": "Create a new help event transaction with TransactionStatus - waiting, ResponderStatus - not_started.",
+                "description": "CreateNotification a new help event transaction with TransactionStatus - waiting, ResponderStatus - not_started.",
                 "consumes": [
                     "application/json"
                 ],
@@ -449,7 +449,7 @@ const docTemplate = `{
                 "tags": [
                     "Help Event"
                 ],
-                "summary": "Create a new help event transaction with TransactionStatus - waiting, ResponderStatus - not_started.",
+                "summary": "CreateNotification a new help event transaction with TransactionStatus - waiting, ResponderStatus - not_started.",
                 "parameters": [
                     {
                         "description": "query params",
@@ -695,7 +695,7 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
-                "summary": "Create new comment in proposal event",
+                "summary": "CreateNotification new comment in proposal event",
                 "parameters": [
                     {
                         "description": "query params",
@@ -921,7 +921,7 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Create a new proposal event",
+                "summary": "CreateNotification a new proposal event",
                 "parameters": [
                     {
                         "description": "query params",
@@ -1189,7 +1189,7 @@ const docTemplate = `{
                 "consumes": [
                     "application/json"
                 ],
-                "summary": "Create new transaction with waiting status for the proposal event if slot is available",
+                "summary": "CreateNotification new transaction with waiting status for the proposal event if slot is available",
                 "parameters": [
                     {
                         "description": "query params",

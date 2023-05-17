@@ -39,7 +39,7 @@ func (h *Handler) UpsertUserSearch(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		respError := h.services.UserSearchValue.UpsertValues(ctx, userID.(uint), searchValue.Internal())
+		respError := h.services.UpsertValues(ctx, userID.(uint), searchValue.Internal())
 
 		eventch <- errResponse{
 			err: respError,

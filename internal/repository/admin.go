@@ -38,14 +38,6 @@ func (a *Admin) GetAllAdmins(ctx context.Context) ([]models.User, error) {
 	panic("implement me")
 }
 
-type adminCRUDer interface {
-	CreateAdmin(ctx context.Context, admin models.User) (uint, error)
-	GetAdminByID(ctx context.Context, id uint) (models.User, error)
-	UpdateAdmin(ctx context.Context, admin models.User) error
-	DeleteAdmin(ctx context.Context, id uint) error
-	GetAllAdmins(ctx context.Context) ([]models.User, error)
-}
-
 func NewAdmin(DBConnector *Connector) *Admin {
 	return &Admin{DBConnector: DBConnector}
 }

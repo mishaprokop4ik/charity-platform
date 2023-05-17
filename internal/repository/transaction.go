@@ -9,18 +9,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Transactioner interface {
-	UpdateTransactionByEvent(ctx context.Context, eventID uint, eventType models.EventType, toUpdate map[string]any) error
-	UpdateTransactionByID(ctx context.Context, id uint, toUpdate map[string]any) error
-	GetCurrentEventTransactions(ctx context.Context,
-		eventID uint,
-		eventType models.EventType) ([]models.Transaction, error)
-	UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.TransactionStatus) error
-	GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
-	CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error)
-	GetTransactionByID(ctx context.Context, id uint) (models.Transaction, error)
-}
-
 type Transaction struct {
 	DBConnector *Connector
 }

@@ -60,7 +60,7 @@ func (h *Handler) handleGetHelpEventByID(w http.ResponseWriter, r *http.Request)
 		return
 	}
 	go func() {
-		event, err := h.services.HelpEvent.GetHelpEventByID(ctx, models.ID(parsedID))
+		event, err := h.services.GetHelpEventByID(ctx, models.ID(parsedID))
 
 		eventch <- getHelpEvent{
 			helpEvent: event,
@@ -104,7 +104,7 @@ func (h *Handler) GetHelpEvents(w http.ResponseWriter, r *http.Request) {
 }
 
 // CreateHelpEvent creates a new help event
-// @Summary      Create a new Help event
+// @Summary      CreateNotification a new Help event
 // @Tags         Help Event
 // @Accept       json
 // @Produce      json
@@ -140,7 +140,7 @@ func (h *Handler) handleCreateHelpEvent(w http.ResponseWriter, r *http.Request) 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		id, err := h.services.HelpEvent.CreateHelpEvent(ctx, event.ToInternal(userID.(uint)))
+		id, err := h.services.CreateHelpEvent(ctx, event.ToInternal(userID.(uint)))
 
 		eventch <- idResponse{
 			id:  int(id),
@@ -212,7 +212,7 @@ func (h *Handler) handleUpdateHelpEvent(w http.ResponseWriter, r *http.Request) 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err = h.services.HelpEvent.UpdateEvent(ctx, event.Internal())
+		err = h.services.UpdateHelpEvent(ctx, event.Internal())
 
 		eventch <- errResponse{
 			err: err,
@@ -276,7 +276,7 @@ func (h *Handler) handleSearchHelpEvents(w http.ResponseWriter, r *http.Request)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		events, respError := h.services.HelpEvent.GetHelpEventBySearch(ctx, models.HelpSearchInternal(searchValuesInternal))
+		events, respError := h.services.GetHelpEventBySearch(ctx, models.HelpSearchInternal(searchValuesInternal))
 
 		eventch <- getHelpEventPagination{
 			resp: models.HelpEventsWithPagination{
@@ -335,7 +335,7 @@ func (h *Handler) handleUpdateTransactionResponseHelpEvent(w http.ResponseWriter
 		return
 	}
 
-	oldTransaction, err := h.services.Transaction.GetTransactionByID(ctx, transaction.ID)
+	oldTransaction, err := h.services.GetTransactionByID(ctx, transaction.ID)
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
@@ -347,7 +347,7 @@ func (h *Handler) handleUpdateTransactionResponseHelpEvent(w http.ResponseWriter
 		return
 	}
 
-	helpEvent, err := h.services.HelpEvent.GetHelpEventByTransactionID(ctx, models.ID(transaction.ID))
+	helpEvent, err := h.services.GetHelpEventByTransactionID(ctx, models.ID(transaction.ID))
 	if err != nil {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot get help event by requested transaction %d id",
 			transaction.ID))
@@ -363,7 +363,7 @@ func (h *Handler) handleUpdateTransactionResponseHelpEvent(w http.ResponseWriter
 	eventCreator := userID.(uint) == helpEvent.CreatedBy
 	eventch := make(chan errResponse)
 	go func() {
-		err := h.services.HelpEvent.UpdateTransactionStatus(ctx, transaction.ToInternal(eventCreator, models.ID(helpEvent.ID), userID.(uint)),
+		err := h.services.UpdateTransactionStatus(ctx, transaction.ToInternal(eventCreator, models.ID(helpEvent.ID), userID.(uint)),
 			bytes.NewReader(transaction.FileBytes), transaction.FileType)
 
 		eventch <- errResponse{
@@ -389,8 +389,8 @@ func (h *Handler) handleUpdateTransactionResponseHelpEvent(w http.ResponseWriter
 }
 
 // handleApplyTransaction creates a new help event transaction with TransactionStatus - models.Waiting, ResponderStatus - models.NotStarted.
-// @Description  Create a new help event transaction with TransactionStatus - waiting, ResponderStatus - not_started.
-// @Summary      Create a new help event transaction with TransactionStatus - waiting, ResponderStatus - not_started.
+// @Description  CreateNotification a new help event transaction with TransactionStatus - waiting, ResponderStatus - not_started.
+// @Summary      CreateNotification a new help event transaction with TransactionStatus - waiting, ResponderStatus - not_started.
 // @Tags         Help Event
 // @Accept       json
 // @Produce      json
@@ -418,7 +418,7 @@ func (h *Handler) handleApplyTransaction(w http.ResponseWriter, r *http.Request)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		transactionID, err := h.services.HelpEvent.CreateRequest(ctx, models.ID(userID.(uint)), transactionInfo)
+		transactionID, err := h.services.CreateRequest(ctx, models.ID(userID.(uint)), transactionInfo)
 
 		eventch <- idResponse{
 			id:  int(transactionID),
@@ -466,7 +466,7 @@ func (h *Handler) handleGetOwnHelpEvents(w http.ResponseWriter, r *http.Request)
 	eventch := make(chan helpEventsResponse)
 	defer cancel()
 	go func() {
-		events, err := h.services.HelpEvent.GetUserHelpEvents(ctx, models.ID(userID.(uint)))
+		events, err := h.services.GetUserHelpEvents(ctx, models.ID(userID.(uint)))
 
 		eventch <- helpEventsResponse{
 			events: events,
@@ -497,7 +497,7 @@ func (h *Handler) handleGetOwnHelpEvents(w http.ResponseWriter, r *http.Request)
 // handleWriteCommentInHelpEvent creates new comment in help event
 // @Param request body models.CommentCreateRequest true "query params"
 // @Tags         Help Event
-// @Summary      Create new comment in help event
+// @Summary      CreateNotification new comment in help event
 // @SearchValuesResponse         Help Event
 // @Accept       json
 // @Success      201  {object}  models.CreationResponse
@@ -525,7 +525,7 @@ func (h *Handler) handleWriteCommentInHelpEvent(w http.ResponseWriter, r *http.R
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		id, err := h.services.Comment.WriteComment(ctx, models.Comment{
+		id, err := h.services.WriteComment(ctx, models.Comment{
 			EventID:      comment.EventID,
 			EventType:    models.HelpEventType,
 			Text:         comment.Text,
@@ -587,7 +587,7 @@ func (h *Handler) handleGetCommentsInHelpEvent(w http.ResponseWriter, r *http.Re
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		comments, err := h.services.Comment.GetAllCommentsInEvent(ctx, uint(parsedEventID), models.HelpEventType)
+		comments, err := h.services.GetAllCommentsInEvent(ctx, uint(parsedEventID), models.HelpEventType)
 
 		eventch <- commentsResponse{
 			comments: comments,
@@ -615,7 +615,7 @@ func (h *Handler) handleGetCommentsInHelpEvent(w http.ResponseWriter, r *http.Re
 		}
 
 		for i, c := range resp.comments {
-			user, err := h.services.Authentication.GetUserShortInfo(ctx, c.UserID)
+			user, err := h.services.GetUserShortInfo(ctx, c.UserID)
 			if err != nil {
 				httpHelper.SendErrorResponse(w,
 					http.StatusRequestTimeout,
@@ -678,7 +678,7 @@ func (h *Handler) handleUpdateHelpEventComment(w http.ResponseWriter, r *http.Re
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err := h.services.Comment.UpdateComment(ctx, models.Comment{
+		err := h.services.UpdateComment(ctx, models.Comment{
 			ID:        uint(parsedCommentID),
 			EventType: models.HelpEventType,
 			Text:      comment.Text,
@@ -743,7 +743,7 @@ func (h *Handler) handleDeleteHelpEventComment(w http.ResponseWriter, r *http.Re
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err := h.services.Comment.DeleteComment(ctx, uint(parsedCommentID))
+		err := h.services.DeleteComment(ctx, uint(parsedCommentID))
 
 		eventch <- errResponse{
 			err: err,
@@ -798,7 +798,7 @@ func (h *Handler) handleGetHelpEventStatistics(w http.ResponseWriter, r *http.Re
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		statistics, err := h.services.HelpEvent.GetStatistics(ctx, 28, userIDParsed)
+		statistics, err := h.services.GetHelpEventStatistics(ctx, 28, userIDParsed)
 
 		eventch <- geHelpStatistics{
 			statistics: statistics,

@@ -19,24 +19,6 @@ const defaultSortField = "creation_date"
 
 const defaultProposalImage = "https://charity-platform.s3.amazonaws.com/images/volunteer-care-old-people-nurse-isolated-young-human-helping-senior-volunteers-service-helpful-person-nursing-elderly-decent-vector-set_53562-17770.avif"
 
-type ProposalEventer interface {
-	proposalEventCRUDer
-	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
-	GetEventsWithSearchAndSort(ctx context.Context,
-		searchValues models.ProposalEventSearchInternal) (models.ProposalEventPagination, error)
-	GetProposalEventByTransactionID(ctx context.Context, transactionID int) (models.ProposalEvent, error)
-	GetStatistics(ctx context.Context, id uint, from, to time.Time) ([]models.Transaction, error)
-}
-
-type proposalEventCRUDer interface {
-	CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error)
-	GetEvent(ctx context.Context, id uint) (models.ProposalEvent, error)
-	GetEvents(ctx context.Context) ([]models.ProposalEvent, error)
-	UpdateEvent(ctx context.Context, event models.ProposalEvent) error
-	UpdateRemainingHelps(ctx context.Context, eventID models.ID, increase bool, number int) error
-	DeleteEvent(ctx context.Context, id uint) error
-}
-
 type ProposalEvent struct {
 	DBConnector *Connector
 	Filer
@@ -62,7 +44,7 @@ func (p *ProposalEvent) UpdateRemainingHelps(ctx context.Context, eventID models
 	return err
 }
 
-func (p *ProposalEvent) GetStatistics(ctx context.Context, creatorID uint, from, to time.Time) ([]models.Transaction, error) {
+func (p *ProposalEvent) GetProposalEventStatistics(ctx context.Context, creatorID uint, from, to time.Time) ([]models.Transaction, error) {
 	proposalEvents := []models.ProposalEvent{}
 	err := p.DBConnector.DB.
 		Where("author_id = ?", creatorID).
@@ -146,7 +128,7 @@ func (p *ProposalEvent) calculatePagination(ctx context.Context, searchValues mo
 	return pagination, nil
 }
 
-func (p *ProposalEvent) GetEventsWithSearchAndSort(ctx context.Context,
+func (p *ProposalEvent) GetProposalEventsWithSearchAndSort(ctx context.Context,
 	searchValues models.ProposalEventSearchInternal) (models.ProposalEventPagination, error) {
 	db := p.DBConnector.DB.Session(&gorm.Session{})
 	events := []models.ProposalEvent{}
@@ -305,7 +287,7 @@ func (p *ProposalEvent) removeEmptySearchValues(searchValues models.ProposalEven
 	return newSearchValues
 }
 
-func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error) {
+func (p *ProposalEvent) CreateProposalEvent(ctx context.Context, event models.ProposalEvent) (uint, error) {
 	tx := p.DBConnector.DB.Begin()
 
 	if event.File != nil {

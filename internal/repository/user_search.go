@@ -7,10 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type UserSearcher interface {
-	UpsertTags(ctx context.Context, userID uint, searchValues []models.MemberSearch) error
-}
-
 type UserSearch struct {
 	DBConnector *Connector
 }
@@ -40,7 +36,7 @@ func (t *UserSearch) createSearchValue(ctx context.Context, searchValue models.M
 	return tx.Commit().Error
 }
 
-func (t *UserSearch) UpsertTags(ctx context.Context, userID uint, searchValues []models.MemberSearch) error {
+func (t *UserSearch) UpsertUserTags(ctx context.Context, userID uint, searchValues []models.MemberSearch) error {
 	tx := t.DBConnector.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {

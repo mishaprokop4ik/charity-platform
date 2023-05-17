@@ -8,6 +8,21 @@ import (
 	"io"
 )
 
+//go:generate mockgen -source=service.go -destination=mocks/service.go
+
+type Repositorier interface {
+	repository.Userer
+	repository.AdminCRUDer
+	repository.ProposalEventer
+	repository.Transactioner
+	repository.Commenter
+	repository.Tagger
+	repository.UserSearcher
+	repository.Filer
+	repository.Notifier
+	repository.HelpEventer
+}
+
 type HelpEventer interface {
 	CreateHelpEvent(ctx context.Context, event *models.HelpEvent) (uint, error)
 	GetHelpEventByID(ctx context.Context, id models.ID) (models.HelpEvent, error)
@@ -16,35 +31,98 @@ type HelpEventer interface {
 	UpdateTransactionStatus(ctx context.Context, transaction models.HelpEventTransaction, file io.Reader, fileType string) error
 	GetUserHelpEvents(ctx context.Context, userID models.ID) ([]models.HelpEvent, error)
 	GetHelpEventBySearch(ctx context.Context, search models.HelpSearchInternal) (models.HelpEventPagination, error)
-	UpdateEvent(ctx context.Context, event models.HelpEvent) error
-	GetStatistics(ctx context.Context, fromStart int, creatorID uint) (models.HelpEventStatistics, error)
+	UpdateHelpEvent(ctx context.Context, event models.HelpEvent) error
+	GetHelpEventStatistics(ctx context.Context, fromStart int, creatorID uint) (models.HelpEventStatistics, error)
+}
+
+type ProposalEventer interface {
+	CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error)
+	GetEvent(ctx context.Context, id uint) (models.ProposalEvent, error)
+	GetEvents(ctx context.Context) ([]models.ProposalEvent, error)
+	UpdateProposalEvent(ctx context.Context, event models.ProposalEvent) error
+	DeleteEvent(ctx context.Context, id uint) error
+	Response(ctx context.Context, proposalEventID, responderID uint, comment string) error
+	Accept(ctx context.Context, request models.AcceptRequest) error
+	UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType string) error
+	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
+	GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) (models.ProposalEventPagination, error)
+	GetProposalEventStatistics(ctx context.Context, fromStart int, creatorID uint) (models.ProposalEventStatistics, error)
+}
+
+type AdminCRUDer interface {
+	CreateAdmin(ctx context.Context, admin models.User) (uint, error)
+	GetAdminByID(ctx context.Context, id uint) (models.User, error)
+	UpdateAdmin(ctx context.Context, admin models.User) error
+	DeleteAdmin(ctx context.Context, id uint) error
+	GetAllAdmins(ctx context.Context) ([]models.User, error)
+}
+
+type Transactioner interface {
+	UpdateTransaction(ctx context.Context, transaction models.Transaction) error
+	GetCurrentEventTransactions(ctx context.Context,
+		eventID uint,
+		eventType models.EventType) ([]models.Transaction, error)
+	UpdateAllNotFinishedTransactions(ctx context.Context, eventID uint, eventType models.EventType, newStatus models.TransactionStatus) error
+	GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
+	CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error)
+	GetTransactionByID(ctx context.Context, id uint) (models.Transaction, error)
+}
+
+type Commenter interface {
+	GetAllCommentsInEvent(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Comment, error)
+	GetCommentByID(ctx context.Context, id uint) (models.Comment, error)
+	UpdateComment(ctx context.Context, comment models.Comment) error
+	DeleteComment(ctx context.Context, id uint) error
+	WriteComment(ctx context.Context, comment models.Comment) (uint, error)
+}
+
+type Tagger interface {
+	UpsertTags(ctx context.Context, eventID uint, eventType models.EventType, tags []models.Tag) error
+	GetTagsByEvent(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Tag, error)
+}
+
+type UserSearcher interface {
+	UpsertValues(ctx context.Context, userId uint, tags []models.MemberSearch) error
+}
+
+type TransactionNotifier interface {
+	Read(ctx context.Context, id []uint) error
+	GetUserNotifications(ctx context.Context, userID uint) ([]models.TransactionNotification, error)
+}
+
+type Filer interface {
+	Get(ctx context.Context, identifier string) (io.Reader, error)
+	Upload(ctx context.Context, fileName string, fileData io.Reader) (string, error)
+	Delete(ctx context.Context, identifier string) error
 }
 
 type Service struct {
-	Authentication          Authenticator
-	Admin                   AdminCRUDer
-	ProposalEvent           ProposalEventer
-	Transaction             Transactioner
-	Comment                 Commenter
-	Tag                     Tagger
-	UserSearchValue         UserSearcher
-	TransactionNotification TransactionNotifier
-	HelpEvent               HelpEventer
+	Authenticator
+	AdminCRUDer
+	ProposalEventer
+	Transactioner
+	Commenter
+	Tagger
+	UserSearcher
+	TransactionNotifier
+	HelpEventer
+	Filer
 }
 
-func New(repo *repository.Repository,
+func New(repo Repositorier,
 	authConfig *configs.AuthenticationConfig,
 	emailConfig *configs.Email,
 ) *Service {
 	return &Service{
-		Authentication:          NewAuthentication(repo, authConfig, emailConfig),
-		Admin:                   NewAdmin(repo, authConfig, emailConfig),
-		ProposalEvent:           NewProposalEvent(repo),
-		Transaction:             NewTransaction(repo),
-		Comment:                 NewComment(repo),
-		Tag:                     NewTag(repo),
-		UserSearchValue:         NewUserSearch(repo),
-		TransactionNotification: NewTransactionNotification(repo),
-		HelpEvent:               NewHelpEvent(repo),
+		NewAuthentication(repo, authConfig, emailConfig),
+		NewAdmin(repo, authConfig, emailConfig),
+		NewProposalEvent(repo),
+		NewTransaction(repo),
+		NewComment(repo),
+		NewTag(repo),
+		NewUserSearch(repo),
+		NewTransactionNotification(repo),
+		NewHelpEvent(repo),
+		NewFile(repo),
 	}
 }

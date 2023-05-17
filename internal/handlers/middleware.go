@@ -24,7 +24,7 @@ func (h *Handler) Authentication(next http.Handler) http.Handler {
 			httpHelper.SendErrorResponse(w, http.StatusBadRequest, "invalid auth header")
 			return
 		}
-		id, err := h.services.Authentication.ParseToken(headerParts[1])
+		id, err := h.services.ParseToken(headerParts[1])
 		if err != nil {
 			zlog.Log.Error(err, "incorrect input token")
 			httpHelper.SendErrorResponse(w, http.StatusUnauthorized, "invalid auth token")
@@ -51,7 +51,7 @@ func (h *Handler) SetId(next http.Handler) http.Handler {
 			httpHelper.SendErrorResponse(w, http.StatusBadRequest, "invalid auth header")
 			return
 		}
-		id, err := h.services.Authentication.ParseToken(headerParts[1])
+		id, err := h.services.ParseToken(headerParts[1])
 		if err != nil {
 			zlog.Log.Error(err, "incorrect input token")
 			httpHelper.SendErrorResponse(w, http.StatusUnauthorized, "invalid auth token")

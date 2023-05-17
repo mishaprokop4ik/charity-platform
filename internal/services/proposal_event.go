@@ -2,7 +2,6 @@ package service
 
 import (
 	"Kurajj/internal/models"
-	"Kurajj/internal/repository"
 	"context"
 	"database/sql"
 	"fmt"
@@ -11,35 +10,17 @@ import (
 	"time"
 )
 
-type ProposalEventer interface {
-	ProposalEventCRUDer
-	Response(ctx context.Context, proposalEventID, responderID uint, comment string) error
-	Accept(ctx context.Context, request models.AcceptRequest) error
-	UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType string) error
-	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
-	GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) (models.ProposalEventPagination, error)
-	GetStatistics(ctx context.Context, fromStart int, creatorID uint) (models.ProposalEventStatistics, error)
-}
-
-type ProposalEventCRUDer interface {
-	CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error)
-	GetEvent(ctx context.Context, id uint) (models.ProposalEvent, error)
-	GetEvents(ctx context.Context) ([]models.ProposalEvent, error)
-	UpdateEvent(ctx context.Context, event models.ProposalEvent) error
-	DeleteEvent(ctx context.Context, id uint) error
-}
-
-func NewProposalEvent(repo *repository.Repository) *ProposalEvent {
+func NewProposalEvent(repo Repositorier) *ProposalEvent {
 	return &ProposalEvent{
 		repo: repo, Transaction: NewTransaction(repo)}
 }
 
 type ProposalEvent struct {
 	*Transaction
-	repo *repository.Repository
+	repo Repositorier
 }
 
-func (p *ProposalEvent) GetStatistics(ctx context.Context, fromStart int, creatorID uint) (models.ProposalEventStatistics, error) {
+func (p *ProposalEvent) GetProposalEventStatistics(ctx context.Context, fromStart int, creatorID uint) (models.ProposalEventStatistics, error) {
 	currentTransactions, err := p.getCurrentMonthTransactions(ctx, fromStart, creatorID)
 	if err != nil {
 		return models.ProposalEventStatistics{}, err
@@ -58,7 +39,7 @@ func (p *ProposalEvent) getCurrentMonthTransactions(ctx context.Context, fromSta
 	currentMonthTo := time.Now()
 	currentMonthFrom := currentMonthTo.AddDate(0, 0, int(-fromStart))
 
-	currentTransactions, err := p.repo.ProposalEvent.GetStatistics(ctx, creatorID, currentMonthFrom, currentMonthTo)
+	currentTransactions, err := p.repo.GetHelpEventStatistics(ctx, creatorID, currentMonthFrom, currentMonthTo)
 	if err != nil {
 		return nil, err
 	}
@@ -69,7 +50,7 @@ func (p *ProposalEvent) getCurrentMonthTransactions(ctx context.Context, fromSta
 func (p *ProposalEvent) getPreviousMonthTransactions(ctx context.Context, fromStart int, creatorID uint) ([]models.Transaction, error) {
 	previousMonthTo := time.Now().AddDate(0, 0, int(-fromStart))
 	previousMonthFrom := previousMonthTo.AddDate(0, 0, int(-fromStart))
-	previousTransactions, err := p.repo.ProposalEvent.GetStatistics(ctx, creatorID, previousMonthFrom, previousMonthTo)
+	previousTransactions, err := p.repo.GetHelpEventStatistics(ctx, creatorID, previousMonthFrom, previousMonthTo)
 	if err != nil {
 		return nil, err
 	}
@@ -160,7 +141,7 @@ func getTransactionsByStatus(transactions []models.Transaction, transactionStatu
 }
 
 func (p *ProposalEvent) GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) (models.ProposalEventPagination, error) {
-	return p.repo.ProposalEvent.GetEventsWithSearchAndSort(ctx, search)
+	return p.repo.GetProposalEventsWithSearchAndSort(ctx, search)
 }
 
 func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType string) error {
@@ -186,7 +167,7 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 			return err
 		}
 		fileName := fmt.Sprintf("%s.%s", fileUniqueID.String(), fileType)
-		filePath, err := p.repo.File.Upload(ctx, fileName, file)
+		filePath, err := p.repo.Upload(ctx, fileName, file)
 		if err != nil {
 			return err
 		}
@@ -201,7 +182,7 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 
 	}
 	if status != models.InProcess {
-		err = p.repo.ProposalEvent.UpdateRemainingHelps(ctx, models.ID(transaction.EventID), true, 1)
+		err = p.repo.UpdateRemainingHelps(ctx, models.ID(transaction.EventID), true, 1)
 		if err != nil {
 			return err
 		}
@@ -231,14 +212,14 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 }
 
 func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responderID uint, comment string) error {
-	proposalEvent, err := p.repo.ProposalEvent.GetEvent(ctx, proposalEventID)
+	proposalEvent, err := p.repo.GetEvent(ctx, proposalEventID)
 	if err != nil {
 		return err
 	}
 	if proposalEvent.AuthorID == responderID {
 		return fmt.Errorf("event creator cannot response his/her own events")
 	}
-	err = p.repo.ProposalEvent.UpdateRemainingHelps(ctx, models.ID(proposalEventID), false, 1)
+	err = p.repo.UpdateRemainingHelps(ctx, models.ID(proposalEventID), false, 1)
 	//TODO remove after debug
 	//for _, transaction := range proposalEvent.Transactions {
 	//	if transaction.CreatorID == responderID && lo.Contains([]models.TransactionStatus{
@@ -308,30 +289,30 @@ func (p *ProposalEvent) Accept(ctx context.Context, request models.AcceptRequest
 }
 
 func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error) {
-	return p.repo.ProposalEvent.GetUserProposalEvents(ctx, userID)
+	return p.repo.GetUserProposalEvents(ctx, userID)
 }
 
 func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error) {
-	return p.repo.ProposalEvent.CreateEvent(ctx, event)
+	return p.repo.CreateProposalEvent(ctx, event)
 }
 
 func (p *ProposalEvent) GetEvent(ctx context.Context, id uint) (models.ProposalEvent, error) {
-	return p.repo.ProposalEvent.GetEvent(ctx, id)
+	return p.repo.GetEvent(ctx, id)
 }
 
 func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, error) {
-	return p.repo.ProposalEvent.GetEvents(ctx)
+	return p.repo.GetEvents(ctx)
 }
 
-func (p *ProposalEvent) UpdateEvent(ctx context.Context, newEvent models.ProposalEvent) error {
-	oldEvent, err := p.repo.ProposalEvent.GetEvent(ctx, newEvent.ID)
+func (p *ProposalEvent) UpdateProposalEvent(ctx context.Context, newEvent models.ProposalEvent) error {
+	oldEvent, err := p.repo.GetEvent(ctx, newEvent.ID)
 	if err != nil {
 		return err
 	}
 	if newEvent.MaxConcurrentRequests-oldEvent.MaxConcurrentRequests != 0 && newEvent.MaxConcurrentRequests != 0 {
 		newEvent.RemainingHelps = p.calculateRemainingHelps(oldEvent, newEvent)
 	}
-	return p.repo.ProposalEvent.UpdateEvent(ctx, newEvent)
+	return p.repo.UpdateEvent(ctx, newEvent)
 }
 
 func (p *ProposalEvent) calculateRemainingHelps(oldEvent, newEvent models.ProposalEvent) int {
@@ -339,10 +320,10 @@ func (p *ProposalEvent) calculateRemainingHelps(oldEvent, newEvent models.Propos
 }
 
 func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
-	return p.repo.ProposalEvent.DeleteEvent(ctx, id)
+	return p.repo.DeleteEvent(ctx, id)
 }
 
 func (p *ProposalEvent) createNotification(ctx context.Context, notification models.TransactionNotification) error {
-	_, err := p.repo.TransactionNotification.Create(ctx, notification)
+	_, err := p.repo.CreateNotification(ctx, notification)
 	return err
 }

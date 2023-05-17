@@ -17,12 +17,6 @@ type AWSConfig struct {
 	BucketName      string
 }
 
-type Filer interface {
-	Get(ctx context.Context, identifier string) (io.Reader, error)
-	Upload(ctx context.Context, fileName string, fileData io.Reader) (string, error)
-	Delete(ctx context.Context, identifier string) error
-}
-
 type AWSFile struct {
 	config AWSConfig
 }

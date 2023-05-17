@@ -16,7 +16,7 @@ import (
 )
 
 // CreateProposalEvent creates a new proposal event
-// @Summary      Create a new proposal event
+// @Summary      CreateNotification a new proposal event
 // @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Produce      json
@@ -46,7 +46,7 @@ func (h *Handler) CreateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		id, err := h.services.ProposalEvent.CreateEvent(ctx, event.InternalValue(userID.(uint)))
+		id, err := h.services.CreateEvent(ctx, event.InternalValue(userID.(uint)))
 
 		eventch <- idResponse{
 			id:  int(id),
@@ -113,7 +113,7 @@ func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err = h.services.ProposalEvent.UpdateEvent(ctx, event.Internal())
+		err = h.services.UpdateProposalEvent(ctx, event.Internal())
 
 		eventch <- errResponse{
 			err: err,
@@ -171,7 +171,7 @@ func (h *Handler) DeleteProposalEvent(w http.ResponseWriter, r *http.Request) {
 			httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
 			return
 		}
-		err = h.services.ProposalEvent.DeleteEvent(ctx, uint(parsedID))
+		err = h.services.DeleteEvent(ctx, uint(parsedID))
 
 		eventch <- errResponse{
 			err: err,
@@ -226,7 +226,7 @@ func (h *Handler) GetProposalEvent(w http.ResponseWriter, r *http.Request) {
 			httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
 			return
 		}
-		event, err := h.services.ProposalEvent.GetEvent(ctx, uint(parsedID))
+		event, err := h.services.GetEvent(ctx, uint(parsedID))
 
 		eventch <- getProposalEvent{
 			proposalEvent: models.GetProposalEvent(event),
@@ -274,7 +274,7 @@ func (h *Handler) GetProposalEvents(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		events, err := h.services.ProposalEvent.GetEvents(ctx)
+		events, err := h.services.GetEvents(ctx)
 
 		eventch <- getProposalEvents{
 			proposalEvents: models.GetProposalEvents(events...),
@@ -326,7 +326,7 @@ func (h *Handler) GetUsersProposalEvents(w http.ResponseWriter, r *http.Request)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		events, err := h.services.ProposalEvent.GetUserProposalEvents(ctx, userID.(uint))
+		events, err := h.services.GetUserProposalEvents(ctx, userID.(uint))
 
 		eventch <- getProposalEvents{
 			proposalEvents: models.GetProposalEvents(events...),
@@ -365,7 +365,7 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 // TODO add report CRUD
 
 // ResponseProposalEvent creates new transaction with waiting status for the proposal event if slot is available
-// @Summary      Create new transaction with waiting status for the proposal event if slot is available
+// @Summary      CreateNotification new transaction with waiting status for the proposal event if slot is available
 // @SearchValuesResponse         Proposal Event
 // @Param request body models.TransactionAcceptCreateRequest true "query params"
 // @Accept       json
@@ -399,7 +399,7 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 	go func() {
-		err = h.services.ProposalEvent.Response(ctx, uint(transactionInfo.ID), userID.(uint), transactionInfo.Comment)
+		err = h.services.Response(ctx, uint(transactionInfo.ID), userID.(uint), transactionInfo.Comment)
 
 		errch <- errResponse{
 			err: err,
@@ -463,7 +463,7 @@ func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Req
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err = h.services.ProposalEvent.Accept(ctx, accept)
+		err = h.services.Accept(ctx, accept)
 
 		errch <- errResponse{
 			err: err,
@@ -488,7 +488,7 @@ func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Req
 }
 
 func (h *Handler) validateProposalEventTransactionRequest(ctx context.Context, proposalEventID uint) error {
-	event, err := h.services.ProposalEvent.GetEvent(ctx, proposalEventID)
+	event, err := h.services.GetEvent(ctx, proposalEventID)
 	if err != nil {
 		return err
 	}
@@ -546,7 +546,7 @@ func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err := h.services.ProposalEvent.UpdateStatus(ctx, s.Status,
+		err := h.services.UpdateStatus(ctx, s.Status,
 			uint(parsedTransactionID),
 			userID.(uint),
 			bytes.NewReader(s.FileBytes), s.FileType)
@@ -577,7 +577,7 @@ func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r 
 
 // WriteCommentInProposalEvent creates new comment in proposal event
 // @Param request body models.CommentCreateRequest true "query params"
-// @Summary      Create new comment in proposal event
+// @Summary      CreateNotification new comment in proposal event
 // @SearchValuesResponse         Proposal Event
 // @Accept       json
 // @Success      201  {object}  models.CreationResponse
@@ -605,7 +605,7 @@ func (h *Handler) WriteCommentInProposalEvent(w http.ResponseWriter, r *http.Req
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		id, err := h.services.Comment.WriteComment(ctx, models.Comment{
+		id, err := h.services.WriteComment(ctx, models.Comment{
 			EventID:      comment.EventID,
 			EventType:    models.ProposalEventType,
 			Text:         comment.Text,
@@ -666,7 +666,7 @@ func (h *Handler) GetCommentsInProposalEvent(w http.ResponseWriter, r *http.Requ
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		comments, err := h.services.Comment.GetAllCommentsInEvent(ctx, uint(parsedEventID), models.ProposalEventType)
+		comments, err := h.services.GetAllCommentsInEvent(ctx, uint(parsedEventID), models.ProposalEventType)
 
 		eventch <- commentsResponse{
 			comments: comments,
@@ -694,7 +694,7 @@ func (h *Handler) GetCommentsInProposalEvent(w http.ResponseWriter, r *http.Requ
 		}
 
 		for i, c := range resp.comments {
-			user, err := h.services.Authentication.GetUserShortInfo(ctx, c.UserID)
+			user, err := h.services.GetUserShortInfo(ctx, c.UserID)
 			if err != nil {
 				httpHelper.SendErrorResponse(w,
 					http.StatusRequestTimeout,
@@ -756,7 +756,7 @@ func (h *Handler) UpdateProposalEventComment(w http.ResponseWriter, r *http.Requ
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err := h.services.Comment.UpdateComment(ctx, models.Comment{
+		err := h.services.UpdateComment(ctx, models.Comment{
 			ID:        uint(parsedCommentID),
 			EventType: models.ProposalEventType,
 			Text:      comment.Text,
@@ -820,7 +820,7 @@ func (h *Handler) DeleteProposalEventComment(w http.ResponseWriter, r *http.Requ
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		err := h.services.Comment.DeleteComment(ctx, uint(parsedCommentID))
+		err := h.services.DeleteComment(ctx, uint(parsedCommentID))
 
 		eventch <- errResponse{
 			err: err,
@@ -876,7 +876,7 @@ func (h *Handler) GetProposalEventTransactions(w http.ResponseWriter, r *http.Re
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		transactions, err := h.services.Transaction.GetAllEventTransactions(ctx, uint(parsedEventID), models.ProposalEventType)
+		transactions, err := h.services.GetAllEventTransactions(ctx, uint(parsedEventID), models.ProposalEventType)
 
 		eventch <- transactionsResponse{
 			transactions: transactions,
@@ -963,7 +963,7 @@ func (h *Handler) SearchProposalEvents(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		events, respError := h.services.ProposalEvent.GetProposalEventBySearch(ctx, searchValuesInternal)
+		events, respError := h.services.GetProposalEventBySearch(ctx, searchValuesInternal)
 
 		eventch <- getProposalEventPagination{
 			resp: models.ProposalEventsWithPagination{
@@ -1023,7 +1023,7 @@ func (h *Handler) handleGetProposalEventStatistics(w http.ResponseWriter, r *htt
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		statistics, err := h.services.ProposalEvent.GetStatistics(ctx, 28, uint(userIDParsed))
+		statistics, err := h.services.GetProposalEventStatistics(ctx, 28, uint(userIDParsed))
 
 		eventch <- getProposalStatistics{
 			statistics: statistics,

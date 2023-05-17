@@ -3,14 +3,13 @@ package service
 import (
 	"Kurajj/configs"
 	"Kurajj/internal/models"
-	"Kurajj/internal/repository"
 	zlog "Kurajj/pkg/logger"
 	"bytes"
 	"context"
 	"html/template"
 )
 
-func NewAdmin(repo *repository.Repository, authConfig *configs.AuthenticationConfig, emailConfig *configs.Email) *Admin {
+func NewAdmin(repo Repositorier, authConfig *configs.AuthenticationConfig, emailConfig *configs.Email) *Admin {
 	return &Admin{repo: repo, authConfig: authConfig, emailSender: Sender{
 		email:        emailConfig.Email,
 		password:     emailConfig.Password,
@@ -19,7 +18,7 @@ func NewAdmin(repo *repository.Repository, authConfig *configs.AuthenticationCon
 }
 
 type Admin struct {
-	repo        *repository.Repository
+	repo        Repositorier
 	authConfig  *configs.AuthenticationConfig
 	emailSender Sender
 }
@@ -53,7 +52,7 @@ func (a *Admin) CreateAdmin(ctx context.Context, admin models.User) (uint, error
 	if err != nil {
 		return 0, err
 	}
-	return a.repo.Admin.CreateAdmin(ctx, admin)
+	return a.repo.CreateAdmin(ctx, admin)
 }
 
 func (a *Admin) GetAdminByID(ctx context.Context, id uint) (models.User, error) {
@@ -74,14 +73,6 @@ func (a *Admin) DeleteAdmin(ctx context.Context, id uint) error {
 func (a *Admin) GetAllAdmins(ctx context.Context) ([]models.User, error) {
 	//TODO implement me
 	panic("implement me")
-}
-
-type AdminCRUDer interface {
-	CreateAdmin(ctx context.Context, admin models.User) (uint, error)
-	GetAdminByID(ctx context.Context, id uint) (models.User, error)
-	UpdateAdmin(ctx context.Context, admin models.User) error
-	DeleteAdmin(ctx context.Context, id uint) error
-	GetAllAdmins(ctx context.Context) ([]models.User, error)
 }
 
 const oneTimePasswordEmail = "One time password"

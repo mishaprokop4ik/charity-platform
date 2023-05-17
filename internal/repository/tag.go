@@ -7,13 +7,6 @@ import (
 	"gorm.io/gorm"
 )
 
-type Tagger interface {
-	UpsertTags(ctx context.Context, eventType models.EventType, eventID uint, tags []models.Tag) error
-	GetTagsByEvent(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Tag, error)
-	DeleteAllTagsByEvent(ctx context.Context, eventID uint, eventType models.EventType) error
-	CreateTag(ctx context.Context, tag models.Tag) error
-}
-
 type Tag struct {
 	DBConnector *Connector
 }

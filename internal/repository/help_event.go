@@ -22,7 +22,7 @@ type HelpEvent struct {
 	Filer
 }
 
-func (h *HelpEvent) GetStatistics(ctx context.Context, creatorID uint, from, to time.Time) ([]models.Transaction, error) {
+func (h *HelpEvent) GetHelpEventStatistics(ctx context.Context, creatorID uint, from, to time.Time) ([]models.Transaction, error) {
 	transactions := []models.Transaction{}
 	err := h.DB.
 		Where("event_type = ?", models.HelpEventType).
@@ -47,7 +47,7 @@ func (h *HelpEvent) GetTransactionNeeds(ctx context.Context, transactionID model
 	return needs, err
 }
 
-func (h *HelpEvent) GetEventsWithSearchAndSort(ctx context.Context,
+func (h *HelpEvent) GetHelpEventsWithSearchAndSort(ctx context.Context,
 	searchValues models.HelpSearchInternal) (models.HelpEventPagination, error) {
 	db := h.DB.Session(&gorm.Session{})
 	events := make([]models.HelpEvent, 0)

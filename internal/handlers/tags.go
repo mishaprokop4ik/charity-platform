@@ -36,7 +36,7 @@ func (h *Handler) UpsertTags(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		respError := h.services.Tag.UpsertTags(ctx, tags.EventID, tags.EventType, tags.Internal())
+		respError := h.services.UpsertTags(ctx, tags.EventID, tags.EventType, tags.Internal())
 
 		eventch <- errResponse{
 			err: respError,
@@ -78,7 +78,7 @@ func (h *Handler) GetProposalEventTags(w http.ResponseWriter, r *http.Request) {
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		tags, respError := h.services.Tag.GetTagsByEvent(ctx, uint(parsedID), models.ProposalEventType)
+		tags, respError := h.services.GetTagsByEvent(ctx, uint(parsedID), models.ProposalEventType)
 
 		eventch <- getTagsResponse{
 			tags: tags,

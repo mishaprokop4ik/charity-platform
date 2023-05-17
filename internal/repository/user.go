@@ -12,19 +12,6 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-type Userer interface {
-	CreateUser(ctx context.Context, user models.User) (uint, error)
-	GetUserAuthentication(ctx context.Context, email, password string) (models.User, error)
-	GetUserInfo(ctx context.Context, id uint) (models.User, error)
-	GetEntity(ctx context.Context, email, password string, isAdmin, isDeleted bool) (models.User, error)
-	SetSession(ctx context.Context, userID uint, session models.MemberSession) error
-	GetByRefreshToken(ctx context.Context, token string) (models.User, error)
-	DeleteUser(ctx context.Context, id uint) error
-	UpsertUser(ctx context.Context, values map[string]any) error
-	UpdateUserByEmail(ctx context.Context, email string, values map[string]any) error
-	IsEmailTaken(ctx context.Context, email string) (bool, error)
-}
-
 const defaultUserImage = "https://charity-platform.s3.amazonaws.com/images/png-transparent-default-avatar-thumbnail.png"
 
 type User struct {

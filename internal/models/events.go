@@ -1,5 +1,7 @@
 package models
 
+import "encoding/json"
+
 type EventType string
 
 const (
@@ -32,4 +34,13 @@ const (
 
 type Eventer interface {
 	Serialize() ([]byte, error)
+}
+
+type File struct {
+	Path string `json:"path"`
+}
+
+func (f File) Bytes() []byte {
+	bytes, _ := json.Marshal(f)
+	return bytes
 }
