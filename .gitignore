@@ -12,3 +12,8 @@ kurajj-openssl-ca.cnf
 
 configs/gmail.yaml
 .env
+
+# Ignore mock files
+
+internal/repository/mocks/
+internal/repository/mocks
