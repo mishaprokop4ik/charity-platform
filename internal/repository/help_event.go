@@ -465,7 +465,7 @@ func (h *HelpEvent) CreateEvent(ctx context.Context, event *models.HelpEvent) (u
 	if event.File != nil {
 		fileName, err := uuid.NewUUID()
 		if err != nil {
-			tx.Commit()
+			tx.Rollback()
 			return 0, err
 		}
 		filePath, err := h.Filer.Upload(ctx, fmt.Sprintf("%s.%s", fileName.String(), event.FileType), event.File)

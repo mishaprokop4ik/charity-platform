@@ -302,7 +302,7 @@ func (p *ProposalEvent) CreateProposalEvent(ctx context.Context, event models.Pr
 			return 0, err
 		}
 		event.ImagePath = filePath
-	} else {
+	} else if event.ImagePath == "" {
 		event.ImagePath = defaultProposalImage
 	}
 

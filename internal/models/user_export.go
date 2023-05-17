@@ -1,11 +1,13 @@
 package models
 
 import (
+	zlog "Kurajj/pkg/logger"
 	"Kurajj/pkg/util"
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
+	"net/url"
 	"regexp"
 )
 
@@ -118,6 +120,7 @@ type SignUpUser struct {
 	Password  string  `json:"password"`
 	FileBytes []byte  `json:"fileBytes"`
 	FileType  string  `json:"fileType"`
+	FilePath  string  `json:"filePath"`
 }
 
 // SignInEntity represents default sign in structure.
@@ -140,6 +143,13 @@ func (i SignUpUser) GetInternalUser() User {
 	if len(i.FileBytes) != 0 && user.FileType != "" {
 		user.Image = bytes.NewReader(i.FileBytes)
 		user.FileType = i.FileType
+	}
+	_, err := url.ParseRequestURI(i.FilePath)
+	if i.FilePath != "" && err != nil {
+		zlog.Log.Error(err, "is not an URL")
+	}
+	if err != nil {
+		user.AvatarImagePath = i.FilePath
 	}
 
 	return user

@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"github.com/go-playground/validator/v10"
 	"io"
+	"net/url"
 	"time"
 )
 
@@ -14,6 +15,7 @@ type HelpEventCreateRequest struct {
 	Title       string              `json:"title" validate:"required"`
 	Description string              `json:"description" validate:"required"`
 	Needs       []NeedRequestCreate `json:"needs" validate:"required"`
+	FilePath    string              `json:"imagePath"`
 	FileBytes   []byte              `json:"fileBytes"`
 	FileType    string              `json:"fileType"`
 	Tags        []TagRequestCreate  `json:"tags"`
@@ -53,13 +55,15 @@ func (h *HelpEventCreateRequest) ToInternal(authorID uint) *HelpEvent {
 		needs[i] = n.ToInternal()
 	}
 	event := &HelpEvent{
+		ImagePath:   h.FilePath,
 		Title:       h.Title,
 		Description: h.Description,
 		Needs:       needs,
 		Status:      Active,
 		CreatedBy:   authorID,
 	}
-	if len(h.FileBytes) == 0 || h.FileType == "" {
+	_, err := url.ParseRequestURI(event.ImagePath)
+	if (len(h.FileBytes) == 0 || h.FileType == "") && err != nil {
 		event.ImagePath = defaultImagePath
 	} else if len(h.FileBytes) != 0 && h.FileType != "" {
 		event.FileType = h.FileType

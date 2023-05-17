@@ -127,7 +127,7 @@ func (u *User) CreateUser(ctx context.Context, user models.User) (uint, error) {
 			return 0, err
 		}
 		user.AvatarImagePath = filePath
-	} else {
+	} else if user.AvatarImagePath == "" {
 		user.AvatarImagePath = defaultUserImage
 	}
 	err := u.DBConnector.DB.
