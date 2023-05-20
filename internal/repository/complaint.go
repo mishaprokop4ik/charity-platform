@@ -51,6 +51,7 @@ func (c *Complaint) GetAll(ctx context.Context) ([]models.ComplaintsResponse, er
 				}
 				complaintResponse.CreatorEventID = int(event.CreatedBy)
 				complaintResponse.CreationDate = event.CreatedAt
+				complaintResponse.EventName = event.Title
 			case models.ProposalEventType:
 				event, err := c.getProposalEvent(ctx, complaint.EventID)
 				if err != nil {
@@ -58,6 +59,7 @@ func (c *Complaint) GetAll(ctx context.Context) ([]models.ComplaintsResponse, er
 				}
 				complaintResponse.CreatorEventID = int(event.AuthorID)
 				complaintResponse.CreationDate = event.CreationDate
+				complaintResponse.EventName = event.Title
 			}
 
 			complaintsResponse = append(complaintsResponse, complaintResponse)

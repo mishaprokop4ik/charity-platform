@@ -21,6 +21,7 @@ type ComplaintsResponse struct {
 	EventType      EventType           `json:"eventType"`
 	CreationDate   time.Time           `json:"creationDate"`
 	CreatorEventID int                 `json:"creatorID"`
+	EventName      string              `json:"eventName"`
 	Complaints     []ComplaintResponse `json:"complaints"`
 }
 type ComplaintResponse struct {

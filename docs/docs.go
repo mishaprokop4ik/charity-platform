@@ -2615,6 +2615,9 @@ const docTemplate = `{
                 "eventID": {
                     "type": "integer"
                 },
+                "eventName": {
+                    "type": "string"
+                },
                 "eventType": {
                     "$ref": "#/definitions/Kurajj_internal_models.EventType"
                 }
