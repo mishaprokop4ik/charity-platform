@@ -364,7 +364,7 @@ func (h *Handler) handleUpdateTransactionResponseHelpEvent(w http.ResponseWriter
 	eventch := make(chan errResponse)
 	go func() {
 		err := h.services.UpdateTransactionStatus(ctx, transaction.ToInternal(eventCreator, models.ID(helpEvent.ID), userID.(uint)),
-			bytes.NewReader(transaction.FileBytes), transaction.FileType)
+			bytes.NewReader(transaction.FileBytes), transaction.FileType, transaction.FilePath)
 
 		eventch <- errResponse{
 			err: err,

@@ -144,7 +144,7 @@ func (p *ProposalEvent) GetProposalEventBySearch(ctx context.Context, search mod
 	return p.repo.GetProposalEventsWithSearchAndSort(ctx, search)
 }
 
-func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType string) error {
+func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType string, createdFilePath string) error {
 	transaction, err := p.GetTransactionByID(ctx, transactionID)
 	if err != nil {
 		return err
@@ -172,6 +172,9 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 			return err
 		}
 		transaction.ReportURL = filePath
+		if fileName == "" && fileType == "" {
+			transaction.ReportURL = createdFilePath
+		}
 	}
 
 	if status == models.Completed || status == models.Canceled || status == models.Interrupted || status == models.Aborted {

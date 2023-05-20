@@ -23,6 +23,7 @@ type TransactionResponse struct {
 
 type StatusExport struct {
 	Status    TransactionStatus `json:"status"`
+	FilePath  string            `json:"filePath"`
 	FileBytes []byte            `json:"fileBytes"`
 	FileType  string            `json:"fileType"`
 }

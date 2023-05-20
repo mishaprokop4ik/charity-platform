@@ -13,6 +13,7 @@ type HelpEventTransactionUpdateRequest struct {
 	ID        uint                           `json:"id"`
 	FileBytes []byte                         `json:"fileBytes"`
 	FileType  string                         `json:"fileType"`
+	FilePath  string                         `json:"filePath"`
 	Status    TransactionStatus              `json:"status" validate:"required"`
 	Needs     []NeedTransactionUpdateRequest `json:"needs"`
 }

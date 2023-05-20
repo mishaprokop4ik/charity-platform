@@ -2913,6 +2913,9 @@ const docTemplate = `{
                         "type": "integer"
                     }
                 },
+                "filePath": {
+                    "type": "string"
+                },
                 "fileType": {
                     "type": "string"
                 },
@@ -3455,6 +3458,9 @@ const docTemplate = `{
                         "type": "integer"
                     }
                 },
+                "filePath": {
+                    "type": "string"
+                },
                 "fileType": {
                     "type": "string"
                 },
@@ -3711,6 +3717,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "Kurajj Charity Platform",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {

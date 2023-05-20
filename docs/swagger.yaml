@@ -288,6 +288,8 @@ definitions:
         items:
           type: integer
         type: array
+      filePath:
+        type: string
       fileType:
         type: string
       id:
@@ -646,6 +648,8 @@ definitions:
         items:
           type: integer
         type: array
+      filePath:
+        type: string
       fileType:
         type: string
       status:

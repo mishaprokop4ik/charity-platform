@@ -156,7 +156,7 @@ func (h *HelpEvent) GetHelpEventByTransactionID(ctx context.Context, transaction
 }
 
 func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction models.HelpEventTransaction,
-	file io.Reader, fileType string) error {
+	file io.Reader, fileType, createdFilePath string) error {
 	oldTransaction, err := h.GetTransactionByID(ctx, *transaction.TransactionID)
 	if err != nil {
 		return err
@@ -212,16 +212,20 @@ func (h *HelpEvent) UpdateTransactionStatus(ctx context.Context, transaction mod
 		}
 
 		if transaction.ResponderStatus == models.Completed {
-			fileUniqueID, err := uuid.NewUUID()
-			if err != nil {
-				return err
+			if createdFilePath != "" {
+				oldTransaction.ReportURL = createdFilePath
+			} else {
+				fileUniqueID, err := uuid.NewUUID()
+				if err != nil {
+					return err
+				}
+				fileName := fmt.Sprintf("%s.%s", fileUniqueID.String(), fileType)
+				filePath, err := h.repo.Upload(ctx, fileName, file)
+				if err != nil {
+					return err
+				}
+				oldTransaction.ReportURL = filePath
 			}
-			fileName := fmt.Sprintf("%s.%s", fileUniqueID.String(), fileType)
-			filePath, err := h.repo.Upload(ctx, fileName, file)
-			if err != nil {
-				return err
-			}
-			oldTransaction.ReportURL = filePath
 		}
 	}
 

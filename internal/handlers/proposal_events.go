@@ -536,7 +536,7 @@ func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r 
 	}
 
 	if s.Status == models.Completed {
-		if s.FileBytes == nil || s.FileType == "" {
+		if (s.FileBytes == nil || s.FileType == "") && s.FilePath == "" {
 			httpHelper.SendErrorResponse(w, http.StatusBadRequest, "cannot update status to completed: fileBytes or fileType is empty")
 			return
 		}
@@ -549,7 +549,7 @@ func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r 
 		err := h.services.UpdateStatus(ctx, s.Status,
 			uint(parsedTransactionID),
 			userID.(uint),
-			bytes.NewReader(s.FileBytes), s.FileType)
+			bytes.NewReader(s.FileBytes), s.FileType, s.FilePath)
 
 		eventch <- errResponse{
 			err: err,

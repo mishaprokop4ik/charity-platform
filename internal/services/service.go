@@ -29,7 +29,7 @@ type HelpEventer interface {
 	GetHelpEventByID(ctx context.Context, id models.ID) (models.HelpEvent, error)
 	GetHelpEventByTransactionID(ctx context.Context, transactionID models.ID) (models.HelpEvent, error)
 	CreateRequest(ctx context.Context, userID models.ID, transactionInfo models.TransactionAcceptCreateRequest) (uint, error)
-	UpdateTransactionStatus(ctx context.Context, transaction models.HelpEventTransaction, file io.Reader, fileType string) error
+	UpdateTransactionStatus(ctx context.Context, transaction models.HelpEventTransaction, file io.Reader, fileType, createFilePath string) error
 	GetUserHelpEvents(ctx context.Context, userID models.ID) ([]models.HelpEvent, error)
 	GetHelpEventBySearch(ctx context.Context, search models.HelpSearchInternal) (models.HelpEventPagination, error)
 	UpdateHelpEvent(ctx context.Context, event models.HelpEvent) error
@@ -44,7 +44,7 @@ type ProposalEventer interface {
 	DeleteEvent(ctx context.Context, id uint) error
 	Response(ctx context.Context, proposalEventID, responderID uint, comment string) error
 	Accept(ctx context.Context, request models.AcceptRequest) error
-	UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType string) error
+	UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType, filePath string) error
 	GetUserProposalEvents(ctx context.Context, userID uint) ([]models.ProposalEvent, error)
 	GetProposalEventBySearch(ctx context.Context, search models.ProposalEventSearchInternal) (models.ProposalEventPagination, error)
 	GetProposalEventStatistics(ctx context.Context, fromStart int, creatorID uint) (models.ProposalEventStatistics, error)

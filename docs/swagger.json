@@ -2906,6 +2906,9 @@
                         "type": "integer"
                     }
                 },
+                "filePath": {
+                    "type": "string"
+                },
                 "fileType": {
                     "type": "string"
                 },
@@ -3447,6 +3450,9 @@
                     "items": {
                         "type": "integer"
                     }
+                },
+                "filePath": {
+                    "type": "string"
                 },
                 "fileType": {
                     "type": "string"
