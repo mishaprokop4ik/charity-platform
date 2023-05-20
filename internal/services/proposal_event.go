@@ -48,8 +48,8 @@ func (p *ProposalEvent) getCurrentMonthTransactions(ctx context.Context, fromSta
 }
 
 func (p *ProposalEvent) getPreviousMonthTransactions(ctx context.Context, fromStart int, creatorID uint) ([]models.Transaction, error) {
-	previousMonthTo := time.Now().AddDate(0, 0, int(-fromStart))
-	previousMonthFrom := previousMonthTo.AddDate(0, 0, int(-fromStart))
+	previousMonthTo := time.Now().AddDate(0, 0, -fromStart)
+	previousMonthFrom := previousMonthTo.AddDate(0, 0, -fromStart)
 	previousTransactions, err := p.repo.GetHelpEventStatistics(ctx, creatorID, previousMonthFrom, previousMonthTo)
 	if err != nil {
 		return nil, err
@@ -132,8 +132,7 @@ func compareTwoNumberInPercentage(x, y int) int {
 func getTransactionsByStatus(transactions []models.Transaction, transactionStatus models.TransactionStatus) []models.Transaction {
 	newTransactions := []models.Transaction{}
 	for i := range transactions {
-		if transactions[i].TransactionStatus == transactionStatus ||
-			transactions[i].ResponderStatus == transactionStatus {
+		if transactions[i].TransactionStatus == transactionStatus {
 			newTransactions = append(newTransactions, transactions[i])
 		}
 	}

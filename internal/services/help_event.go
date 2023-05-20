@@ -48,8 +48,8 @@ func (h *HelpEvent) getCurrentMonthTransactions(ctx context.Context, fromStart i
 }
 
 func (h *HelpEvent) getPreviousMonthTransactions(ctx context.Context, fromStart int, creatorID uint) ([]models.Transaction, error) {
-	previousMonthTo := time.Now().AddDate(0, 0, int(-fromStart))
-	previousMonthFrom := previousMonthTo.AddDate(0, 0, int(-fromStart))
+	previousMonthTo := time.Now().AddDate(0, 0, -fromStart)
+	previousMonthFrom := previousMonthTo.AddDate(0, 0, -fromStart)
 	previousTransactions, err := h.repo.GetHelpEventStatistics(ctx, creatorID, previousMonthFrom, previousMonthTo)
 	if err != nil {
 		return nil, err
@@ -61,7 +61,7 @@ func (h *HelpEvent) generateStatistics(currentTransactions, previousTransactions
 	statistics := models.HelpEventStatistics{}
 	requests := make([]models.Request, 28)
 	currentMonthTo := time.Now()
-	currentMonthFrom := currentMonthTo.AddDate(0, 0, int(-28))
+	currentMonthFrom := currentMonthTo.AddDate(0, 0, -28)
 	for i := 1; i <= 28; i++ {
 		currenntDateResponse := currentMonthFrom.AddDate(0, 0, i)
 		requests[i-1] = models.Request{
