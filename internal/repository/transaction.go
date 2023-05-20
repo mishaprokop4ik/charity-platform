@@ -6,7 +6,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/samber/lo"
-	"gorm.io/gorm"
 )
 
 type Transaction struct {
@@ -102,40 +101,6 @@ func (t *Transaction) UpdateTransactionByID(ctx context.Context, id uint, toUpda
 		Error; err != nil {
 		tx.Rollback()
 		return err
-	}
-
-	status := toUpdate["transaction_status"]
-
-	if lo.Contains([]models.TransactionStatus{
-		models.Completed,
-		models.Interrupted,
-		models.Canceled,
-	}, status.(models.TransactionStatus)) && status != transaction.TransactionStatus {
-		switch transaction.EventType {
-		case models.ProposalEventType:
-			err = tx.Model(&models.ProposalEvent{}).
-				Where("id = ?", transaction.EventID).
-				Update("remaining_helps", gorm.Expr("remaining_helps + ?", 1)).
-				WithContext(ctx).
-				Error
-			if err != nil {
-				tx.Rollback()
-				return err
-			}
-		}
-	} else if status == models.Accepted && transaction.TransactionStatus != status {
-		switch transaction.EventType {
-		case models.ProposalEventType:
-			err = tx.Model(&models.ProposalEvent{}).
-				Where("id = ?", transaction.EventID).
-				Update("remaining_helps", gorm.Expr("remaining_helps - ?", 1)).
-				WithContext(ctx).
-				Error
-			if err != nil {
-				tx.Rollback()
-				return err
-			}
-		}
 	}
 
 	return tx.Commit().Error

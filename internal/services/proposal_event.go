@@ -181,13 +181,6 @@ func (p *ProposalEvent) UpdateStatus(ctx context.Context, status models.Transact
 			Time:  time.Now(),
 			Valid: true,
 		}
-
-	}
-	if status == models.Aborted {
-		err = p.repo.UpdateRemainingHelps(ctx, models.ID(transaction.EventID), true, 1)
-		if err != nil {
-			return err
-		}
 	}
 
 	if status != models.InProcess {
