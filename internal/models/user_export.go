@@ -1,7 +1,6 @@
 package models
 
 import (
-	zlog "Kurajj/pkg/logger"
 	"Kurajj/pkg/util"
 	"bytes"
 	"encoding/json"
@@ -12,6 +11,8 @@ import (
 )
 
 const ukrainePhoneNumberPrefix = "+380"
+
+const defaultUserImage = "https://charity-platform.s3.amazonaws.com/images/png-transparent-default-avatar-thumbnail.png"
 
 func UnmarshalCreateAdmin(r *io.ReadCloser) (AdminCreation, error) {
 	admin := AdminCreation{}
@@ -120,7 +121,7 @@ type SignUpUser struct {
 	Password  string  `json:"password"`
 	FileBytes []byte  `json:"fileBytes"`
 	FileType  string  `json:"fileType"`
-	FilePath  string  `json:"filePath"`
+	ImagePath string  `json:"imagePath"`
 }
 
 // SignInEntity represents default sign in structure.
@@ -133,23 +134,20 @@ type SignInEntity struct {
 func (i SignUpUser) GetInternalUser() User {
 	fullName := fmt.Sprintf("%s %s", i.FirstName, i.SecondName)
 	user := User{
-		Email:       string(i.Email),
-		FullName:    fullName,
-		Telephone:   string(i.Telephone),
-		CompanyName: i.CompanyName,
-		Password:    i.Password,
-		Address:     i.Address.String(),
+		Email:           string(i.Email),
+		FullName:        fullName,
+		Telephone:       string(i.Telephone),
+		CompanyName:     i.CompanyName,
+		AvatarImagePath: i.ImagePath,
+		Password:        i.Password,
+		Address:         i.Address.String(),
 	}
-	if len(i.FileBytes) != 0 && user.FileType != "" {
-		user.Image = bytes.NewReader(i.FileBytes)
+	_, err := url.ParseRequestURI(i.ImagePath)
+	if (len(i.FileBytes) == 0 || i.FileType == "") && err != nil {
+		user.AvatarImagePath = defaultUserImage
+	} else if len(i.FileBytes) != 0 && i.FileType != "" {
 		user.FileType = i.FileType
-	}
-	_, err := url.ParseRequestURI(i.FilePath)
-	if i.FilePath != "" && err != nil {
-		zlog.Log.Error(err, "is not an URL")
-	}
-	if err != nil {
-		user.AvatarImagePath = i.FilePath
+		user.Image = bytes.NewBuffer(i.FileBytes)
 	}
 
 	return user

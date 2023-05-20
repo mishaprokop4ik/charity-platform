@@ -32,10 +32,6 @@ const (
 	Aborted           TransactionStatus = "aborted"
 )
 
-type Eventer interface {
-	Serialize() ([]byte, error)
-}
-
 type File struct {
 	Path string `json:"path"`
 }

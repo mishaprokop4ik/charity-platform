@@ -104,6 +104,13 @@ type UserSearcher interface {
 	UpsertUserTags(ctx context.Context, userID uint, searchValues []models.MemberSearch) error
 }
 
+type Complainer interface {
+	Complain(ctx context.Context, complaint models.Complaint) (int, error)
+	GetAll(ctx context.Context) ([]models.ComplaintsResponse, error)
+	BanUser(ctx context.Context, userID models.ID) error
+	BanEvent(ctx context.Context, eventID models.ID, eventType models.EventType) error
+}
+
 type Repository struct {
 	Userer
 	AdminCRUDer
@@ -115,6 +122,7 @@ type Repository struct {
 	Filer
 	Notifier
 	HelpEventer
+	Complainer
 }
 
 func New(dbConnector *Connector, config AWSConfig) *Repository {
@@ -129,5 +137,6 @@ func New(dbConnector *Connector, config AWSConfig) *Repository {
 		NewFile(config),
 		NewTransactionNotification(dbConnector),
 		NewHelpEvent(config, dbConnector),
+		NewComplaint(dbConnector),
 	}
 }

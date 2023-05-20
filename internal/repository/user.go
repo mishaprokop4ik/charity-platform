@@ -12,8 +12,6 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-const defaultUserImage = "https://charity-platform.s3.amazonaws.com/images/png-transparent-default-avatar-thumbnail.png"
-
 type User struct {
 	DBConnector *Connector
 	Filer
@@ -88,6 +86,7 @@ func (u *User) GetUserInfo(ctx context.Context, id uint) (models.User, error) {
 	err := u.DBConnector.DB.
 		Where("id = ?", id).
 		Where("is_deleted = ?", false).
+		Where("is_blocked = ?", false).
 		Where("is_activated = ?", true).
 		First(&user).
 		WithContext(ctx).
@@ -127,8 +126,6 @@ func (u *User) CreateUser(ctx context.Context, user models.User) (uint, error) {
 			return 0, err
 		}
 		user.AvatarImagePath = filePath
-	} else if user.AvatarImagePath == "" {
-		user.AvatarImagePath = defaultUserImage
 	}
 	err := u.DBConnector.DB.
 		Create(&user).
@@ -141,6 +138,7 @@ func (u *User) GetUserAuthentication(ctx context.Context, email, password string
 	resp := u.DBConnector.DB.
 		Where("password = ? AND email = ?", password, email).
 		Where("is_deleted = ?", false).
+		Where("is_blocked = ?", false).
 		Where("is_activated = ?", true).
 		First(&member).
 		WithContext(ctx)
@@ -192,7 +190,9 @@ func (u *User) GetEntity(ctx context.Context, email, password string, isAdmin, i
 		Where("email = ?", email).
 		Where("password = ?", password).
 		Where("is_admin = ?", isAdmin).
+		Where("is_blocked = ?", false).
 		Where("is_deleted = ?", isDeleted).
+		Where("is_activated = ?", true).
 		First(&member).
 		Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {

@@ -18,6 +18,7 @@ type HelpEvent struct {
 	CreatedBy             uint          `gorm:"column:created_by"`
 	CreatedAt             time.Time     `gorm:"column:creation_date"`
 	CompletionTime        time.Time     `gorm:"column:completion_time"`
+	Banned                bool          `gorm:"column:is_banned"`
 	Comments              []Comment     `gorm:"-"`
 	Transactions          []Transaction `gorm:"-"`
 	Location              Address       `gorm:"-"`

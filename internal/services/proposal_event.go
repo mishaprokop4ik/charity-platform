@@ -222,7 +222,7 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	err = p.repo.UpdateRemainingHelps(ctx, models.ID(proposalEventID), false, 1)
 	//TODO remove after debug
 	//for _, transaction := range proposalEvent.Transactions {
-	//	if transaction.CreatorID == responderID && lo.Contains([]models.TransactionStatus{
+	//	if transaction.CreatorEventID == responderID && lo.Contains([]models.TransactionStatus{
 	//		models.Accepted,
 	//		models.InProcess,
 	//		models.Waiting,

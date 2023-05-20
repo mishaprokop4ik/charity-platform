@@ -202,7 +202,7 @@ func (h *HelpEvent) removeEmptySearchValues(searchValues models.HelpSearchIntern
 
 func (h *HelpEvent) GetUserHelpEvents(ctx context.Context, userID models.ID) ([]models.HelpEvent, error) {
 	helpEvents := make([]models.HelpEvent, 0)
-	err := h.DB.Where("is_deleted = ?", false).Where("created_by = ?", userID).Find(&helpEvents).WithContext(ctx).Error
+	err := h.DB.Where("is_deleted = ?", false).Where("is_banned = ?", false).Where("created_by = ?", userID).Find(&helpEvents).WithContext(ctx).Error
 	if err != nil {
 		return nil, err
 	}
@@ -271,7 +271,7 @@ func (h *HelpEvent) saveFile(ctx context.Context, event *models.HelpEvent) error
 			return err
 		}
 
-		imagePath := strings.Split(oldEvent.ImagePath, "/")
+		imagePath := strings.Split(oldEvent.ImagePath, "s3.amazonaws.com/")
 		imageName := imagePath[len(imagePath)-1]
 		err = h.Filer.Delete(ctx, imageName)
 		if err != nil {
@@ -421,6 +421,7 @@ func (h *HelpEvent) getHelpEventComments(ctx context.Context, eventID uint) ([]m
 		Where("event_type = ?", models.HelpEventType).
 		Where("event_id = ?", eventID).
 		Where("is_deleted = ?", false).
+		Where("is_banned = ?", false).
 		Find(&comments).
 		WithContext(ctx).
 		Error

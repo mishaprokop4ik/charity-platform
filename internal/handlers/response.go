@@ -62,6 +62,11 @@ type helpEventsResponse struct {
 	err    error
 }
 
+type complaintsResponse struct {
+	complaints []models.ComplaintsResponse
+	err        error
+}
+
 type getProposalStatistics struct {
 	statistics models.ProposalEventStatistics
 	err        error

@@ -21,6 +21,7 @@ type Repositorier interface {
 	repository.Filer
 	repository.Notifier
 	repository.HelpEventer
+	repository.Complainer
 }
 
 type HelpEventer interface {
@@ -96,6 +97,13 @@ type Filer interface {
 	Delete(ctx context.Context, identifier string) error
 }
 
+type Complainer interface {
+	Complain(ctx context.Context, complaint models.Complaint) (int, error)
+	GetAll(ctx context.Context) ([]models.ComplaintsResponse, error)
+	BanUser(ctx context.Context, userID models.ID) error
+	BanEvent(ctx context.Context, eventID models.ID, eventType models.EventType) error
+}
+
 type Service struct {
 	Authenticator
 	AdminCRUDer
@@ -107,6 +115,7 @@ type Service struct {
 	TransactionNotifier
 	HelpEventer
 	Filer
+	Complainer
 }
 
 func New(repo Repositorier,
@@ -124,5 +133,6 @@ func New(repo Repositorier,
 		NewTransactionNotification(repo),
 		NewHelpEvent(repo),
 		NewFile(repo),
+		NewComplaint(repo),
 	}
 }

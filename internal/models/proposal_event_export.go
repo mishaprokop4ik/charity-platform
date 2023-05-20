@@ -1,7 +1,6 @@
 package models
 
 import (
-	zlog "Kurajj/pkg/logger"
 	"bytes"
 	"database/sql"
 	"encoding/json"
@@ -28,7 +27,7 @@ type ProposalEventRequestCreate struct {
 	MaxConcurrentRequests int          `json:"maxConcurrentRequests"`
 	FileBytes             []byte       `json:"fileBytes"`
 	FileType              string       `json:"fileType"`
-	FilePath              string       `json:"filePath"`
+	FilePath              string       `json:"imagePath"`
 	Tags                  []TagRequest `json:"tags"`
 }
 
@@ -80,22 +79,18 @@ func (p *ProposalEventRequestCreate) InternalValue(userID uint) ProposalEvent {
 		Location:              location,
 		CreationDate:          time.Now(),
 		Status:                Active,
-		FileType:              p.FileType,
+		ImagePath:             p.FilePath,
 		MaxConcurrentRequests: uint(p.MaxConcurrentRequests),
 		RemainingHelps:        p.MaxConcurrentRequests,
 		Tags:                  p.TagsInternal(),
 	}
 
-	if len(p.FileBytes) != 0 {
-		event.File = bytes.NewReader(p.FileBytes)
+	_, err := url.ParseRequestURI(event.ImagePath)
+	if (len(p.FileBytes) == 0 || p.FileType == "") && err != nil {
+		event.ImagePath = defaultImagePath
+	} else if len(p.FileBytes) != 0 && p.FileType != "" {
 		event.FileType = p.FileType
-	}
-	_, err := url.ParseRequestURI(p.FilePath)
-	if p.FilePath != "" && err != nil {
-		zlog.Log.Error(err, "is not an URL")
-	}
-	if err != nil {
-		event.ImagePath = p.FilePath
+		event.File = bytes.NewBuffer(p.FileBytes)
 	}
 	return event
 }

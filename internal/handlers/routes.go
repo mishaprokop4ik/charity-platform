@@ -37,6 +37,8 @@ func (h *Handler) InitRoutes() http.Handler {
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(h.Authentication)
 
+	h.initComplaintHandlers(apiRouter)
+
 	apiRouter.HandleFunc("/refresh-user-data", h.RefreshUserData).Methods(http.MethodPost)
 	apiRouter.HandleFunc("/read-notifications", h.ReadNotifications).Methods(http.MethodPut)
 
@@ -49,6 +51,12 @@ func (h *Handler) InitRoutes() http.Handler {
 	auth.HandleFunc("/sign-in-admin", h.AdminSignIn).
 		Methods(http.MethodPost)
 	auth.HandleFunc("/refresh-token", h.RefreshTokens).Methods(http.MethodPost)
+
+	fileRouter := apiRouter.PathPrefix("/file").Subrouter()
+	fileRouter.HandleFunc("/", h.handleUploadFile).Methods(http.MethodPost)
+	fileRouter.HandleFunc("/{id}", h.handleDeleteFile).Methods(http.MethodDelete)
+
+	//complaintRouter := apiRouter.PathPrefix("/complaint").Subrouter()
 
 	adminSubRouter := apiRouter.PathPrefix("/admin").Subrouter()
 	adminSubRouter.HandleFunc("/create", h.CreateNewAdmin)

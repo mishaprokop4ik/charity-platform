@@ -302,8 +302,6 @@ func (p *ProposalEvent) CreateProposalEvent(ctx context.Context, event models.Pr
 			return 0, err
 		}
 		event.ImagePath = filePath
-	} else if event.ImagePath == "" {
-		event.ImagePath = defaultProposalImage
 	}
 
 	err := tx.
@@ -354,6 +352,7 @@ func (p *ProposalEvent) GetEvent(ctx context.Context, id uint) (models.ProposalE
 	err := p.DBConnector.DB.
 		Where("id = ?", id).
 		Where("is_deleted = ?", false).
+		Where("is_banned = ?", false).
 		First(&event).
 		WithContext(ctx).
 		Error
@@ -382,6 +381,7 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 	events := []models.ProposalEvent{}
 	resp := p.DBConnector.DB.
 		Where("is_deleted = ?", false).
+		Where("is_banned = ?", false).
 		Find(&events).
 		WithContext(ctx)
 
@@ -440,7 +440,7 @@ func (p *ProposalEvent) saveFile(ctx context.Context, event *models.ProposalEven
 			return err
 		}
 
-		imagePath := strings.Split(oldEvent.ImagePath, "/")
+		imagePath := strings.Split(oldEvent.ImagePath, "s3.amazonaws.com/")
 		imageName := imagePath[len(imagePath)-1]
 		err = p.Filer.Delete(ctx, imageName)
 		if err != nil {
@@ -516,6 +516,7 @@ func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) 
 	resp := p.DBConnector.DB.
 		Where("author_id = ?", userID).
 		Where("is_deleted", false).
+		Where("is_banned = ?", false).
 		Find(&events).
 		WithContext(ctx)
 
@@ -608,6 +609,7 @@ func (p *ProposalEvent) getProposalEventComments(ctx context.Context, eventID ui
 		Where("event_type = ?", models.ProposalEventType).
 		Where("event_id = ?", eventID).
 		Where("is_deleted = ?", false).
+		Where("is_banned = ?", false).
 		Find(&comments).
 		WithContext(ctx).
 		Error

@@ -290,7 +290,7 @@ func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transac
 	}
 	//TODO remove after debug
 	//for _, transaction := range Transactions {
-	//	if transaction.CreatorID == responderID && lo.Contains([]models.TransactionStatus{
+	//	if transaction.CreatorEventID == responderID && lo.Contains([]models.TransactionStatus{
 	//		models.Accepted,
 	//		models.InProcess,
 	//		models.Waiting,
