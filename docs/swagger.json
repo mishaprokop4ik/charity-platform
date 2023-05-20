@@ -832,7 +832,7 @@
                 }
             }
         },
-        "/api/events/help/update/{id}": {
+        "/api/events/help/{id}": {
             "put": {
                 "consumes": [
                     "application/json"

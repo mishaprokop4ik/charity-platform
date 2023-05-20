@@ -188,7 +188,7 @@ func (h *Handler) GetTransactionByID(w http.ResponseWriter, r *http.Request) {
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/events/help/update/{id} [put]
+// @Router       /api/events/help/{id} [put]
 func (h *Handler) handleUpdateHelpEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	event, err := models.UnmarshalHelpEventUpdate(&r.Body)

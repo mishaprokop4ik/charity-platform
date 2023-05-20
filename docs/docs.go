@@ -839,7 +839,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/events/help/update/{id}": {
+        "/api/events/help/{id}": {
             "put": {
                 "consumes": [
                     "application/json"
@@ -3711,8 +3711,6 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "Kurajj Charity Platform",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
 }
 
 func init() {
