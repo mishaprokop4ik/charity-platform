@@ -37,7 +37,7 @@ func (h *HelpEvent) GetHelpEventStatistics(ctx context.Context, fromStart int, c
 
 func (h *HelpEvent) getCurrentMonthTransactions(ctx context.Context, fromStart int, creatorID uint) ([]models.Transaction, error) {
 	currentMonthTo := time.Now()
-	currentMonthFrom := currentMonthTo.AddDate(0, 0, int(-fromStart))
+	currentMonthFrom := currentMonthTo.AddDate(0, 0, -fromStart)
 
 	currentTransactions, err := h.repo.GetHelpEventStatistics(ctx, creatorID, currentMonthFrom, currentMonthTo)
 	if err != nil {
@@ -63,9 +63,9 @@ func (h *HelpEvent) generateStatistics(currentTransactions, previousTransactions
 	currentMonthTo := time.Now()
 	currentMonthFrom := currentMonthTo.AddDate(0, 0, -28)
 	for i := 1; i <= 28; i++ {
-		currenntDateResponse := currentMonthFrom.AddDate(0, 0, i)
+		currentDateResponse := currentMonthFrom.AddDate(0, 0, i)
 		requests[i-1] = models.Request{
-			Date:          fmt.Sprintf("%s %d", currenntDateResponse.Month().String(), currenntDateResponse.Day()),
+			Date:          fmt.Sprintf("%s %d", currentDateResponse.Month().String(), currentDateResponse.Day()),
 			RequestsCount: h.getRequestsCount(currentTransactions, currentMonthFrom.AddDate(0, 0, i)),
 		}
 	}

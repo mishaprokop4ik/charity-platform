@@ -25,7 +25,7 @@ func (s ProposalEventStatistics) Bytes() []byte {
 }
 
 type HelpEventStatistics struct {
-	Requests                                         []Request `json:"requests,omitempty"`
+	Requests                                         []Request `json:"requests"`
 	StartDate                                        time.Time `json:"startDate"`
 	EndDate                                          time.Time `json:"endDate"`
 	TransactionsCount                                uint      `json:"transactionsCount"`

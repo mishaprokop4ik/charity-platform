@@ -609,7 +609,6 @@ func (p *ProposalEvent) getProposalEventComments(ctx context.Context, eventID ui
 		Where("event_type = ?", models.ProposalEventType).
 		Where("event_id = ?", eventID).
 		Where("is_deleted = ?", false).
-		Where("is_banned = ?", false).
 		Find(&comments).
 		WithContext(ctx).
 		Error

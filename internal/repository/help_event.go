@@ -421,7 +421,6 @@ func (h *HelpEvent) getHelpEventComments(ctx context.Context, eventID uint) ([]m
 		Where("event_type = ?", models.HelpEventType).
 		Where("event_id = ?", eventID).
 		Where("is_deleted = ?", false).
-		Where("is_banned = ?", false).
 		Find(&comments).
 		WithContext(ctx).
 		Error

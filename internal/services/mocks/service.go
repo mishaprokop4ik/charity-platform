@@ -37,6 +37,49 @@ func (m *MockRepositorier) EXPECT() *MockRepositorierMockRecorder {
 	return m.recorder
 }
 
+// BanEvent mocks base method.
+func (m *MockRepositorier) BanEvent(ctx context.Context, eventID models.ID, eventType models.EventType) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BanEvent", ctx, eventID, eventType)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BanEvent indicates an expected call of BanEvent.
+func (mr *MockRepositorierMockRecorder) BanEvent(ctx, eventID, eventType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BanEvent", reflect.TypeOf((*MockRepositorier)(nil).BanEvent), ctx, eventID, eventType)
+}
+
+// BanUser mocks base method.
+func (m *MockRepositorier) BanUser(ctx context.Context, userID models.ID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BanUser", ctx, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BanUser indicates an expected call of BanUser.
+func (mr *MockRepositorierMockRecorder) BanUser(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BanUser", reflect.TypeOf((*MockRepositorier)(nil).BanUser), ctx, userID)
+}
+
+// Complain mocks base method.
+func (m *MockRepositorier) Complain(ctx context.Context, complaint models.Complaint) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Complain", ctx, complaint)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Complain indicates an expected call of Complain.
+func (mr *MockRepositorierMockRecorder) Complain(ctx, complaint interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Complain", reflect.TypeOf((*MockRepositorier)(nil).Complain), ctx, complaint)
+}
+
 // CreateAdmin mocks base method.
 func (m *MockRepositorier) CreateAdmin(ctx context.Context, admin models.User) (uint, error) {
 	m.ctrl.T.Helper()
@@ -268,6 +311,21 @@ func (m *MockRepositorier) GetAdminByID(ctx context.Context, id uint) (models.Us
 func (mr *MockRepositorierMockRecorder) GetAdminByID(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAdminByID", reflect.TypeOf((*MockRepositorier)(nil).GetAdminByID), ctx, id)
+}
+
+// GetAll mocks base method.
+func (m *MockRepositorier) GetAll(ctx context.Context) ([]models.ComplaintsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAll", ctx)
+	ret0, _ := ret[0].([]models.ComplaintsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAll indicates an expected call of GetAll.
+func (mr *MockRepositorierMockRecorder) GetAll(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockRepositorier)(nil).GetAll), ctx)
 }
 
 // GetAllAdmins mocks base method.
@@ -1032,19 +1090,19 @@ func (mr *MockHelpEventerMockRecorder) GetHelpEventByTransactionID(ctx, transact
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHelpEventByTransactionID", reflect.TypeOf((*MockHelpEventer)(nil).GetHelpEventByTransactionID), ctx, transactionID)
 }
 
-// GetStatistics mocks base method.
-func (m *MockHelpEventer) GetStatistics(ctx context.Context, fromStart int, creatorID uint) (models.HelpEventStatistics, error) {
+// GetHelpEventStatistics mocks base method.
+func (m *MockHelpEventer) GetHelpEventStatistics(ctx context.Context, fromStart int, creatorID uint) (models.HelpEventStatistics, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetStatistics", ctx, fromStart, creatorID)
+	ret := m.ctrl.Call(m, "GetHelpEventStatistics", ctx, fromStart, creatorID)
 	ret0, _ := ret[0].(models.HelpEventStatistics)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetStatistics indicates an expected call of GetStatistics.
-func (mr *MockHelpEventerMockRecorder) GetStatistics(ctx, fromStart, creatorID interface{}) *gomock.Call {
+// GetHelpEventStatistics indicates an expected call of GetHelpEventStatistics.
+func (mr *MockHelpEventerMockRecorder) GetHelpEventStatistics(ctx, fromStart, creatorID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStatistics", reflect.TypeOf((*MockHelpEventer)(nil).GetStatistics), ctx, fromStart, creatorID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetHelpEventStatistics", reflect.TypeOf((*MockHelpEventer)(nil).GetHelpEventStatistics), ctx, fromStart, creatorID)
 }
 
 // GetUserHelpEvents mocks base method.
@@ -1062,32 +1120,32 @@ func (mr *MockHelpEventerMockRecorder) GetUserHelpEvents(ctx, userID interface{}
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserHelpEvents", reflect.TypeOf((*MockHelpEventer)(nil).GetUserHelpEvents), ctx, userID)
 }
 
-// UpdateEvent mocks base method.
-func (m *MockHelpEventer) UpdateEvent(ctx context.Context, event models.HelpEvent) error {
+// UpdateHelpEvent mocks base method.
+func (m *MockHelpEventer) UpdateHelpEvent(ctx context.Context, event models.HelpEvent) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateEvent", ctx, event)
+	ret := m.ctrl.Call(m, "UpdateHelpEvent", ctx, event)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateEvent indicates an expected call of UpdateEvent.
-func (mr *MockHelpEventerMockRecorder) UpdateEvent(ctx, event interface{}) *gomock.Call {
+// UpdateHelpEvent indicates an expected call of UpdateHelpEvent.
+func (mr *MockHelpEventerMockRecorder) UpdateHelpEvent(ctx, event interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateEvent", reflect.TypeOf((*MockHelpEventer)(nil).UpdateEvent), ctx, event)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateHelpEvent", reflect.TypeOf((*MockHelpEventer)(nil).UpdateHelpEvent), ctx, event)
 }
 
 // UpdateTransactionStatus mocks base method.
-func (m *MockHelpEventer) UpdateTransactionStatus(ctx context.Context, transaction models.HelpEventTransaction, file io.Reader, fileType string) error {
+func (m *MockHelpEventer) UpdateTransactionStatus(ctx context.Context, transaction models.HelpEventTransaction, file io.Reader, fileType, createFilePath string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateTransactionStatus", ctx, transaction, file, fileType)
+	ret := m.ctrl.Call(m, "UpdateTransactionStatus", ctx, transaction, file, fileType, createFilePath)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateTransactionStatus indicates an expected call of UpdateTransactionStatus.
-func (mr *MockHelpEventerMockRecorder) UpdateTransactionStatus(ctx, transaction, file, fileType interface{}) *gomock.Call {
+func (mr *MockHelpEventerMockRecorder) UpdateTransactionStatus(ctx, transaction, file, fileType, createFilePath interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTransactionStatus", reflect.TypeOf((*MockHelpEventer)(nil).UpdateTransactionStatus), ctx, transaction, file, fileType)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTransactionStatus", reflect.TypeOf((*MockHelpEventer)(nil).UpdateTransactionStatus), ctx, transaction, file, fileType, createFilePath)
 }
 
 // MockProposalEventer is a mock of ProposalEventer interface.
@@ -1201,19 +1259,19 @@ func (mr *MockProposalEventerMockRecorder) GetProposalEventBySearch(ctx, search 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProposalEventBySearch", reflect.TypeOf((*MockProposalEventer)(nil).GetProposalEventBySearch), ctx, search)
 }
 
-// GetStatistics mocks base method.
-func (m *MockProposalEventer) GetStatistics(ctx context.Context, fromStart int, creatorID uint) (models.ProposalEventStatistics, error) {
+// GetProposalEventStatistics mocks base method.
+func (m *MockProposalEventer) GetProposalEventStatistics(ctx context.Context, fromStart int, creatorID uint) (models.ProposalEventStatistics, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetStatistics", ctx, fromStart, creatorID)
+	ret := m.ctrl.Call(m, "GetProposalEventStatistics", ctx, fromStart, creatorID)
 	ret0, _ := ret[0].(models.ProposalEventStatistics)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetStatistics indicates an expected call of GetStatistics.
-func (mr *MockProposalEventerMockRecorder) GetStatistics(ctx, fromStart, creatorID interface{}) *gomock.Call {
+// GetProposalEventStatistics indicates an expected call of GetProposalEventStatistics.
+func (mr *MockProposalEventerMockRecorder) GetProposalEventStatistics(ctx, fromStart, creatorID interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetStatistics", reflect.TypeOf((*MockProposalEventer)(nil).GetStatistics), ctx, fromStart, creatorID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProposalEventStatistics", reflect.TypeOf((*MockProposalEventer)(nil).GetProposalEventStatistics), ctx, fromStart, creatorID)
 }
 
 // GetUserProposalEvents mocks base method.
@@ -1245,32 +1303,32 @@ func (mr *MockProposalEventerMockRecorder) Response(ctx, proposalEventID, respon
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Response", reflect.TypeOf((*MockProposalEventer)(nil).Response), ctx, proposalEventID, responderID, comment)
 }
 
-// UpdateEvent mocks base method.
-func (m *MockProposalEventer) UpdateEvent(ctx context.Context, event models.ProposalEvent) error {
+// UpdateProposalEvent mocks base method.
+func (m *MockProposalEventer) UpdateProposalEvent(ctx context.Context, event models.ProposalEvent) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateEvent", ctx, event)
+	ret := m.ctrl.Call(m, "UpdateProposalEvent", ctx, event)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateEvent indicates an expected call of UpdateEvent.
-func (mr *MockProposalEventerMockRecorder) UpdateEvent(ctx, event interface{}) *gomock.Call {
+// UpdateProposalEvent indicates an expected call of UpdateProposalEvent.
+func (mr *MockProposalEventerMockRecorder) UpdateProposalEvent(ctx, event interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateEvent", reflect.TypeOf((*MockProposalEventer)(nil).UpdateEvent), ctx, event)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateProposalEvent", reflect.TypeOf((*MockProposalEventer)(nil).UpdateProposalEvent), ctx, event)
 }
 
 // UpdateStatus mocks base method.
-func (m *MockProposalEventer) UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType string) error {
+func (m *MockProposalEventer) UpdateStatus(ctx context.Context, status models.TransactionStatus, transactionID, userID uint, file io.Reader, fileType, filePath string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "UpdateStatus", ctx, status, transactionID, userID, file, fileType)
+	ret := m.ctrl.Call(m, "UpdateStatus", ctx, status, transactionID, userID, file, fileType, filePath)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // UpdateStatus indicates an expected call of UpdateStatus.
-func (mr *MockProposalEventerMockRecorder) UpdateStatus(ctx, status, transactionID, userID, file, fileType interface{}) *gomock.Call {
+func (mr *MockProposalEventerMockRecorder) UpdateStatus(ctx, status, transactionID, userID, file, fileType, filePath interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockProposalEventer)(nil).UpdateStatus), ctx, status, transactionID, userID, file, fileType)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateStatus", reflect.TypeOf((*MockProposalEventer)(nil).UpdateStatus), ctx, status, transactionID, userID, file, fileType, filePath)
 }
 
 // MockAdminCRUDer is a mock of AdminCRUDer interface.
@@ -1715,4 +1773,152 @@ func (m *MockTransactionNotifier) Read(ctx context.Context, id []uint) error {
 func (mr *MockTransactionNotifierMockRecorder) Read(ctx, id interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockTransactionNotifier)(nil).Read), ctx, id)
+}
+
+// MockFiler is a mock of Filer interface.
+type MockFiler struct {
+	ctrl     *gomock.Controller
+	recorder *MockFilerMockRecorder
+}
+
+// MockFilerMockRecorder is the mock recorder for MockFiler.
+type MockFilerMockRecorder struct {
+	mock *MockFiler
+}
+
+// NewMockFiler creates a new mock instance.
+func NewMockFiler(ctrl *gomock.Controller) *MockFiler {
+	mock := &MockFiler{ctrl: ctrl}
+	mock.recorder = &MockFilerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockFiler) EXPECT() *MockFilerMockRecorder {
+	return m.recorder
+}
+
+// Delete mocks base method.
+func (m *MockFiler) Delete(ctx context.Context, identifier string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", ctx, identifier)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Delete indicates an expected call of Delete.
+func (mr *MockFilerMockRecorder) Delete(ctx, identifier interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockFiler)(nil).Delete), ctx, identifier)
+}
+
+// Get mocks base method.
+func (m *MockFiler) Get(ctx context.Context, identifier string) (io.Reader, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Get", ctx, identifier)
+	ret0, _ := ret[0].(io.Reader)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Get indicates an expected call of Get.
+func (mr *MockFilerMockRecorder) Get(ctx, identifier interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockFiler)(nil).Get), ctx, identifier)
+}
+
+// Upload mocks base method.
+func (m *MockFiler) Upload(ctx context.Context, fileName string, fileData io.Reader) (string, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Upload", ctx, fileName, fileData)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Upload indicates an expected call of Upload.
+func (mr *MockFilerMockRecorder) Upload(ctx, fileName, fileData interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Upload", reflect.TypeOf((*MockFiler)(nil).Upload), ctx, fileName, fileData)
+}
+
+// MockComplainer is a mock of Complainer interface.
+type MockComplainer struct {
+	ctrl     *gomock.Controller
+	recorder *MockComplainerMockRecorder
+}
+
+// MockComplainerMockRecorder is the mock recorder for MockComplainer.
+type MockComplainerMockRecorder struct {
+	mock *MockComplainer
+}
+
+// NewMockComplainer creates a new mock instance.
+func NewMockComplainer(ctrl *gomock.Controller) *MockComplainer {
+	mock := &MockComplainer{ctrl: ctrl}
+	mock.recorder = &MockComplainerMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockComplainer) EXPECT() *MockComplainerMockRecorder {
+	return m.recorder
+}
+
+// BanEvent mocks base method.
+func (m *MockComplainer) BanEvent(ctx context.Context, eventID models.ID, eventType models.EventType) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BanEvent", ctx, eventID, eventType)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BanEvent indicates an expected call of BanEvent.
+func (mr *MockComplainerMockRecorder) BanEvent(ctx, eventID, eventType interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BanEvent", reflect.TypeOf((*MockComplainer)(nil).BanEvent), ctx, eventID, eventType)
+}
+
+// BanUser mocks base method.
+func (m *MockComplainer) BanUser(ctx context.Context, userID models.ID) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "BanUser", ctx, userID)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// BanUser indicates an expected call of BanUser.
+func (mr *MockComplainerMockRecorder) BanUser(ctx, userID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "BanUser", reflect.TypeOf((*MockComplainer)(nil).BanUser), ctx, userID)
+}
+
+// Complain mocks base method.
+func (m *MockComplainer) Complain(ctx context.Context, complaint models.Complaint) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Complain", ctx, complaint)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Complain indicates an expected call of Complain.
+func (mr *MockComplainerMockRecorder) Complain(ctx, complaint interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Complain", reflect.TypeOf((*MockComplainer)(nil).Complain), ctx, complaint)
+}
+
+// GetAll mocks base method.
+func (m *MockComplainer) GetAll(ctx context.Context) ([]models.ComplaintsResponse, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAll", ctx)
+	ret0, _ := ret[0].([]models.ComplaintsResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAll indicates an expected call of GetAll.
+func (mr *MockComplainerMockRecorder) GetAll(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAll", reflect.TypeOf((*MockComplainer)(nil).GetAll), ctx)
 }
