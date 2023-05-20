@@ -1,6 +1,7 @@
 BEGIN;
 ALTER TABLE help_event ADD COLUMN is_banned BOOLEAN DEFAULT false NOT NULL;
 ALTER TABLE propositional_event ADD COLUMN is_banned BOOLEAN DEFAULT false NOT NULL;
+ALTER TABLE members ADD COLUMN is_blocked BOOLEAN DEFAULT false NOT NULL;
 CREATE TABLE IF NOT EXISTS complaints (
     id bigserial PRIMARY KEY,
     description varchar,

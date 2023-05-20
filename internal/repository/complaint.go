@@ -15,7 +15,7 @@ type Complaint struct {
 }
 
 func (c *Complaint) Complain(ctx context.Context, complaint models.Complaint) (int, error) {
-	err := c.DB.Create(complaint).WithContext(ctx).Error
+	err := c.DB.Create(&complaint).WithContext(ctx).Error
 	return int(complaint.ID), err
 }
 
@@ -83,7 +83,7 @@ func (c *Complaint) BanUser(ctx context.Context, userID models.ID) error {
 	err = tx.
 		Model(&models.HelpEvent{}).
 		Where("created_by = ?", userID).
-		Update("is_deleted", true).
+		Update("is_banned", true).
 		WithContext(ctx).
 		Error
 	if err != nil {
@@ -93,8 +93,8 @@ func (c *Complaint) BanUser(ctx context.Context, userID models.ID) error {
 
 	err = tx.
 		Model(&models.ProposalEvent{}).
-		Where("created_by = ?", userID).
-		Update("is_deleted", true).
+		Where("author_id = ?", userID).
+		Update("is_banned", true).
 		WithContext(ctx).
 		Error
 	if err != nil {
@@ -121,6 +121,7 @@ func (c *Complaint) BanEvent(ctx context.Context, eventID models.ID, eventType m
 func (c *Complaint) banHelpEvent(ctx context.Context, eventID models.ID) error {
 	return c.DB.
 		Model(&models.HelpEvent{}).
+		Where("id = ?", eventID).
 		Update("is_banned", true).
 		WithContext(ctx).
 		Error
@@ -129,6 +130,7 @@ func (c *Complaint) banHelpEvent(ctx context.Context, eventID models.ID) error {
 func (c *Complaint) banProposalEvent(ctx context.Context, eventID models.ID) error {
 	return c.DB.
 		Model(&models.ProposalEvent{}).
+		Where("id = ?", eventID).
 		Update("is_banned", true).
 		WithContext(ctx).
 		Error

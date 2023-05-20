@@ -12,7 +12,7 @@ type ComplaintRequest struct {
 	EventID     ID        `json:"eventID"`
 }
 
-func (c *ComplaintRequest) Internal(userID int) Complaint {
+func (c *ComplaintRequest) Internal(userID uint) Complaint {
 	return Complaint{
 		Description:  c.Description,
 		EventType:    c.EventType,

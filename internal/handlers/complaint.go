@@ -15,8 +15,8 @@ func (h *Handler) initComplaintHandlers(api *mux.Router) {
 	complaint := api.PathPrefix("/complaint").Subrouter()
 	complaint.HandleFunc("/", h.handleCreateComplaint).Methods(http.MethodPost)
 	complaint.HandleFunc("/", h.handleGetComplaints).Methods(http.MethodGet)
-	complaint.HandleFunc("/{id}/eventbanned", h.handleBanEvent).Methods(http.MethodPost)
-	complaint.HandleFunc("/{id}/userbanned", h.handleBanUser).Methods(http.MethodPost)
+	complaint.HandleFunc("/ban-event", h.handleBanEvent).Methods(http.MethodPost)
+	complaint.HandleFunc("/ban-user/{id}", h.handleBanUser).Methods(http.MethodPost)
 }
 
 func (h *Handler) handleCreateComplaint(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +38,7 @@ func (h *Handler) handleCreateComplaint(w http.ResponseWriter, r *http.Request) 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
 	go func() {
-		id, err := h.services.Complain(ctx, complaint.Internal(userID.(int)))
+		id, err := h.services.Complain(ctx, complaint.Internal(userID.(uint)))
 
 		eventch <- idResponse{
 			id:  id,
