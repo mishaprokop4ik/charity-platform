@@ -87,6 +87,237 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/complaints/": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Complaint"
+                ],
+                "summary": "Gets all events and their complaints",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.EventComplaintsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Complaint"
+                ],
+                "summary": "Creates new complaint for one of event",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ComplaintRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.CreationResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/complaints/ban-event": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Complaint"
+                ],
+                "summary": "Ban an event",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.EventBan"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/complaints/ban-user/{id}": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Complaint"
+                ],
+                "summary": "Ban user",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/events/help/comment": {
             "post": {
                 "consumes": [
@@ -501,6 +732,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/api/events/help/statistics": {
+            "get": {
+                "tags": [
+                    "Help Event"
+                ],
+                "summary": "Take statistics of help event from current date - 28 to current date",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.HelpEventStatistics"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/api/events/help/transaction": {
             "put": {
                 "consumes": [
@@ -629,7 +906,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/events/proposal/accept": {
+        "/api/events/proposal/accept/{id}": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -1461,67 +1738,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/open-api/help/{id}": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Help Event"
-                ],
-                "summary": "Get help event by id",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.HelpEventResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "408": {
-                        "description": "Request Timeout",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
-                        }
-                    }
-                }
-            }
-        },
         "/api/read-notifications": {
             "put": {
                 "consumes": [
@@ -2130,6 +2346,67 @@ const docTemplate = `{
                 }
             }
         },
+        "/open-api/help/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Help Event"
+                ],
+                "summary": "Get help event by id",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.HelpEventResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/open-api/proposal-search": {
             "post": {
                 "consumes": [
@@ -2295,6 +2572,54 @@ const docTemplate = `{
                 }
             }
         },
+        "Kurajj_internal_models.ComplaintRequest": {
+            "type": "object",
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "eventID": {
+                    "type": "integer"
+                },
+                "eventType": {
+                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
+                }
+            }
+        },
+        "Kurajj_internal_models.ComplaintResponse": {
+            "type": "object",
+            "properties": {
+                "creationDate": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                }
+            }
+        },
+        "Kurajj_internal_models.ComplaintsResponse": {
+            "type": "object",
+            "properties": {
+                "complaints": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.ComplaintResponse"
+                    }
+                },
+                "creationDate": {
+                    "type": "string"
+                },
+                "creatorID": {
+                    "type": "integer"
+                },
+                "eventID": {
+                    "type": "integer"
+                },
+                "eventType": {
+                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
+                }
+            }
+        },
         "Kurajj_internal_models.CreationResponse": {
             "type": "object",
             "properties": {
@@ -2308,6 +2633,28 @@ const docTemplate = `{
             "properties": {
                 "error": {
                     "type": "string"
+                }
+            }
+        },
+        "Kurajj_internal_models.EventBan": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "type": {
+                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
+                }
+            }
+        },
+        "Kurajj_internal_models.EventComplaintsResponse": {
+            "type": "object",
+            "properties": {
+                "complaints": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.ComplaintsResponse"
+                    }
                 }
             }
         },
@@ -2353,6 +2700,9 @@ const docTemplate = `{
                     }
                 },
                 "fileType": {
+                    "type": "string"
+                },
+                "imagePath": {
                     "type": "string"
                 },
                 "needs": {
@@ -2454,6 +2804,47 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/Kurajj_internal_models.HelpEventTransactionResponse"
                     }
+                }
+            }
+        },
+        "Kurajj_internal_models.HelpEventStatistics": {
+            "type": "object",
+            "properties": {
+                "abortedTransactionsCount": {
+                    "type": "integer"
+                },
+                "abortedTransactionsCountCompare": {
+                    "type": "integer"
+                },
+                "canceledTransactionCount": {
+                    "type": "integer"
+                },
+                "canceledTransactionCountCompare": {
+                    "type": "integer"
+                },
+                "doneTransactionsCount": {
+                    "type": "integer"
+                },
+                "doneTransactionsCountCompare": {
+                    "type": "integer"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "requests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.Request"
+                    }
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "transactionsCount": {
+                    "type": "integer"
+                },
+                "transactionsCountCompare": {
+                    "type": "integer"
                 }
             }
         },
@@ -2596,9 +2987,6 @@ const docTemplate = `{
         "Kurajj_internal_models.MemberSearchRequestCreate": {
             "type": "object",
             "properties": {
-                "eventType": {
-                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
-                },
                 "title": {
                     "type": "string"
                 },
@@ -2613,6 +3001,9 @@ const docTemplate = `{
         "Kurajj_internal_models.MemberSearchValuesRequestCreate": {
             "type": "object",
             "properties": {
+                "eventType": {
+                    "$ref": "#/definitions/Kurajj_internal_models.EventType"
+                },
                 "tags": {
                     "type": "array",
                     "items": {
@@ -2782,6 +3173,9 @@ const docTemplate = `{
                     }
                 },
                 "fileType": {
+                    "type": "string"
+                },
+                "imagePath": {
                     "type": "string"
                 },
                 "maxConcurrentRequests": {
@@ -2983,6 +3377,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "firstName": {
+                    "type": "string"
+                },
+                "imagePath": {
                     "type": "string"
                 },
                 "password": {
@@ -3314,6 +3711,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "Kurajj Charity Platform",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {
