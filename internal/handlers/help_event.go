@@ -354,6 +354,12 @@ func (h *Handler) handleUpdateTransactionResponseHelpEvent(w http.ResponseWriter
 		return
 	}
 
+	if helpEvent.Status == models.Blocked {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot update transactions in %s event, because event has %s status",
+			helpEvent.Title, helpEvent.Status))
+		return
+	}
+
 	userID := r.Context().Value(MemberIDContextKey)
 	if userID == "" {
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, "user id isn't in context")
@@ -415,8 +421,20 @@ func (h *Handler) handleApplyTransaction(w http.ResponseWriter, r *http.Request)
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+	helpEvent, err := h.services.GetHelpEventByID(ctx, models.ID(transactionInfo.ID))
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot get help event by requested %d id",
+			transactionInfo.ID))
+		return
+	}
+	if helpEvent.Status == models.Blocked {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot update transactions in %s event, because event has %s status",
+			helpEvent.Title, helpEvent.Status))
+		return
+	}
 	go func() {
 		transactionID, err := h.services.CreateRequest(ctx, models.ID(userID.(uint)), transactionInfo)
 
@@ -524,6 +542,17 @@ func (h *Handler) handleWriteCommentInHelpEvent(w http.ResponseWriter, r *http.R
 	eventch := make(chan idResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+	helpEvent, err := h.services.GetHelpEventByID(ctx, models.ID(comment.EventID))
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot get help event by requested %d id",
+			comment.EventID))
+		return
+	}
+	if helpEvent.Status == models.Blocked {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot update transactions in %s event, because event has %s status",
+			helpEvent.Title, helpEvent.Status))
+		return
+	}
 	go func() {
 		id, err := h.services.WriteComment(ctx, models.Comment{
 			EventID:      comment.EventID,
@@ -677,6 +706,7 @@ func (h *Handler) handleUpdateHelpEventComment(w http.ResponseWriter, r *http.Re
 	eventch := make(chan errResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+	// TODO check that event in not blocked/completed state
 	go func() {
 		err := h.services.UpdateComment(ctx, models.Comment{
 			ID:        uint(parsedCommentID),

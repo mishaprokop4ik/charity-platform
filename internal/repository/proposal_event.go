@@ -195,7 +195,7 @@ func (p *ProposalEvent) GetProposalEventsWithSearchAndSort(ctx context.Context,
 		return models.ProposalEventPagination{}, err
 	}
 
-	err = query.Limit(searchValues.Pagination.PageSize).Offset(pagination.Offset).Find(&events).WithContext(ctx).Error
+	err = query.Limit(searchValues.Pagination.PageSize).Offset(pagination.Offset).Not("propositional_event.status = ?", models.Blocked).Find(&events).WithContext(ctx).Error
 	if err != nil {
 		return models.ProposalEventPagination{}, err
 	}
@@ -352,7 +352,6 @@ func (p *ProposalEvent) GetEvent(ctx context.Context, id uint) (models.ProposalE
 	err := p.DBConnector.DB.
 		Where("id = ?", id).
 		Where("is_deleted = ?", false).
-		Where("is_banned = ?", false).
 		First(&event).
 		WithContext(ctx).
 		Error
@@ -381,7 +380,7 @@ func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, 
 	events := []models.ProposalEvent{}
 	resp := p.DBConnector.DB.
 		Where("is_deleted = ?", false).
-		Where("is_banned = ?", false).
+		Not("status = ?", models.Blocked).
 		Find(&events).
 		WithContext(ctx)
 
@@ -413,7 +412,7 @@ func (p *ProposalEvent) UpdateEvent(ctx context.Context, event models.ProposalEv
 			return err
 		}
 	}
-	fmt.Println(event.GetValuesToUpdate(), lo.Keys(event.GetValuesToUpdate()))
+
 	return p.DBConnector.DB.
 		Model(&models.ProposalEvent{}).
 		Select(lo.Keys(event.GetValuesToUpdate())).
@@ -515,8 +514,6 @@ func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) 
 	events := []models.ProposalEvent{}
 	resp := p.DBConnector.DB.
 		Where("author_id = ?", userID).
-		Where("is_deleted", false).
-		Where("is_banned = ?", false).
 		Find(&events).
 		WithContext(ctx)
 

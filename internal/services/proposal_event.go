@@ -302,6 +302,10 @@ func (p *ProposalEvent) GetEvent(ctx context.Context, id uint) (models.ProposalE
 	return p.repo.GetEvent(ctx, id)
 }
 
+func (p *ProposalEvent) GetProposalEventByTransactionID(ctx context.Context, transactionID models.ID) (models.ProposalEvent, error) {
+	return p.repo.GetProposalEventByTransactionID(ctx, int(transactionID))
+}
+
 func (p *ProposalEvent) GetEvents(ctx context.Context) ([]models.ProposalEvent, error) {
 	return p.repo.GetEvents(ctx)
 }

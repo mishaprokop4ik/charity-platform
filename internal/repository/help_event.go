@@ -114,7 +114,7 @@ func (h *HelpEvent) GetHelpEventsWithSearchAndSort(ctx context.Context,
 		return models.HelpEventPagination{}, err
 	}
 
-	err = query.Limit(searchValues.Pagination.PageSize).Offset(pagination.Offset).Find(&events).WithContext(ctx).Error
+	err = query.Limit(searchValues.Pagination.PageSize).Not("help_event.status = ?", models.Blocked).Offset(pagination.Offset).Find(&events).WithContext(ctx).Error
 	if err != nil {
 		return models.HelpEventPagination{}, err
 	}
@@ -202,7 +202,7 @@ func (h *HelpEvent) removeEmptySearchValues(searchValues models.HelpSearchIntern
 
 func (h *HelpEvent) GetUserHelpEvents(ctx context.Context, userID models.ID) ([]models.HelpEvent, error) {
 	helpEvents := make([]models.HelpEvent, 0)
-	err := h.DB.Where("is_deleted = ?", false).Where("is_banned = ?", false).Where("created_by = ?", userID).Find(&helpEvents).WithContext(ctx).Error
+	err := h.DB.Where("created_by = ?", userID).Find(&helpEvents).WithContext(ctx).Error
 	if err != nil {
 		return nil, err
 	}

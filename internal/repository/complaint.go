@@ -4,6 +4,7 @@ import (
 	"Kurajj/internal/models"
 	"context"
 	"fmt"
+	"gorm.io/gorm"
 )
 
 func NewComplaint(db *Connector) *Complaint {
@@ -85,7 +86,7 @@ func (c *Complaint) BanUser(ctx context.Context, userID models.ID) error {
 	err = tx.
 		Model(&models.HelpEvent{}).
 		Where("created_by = ?", userID).
-		Update("is_banned", true).
+		Update("status", models.Blocked).
 		WithContext(ctx).
 		Error
 	if err != nil {
@@ -96,12 +97,42 @@ func (c *Complaint) BanUser(ctx context.Context, userID models.ID) error {
 	err = tx.
 		Model(&models.ProposalEvent{}).
 		Where("author_id = ?", userID).
-		Update("is_banned", true).
+		Update("status", models.Blocked).
 		WithContext(ctx).
 		Error
 	if err != nil {
 		tx.Rollback()
 		return err
+	}
+
+	helpEventsIDs := make([]int, 0)
+	helpEvent := models.HelpEvent{}
+	err = tx.Table(helpEvent.TableName()).Select("id").Find(&helpEventsIDs).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	for _, helpEventID := range helpEventsIDs {
+		if err := c.removeAllEventComplaints(ctx, tx, models.ID(helpEventID), models.HelpEventType); err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	proposalEventIDs := make([]int, 0)
+	proposalEvent := models.ProposalEvent{}
+	err = tx.Table(proposalEvent.TableName()).Select("id").Find(&proposalEventIDs).Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	for _, proposalEventID := range proposalEventIDs {
+		if err := c.removeAllEventComplaints(ctx, tx, models.ID(proposalEventID), models.ProposalEventType); err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	return tx.Commit().Error
@@ -121,21 +152,69 @@ func (c *Complaint) BanEvent(ctx context.Context, eventID models.ID, eventType m
 }
 
 func (c *Complaint) banHelpEvent(ctx context.Context, eventID models.ID) error {
-	return c.DB.
+	tx := c.DB.Begin()
+	err := tx.
 		Model(&models.HelpEvent{}).
 		Where("id = ?", eventID).
-		Update("is_banned", true).
+		Update("status", models.Blocked).
 		WithContext(ctx).
 		Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = tx.Model(&models.Complaint{}).
+		Where("event_type = ?", models.HelpEventType).
+		Where("event_id = ?", eventID).
+		WithContext(ctx).
+		Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+	err = c.removeAllEventComplaints(ctx, tx, eventID, models.HelpEventType)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit().Error
 }
 
 func (c *Complaint) banProposalEvent(ctx context.Context, eventID models.ID) error {
-	return c.DB.
+	tx := c.DB.Begin()
+	err := tx.
 		Model(&models.ProposalEvent{}).
 		Where("id = ?", eventID).
-		Update("is_banned", true).
+		Update("status", models.Blocked).
 		WithContext(ctx).
 		Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	err = c.removeAllEventComplaints(ctx, tx, eventID, models.HelpEventType)
+	if err != nil {
+		return err
+	}
+
+	return tx.Commit().Error
+}
+
+func (c *Complaint) removeAllEventComplaints(ctx context.Context, tx *gorm.DB, eventID models.ID, eventType models.EventType) error {
+	err := tx.Model(&models.Complaint{}).
+		Where("event_type = ?", eventType).
+		Where("event_id = ?", eventID).
+		Delete(&models.Complaint{}).
+		WithContext(ctx).
+		Error
+	if err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	return nil
 }
 
 func (c *Complaint) getHelpEventByID(ctx context.Context, id models.ID) (models.HelpEvent, error) {

@@ -39,6 +39,7 @@ type HelpEventer interface {
 type ProposalEventer interface {
 	CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error)
 	GetEvent(ctx context.Context, id uint) (models.ProposalEvent, error)
+	GetProposalEventByTransactionID(ctx context.Context, transactionID models.ID) (models.ProposalEvent, error)
 	GetEvents(ctx context.Context) ([]models.ProposalEvent, error)
 	UpdateProposalEvent(ctx context.Context, event models.ProposalEvent) error
 	DeleteEvent(ctx context.Context, id uint) error

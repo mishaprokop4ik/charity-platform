@@ -112,6 +112,17 @@ func (h *Handler) UpdateProposalEvent(w http.ResponseWriter, r *http.Request) {
 	defer close(eventch)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+	proposalEvent, err := h.services.GetEvent(ctx, uint(parsedID))
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot get proposal event by requested %d id",
+			proposalEvent.ID))
+		return
+	}
+	if proposalEvent.Status == models.Blocked {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot update %s event, because event has %s status",
+			proposalEvent.Title, proposalEvent.Status))
+		return
+	}
 	go func() {
 		err = h.services.UpdateProposalEvent(ctx, event.Internal())
 
@@ -398,6 +409,17 @@ func (h *Handler) ResponseProposalEvent(w http.ResponseWriter, r *http.Request) 
 		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
 		return
 	}
+	proposalEvent, err := h.services.GetEvent(ctx, uint(transactionInfo.ID))
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot get proposal event by requested %d id",
+			proposalEvent.ID))
+		return
+	}
+	if proposalEvent.Status == models.Blocked {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot update %s event, because event has %s status",
+			proposalEvent.Title, proposalEvent.Status))
+		return
+	}
 	go func() {
 		err = h.services.Response(ctx, uint(transactionInfo.ID), userID.(uint), transactionInfo.Comment)
 
@@ -462,6 +484,18 @@ func (h *Handler) AcceptProposalEventResponse(w http.ResponseWriter, r *http.Req
 	defer close(errch)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+
+	proposalEvent, err := h.services.GetProposalEventByTransactionID(ctx, models.ID(parsedID))
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot get proposal event by requested %d id",
+			proposalEvent.ID))
+		return
+	}
+	if proposalEvent.Status == models.Blocked {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot update %s event, because event has %s status",
+			proposalEvent.Title, proposalEvent.Status))
+		return
+	}
 	go func() {
 		err = h.services.Accept(ctx, accept)
 
@@ -545,6 +579,17 @@ func (h *Handler) UpdateProposalEventTransactionStatus(w http.ResponseWriter, r 
 	eventch := make(chan errResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+	proposalEvent, err := h.services.GetProposalEventByTransactionID(ctx, models.ID(parsedTransactionID))
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot get proposal event by requested %d id",
+			proposalEvent.ID))
+		return
+	}
+	if proposalEvent.Status == models.Blocked {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot update %s event, because event has %s status",
+			proposalEvent.Title, proposalEvent.Status))
+		return
+	}
 	go func() {
 		err := h.services.UpdateStatus(ctx, s.Status,
 			uint(parsedTransactionID),
@@ -604,6 +649,17 @@ func (h *Handler) WriteCommentInProposalEvent(w http.ResponseWriter, r *http.Req
 	eventch := make(chan idResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
+	proposalEvent, err := h.services.GetEvent(ctx, comment.EventID)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot get proposal event by requested %d id",
+			proposalEvent.ID))
+		return
+	}
+	if proposalEvent.Status == models.Blocked {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, fmt.Sprintf("cannot update %s event, because event has %s status",
+			proposalEvent.Title, proposalEvent.Status))
+		return
+	}
 	go func() {
 		id, err := h.services.WriteComment(ctx, models.Comment{
 			EventID:      comment.EventID,
