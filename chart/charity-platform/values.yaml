@@ -1,10 +1,12 @@
 replicaCount: 1
 
+hostNetwork:
+  enabled: true
+
 image:
-  repository: nginx
+  repository: miprokop/kurajj_charity_planform
   pullPolicy: IfNotPresent
-  # Overrides the image tag whose default is the chart appVersion.
-  tag: ""
+  tag: "v1"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -58,7 +60,7 @@ resources: {}
 autoscaling:
   enabled: true
   minReplicas: 1
-  maxReplicas: 100
+  maxReplicas: 10
   targetCPUUtilizationPercentage: 80
   # targetMemoryUtilizationPercentage: 80
 

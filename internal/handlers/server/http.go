@@ -72,6 +72,6 @@ func (h *HTTP) Run() {
 	zlog.Log.Info("caught system", "signal", sig)
 	tc, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	_ = h.server.Shutdown(tc)
-	cancel()
+	defer cancel()
 	zlog.Log.WithName("storage").Info("server stopped", "time", time.Now().String())
 }

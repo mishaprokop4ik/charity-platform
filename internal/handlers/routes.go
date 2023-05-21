@@ -20,6 +20,9 @@ func New(s *service.Service) Handler {
 func (h *Handler) InitRoutes() http.Handler {
 	r := mux.NewRouter()
 
+	r.HandleFunc("/healthz", h.handleHealthProbe)
+	r.HandleFunc("/readyz", h.handleReadyzProbe)
+
 	r.PathPrefix("/swagger/").Handler(httpSwagger.WrapHandler)
 
 	openAPI := r.PathPrefix("/open-api").Subrouter()

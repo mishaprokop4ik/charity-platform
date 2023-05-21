@@ -176,15 +176,6 @@ func (c *Complaint) banHelpEvent(ctx context.Context, eventID models.ID) error {
 		return err
 	}
 
-	err = tx.Model(&models.Complaint{}).
-		Where("event_type = ?", models.HelpEventType).
-		Where("event_id = ?", eventID).
-		WithContext(ctx).
-		Error
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
 	err = c.removeAllEventComplaints(ctx, tx, eventID, models.HelpEventType)
 	if err != nil {
 		return err
@@ -206,7 +197,7 @@ func (c *Complaint) banProposalEvent(ctx context.Context, eventID models.ID) err
 		return err
 	}
 
-	err = c.removeAllEventComplaints(ctx, tx, eventID, models.HelpEventType)
+	err = c.removeAllEventComplaints(ctx, tx, eventID, models.ProposalEventType)
 	if err != nil {
 		return err
 	}
