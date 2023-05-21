@@ -87,7 +87,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/complaints/": {
+        "/api/complaint/": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -200,7 +200,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/complaints/ban-event": {
+        "/api/complaint/ban-event": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -260,7 +260,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/api/complaints/ban-user/{id}": {
+        "/api/complaint/ban-user/{id}": {
             "post": {
                 "consumes": [
                     "application/json"
@@ -1704,6 +1704,66 @@ const docTemplate = `{
                 "responses": {
                     "200": {
                         "description": "OK"
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/open-api/file/": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Help Event"
+                ],
+                "summary": "CreateNotification new comment in help event",
+                "parameters": [
+                    {
+                        "description": "query params",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.CommentCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.CreationResponse"
+                        }
                     },
                     "401": {
                         "description": "Unauthorized",

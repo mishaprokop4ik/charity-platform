@@ -31,7 +31,7 @@ func (h *Handler) initComplaintHandlers(api *mux.Router) {
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/complaints/ [post]
+// @Router       /api/complaint/ [post]
 func (h *Handler) handleCreateComplaint(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -91,7 +91,7 @@ func (h *Handler) handleCreateComplaint(w http.ResponseWriter, r *http.Request) 
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/complaints/ [get]
+// @Router       /api/complaint/ [get]
 func (h *Handler) handleGetComplaints(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
@@ -138,7 +138,7 @@ func (h *Handler) handleGetComplaints(w http.ResponseWriter, r *http.Request) {
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/complaints/ban-event [post]
+// @Router       /api/complaint/ban-event [post]
 func (h *Handler) handleBanEvent(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
@@ -195,7 +195,7 @@ func (h *Handler) handleBanEvent(w http.ResponseWriter, r *http.Request) {
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/complaints/ban-user/{id} [post]
+// @Router       /api/complaint/ban-user/{id} [post]
 func (h *Handler) handleBanUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	id, ok := mux.Vars(r)["id"]

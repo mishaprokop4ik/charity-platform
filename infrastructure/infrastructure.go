@@ -1,10 +1,10 @@
 package main
 
 import (
+	"flag"
 	"github.com/aws/aws-cdk-go/awscdk/v2"
 	"github.com/aws/aws-cdk-go/awscdk/v2/awsec2"
 	"os"
-
 	// "github.com/aws/aws-cdk-go/awscdk/v2/awssqs"
 	"github.com/aws/constructs-go/constructs/v10"
 	"github.com/aws/jsii-runtime-go"
@@ -12,55 +12,83 @@ import (
 
 type InfrastructureStackProps struct {
 	awscdk.StackProps
+	CirdVPC                                                                                       *string
+	AvailabilityZones                                                                             *float64
+	NodeAutoScalingGroupMaxSize, NodeAutoScalingGroupDesiredCapacity, NodeAutoScalingGroupMinSize *uint
 }
 
-// TODO VPC, subnets, security group
 // TODO EKS
 // TODO load-balancer
 // TODO Helm charts
 
-func NewInfrastructureStack(scope constructs.Construct, id string, props *InfrastructureStackProps) awscdk.Stack {
+func NewInfrastructureStack(scope constructs.Construct, id string, props *InfrastructureStackProps) (awscdk.Stack, error) {
 	var sprops awscdk.StackProps
 	if props != nil {
 		sprops = props.StackProps
 	}
 	stack := awscdk.NewStack(scope, &id, &sprops)
+	if _, err := addVPC(stack, props.CirdVPC, props.AvailabilityZones); err != nil {
+		return nil, err
+	}
 
-	_ = awsec2.NewVpc(stack, jsii.String("charity-platform"), &awsec2.VpcProps{
+	return stack, nil
+}
+
+func addVPC(stack awscdk.Stack, vpcCIDR *string, azs *float64) (awsec2.Vpc, error) {
+	//cirdMask, err := strconv.Atoi(strings.Split(*vpcCIDR, "/")[1])
+	//if err != nil {
+	//	log.Printf("got error %s", err.Error())
+	//	return nil, err
+	//}
+	vpc := awsec2.NewVpc(stack, jsii.String("charity-platform"), &awsec2.VpcProps{
 		VpcName:            jsii.String("charity-platform"),
-		IpAddresses:        awsec2.IpAddresses_Cidr(jsii.String("172.31.0.0/16")),
+		IpAddresses:        awsec2.IpAddresses_Cidr(vpcCIDR),
 		EnableDnsHostnames: jsii.Bool(true),
 		EnableDnsSupport:   jsii.Bool(true),
-		MaxAzs:             jsii.Number(2),
-		NatGateways:        jsii.Number(2),
+		MaxAzs:             azs,
+		NatGateways:        azs,
 		SubnetConfiguration: &[]*awsec2.SubnetConfiguration{
 			{
 				Name:                jsii.String("PublicK8s"),
 				MapPublicIpOnLaunch: jsii.Bool(true),
-				CidrMask:            jsii.Number(16),
+				CidrMask:            jsii.Number(float64(24)),
 				SubnetType:          awsec2.SubnetType_PUBLIC,
 			},
 			{
 				Name:       jsii.String("PrivateK8s"),
-				CidrMask:   jsii.Number(16),
+				CidrMask:   jsii.Number(float64(24)),
 				SubnetType: awsec2.SubnetType_PRIVATE_WITH_EGRESS,
 			},
 		},
 	})
 
-	return stack
+	return vpc, nil
 }
+
+func addEKS(stack awscdk.Stack) {
+
+}
+
+var (
+	cidr = flag.String("cidr", "172.31.0.0/16", "CIDR value for a VPC")
+	azs  = flag.Float64("azs", 2, "Availability zone count for a VPC")
+)
 
 func main() {
 	defer jsii.Close()
 
 	app := awscdk.NewApp(nil)
 
-	NewInfrastructureStack(app, "CharityPlatformStack", &InfrastructureStackProps{
-		awscdk.StackProps{
+	_, err := NewInfrastructureStack(app, "CharityPlatformStack", &InfrastructureStackProps{
+		StackProps: awscdk.StackProps{
 			Env: env(),
 		},
+		CirdVPC:           cidr,
+		AvailabilityZones: azs,
 	})
+	if err != nil {
+		return
+	}
 
 	app.Synth(nil)
 }

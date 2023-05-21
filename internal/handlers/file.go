@@ -23,7 +23,7 @@ import (
 // @Failure      404  {object}  models.ErrResponse
 // @Failure      408  {object}  models.ErrResponse
 // @Failure      500  {object}  models.ErrResponse
-// @Router       /api/events/help/comment [post]
+// @Router       /api/open-api/file/ [post]
 func (h *Handler) handleUploadFile(w http.ResponseWriter, r *http.Request) {
 	err := r.ParseForm()
 	if err != nil {

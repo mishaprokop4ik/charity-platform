@@ -33,6 +33,9 @@ func (h *Handler) InitRoutes() http.Handler {
 	openAPI.HandleFunc("/help/{id}", h.handleGetHelpEventByID).Methods(http.MethodGet)
 	openAPI.HandleFunc("/help-search", h.handleSearchHelpEvents).
 		Methods(http.MethodPost)
+	fileRouter := openAPI.PathPrefix("/file").Subrouter()
+	fileRouter.HandleFunc("/", h.handleUploadFile).Methods(http.MethodPost)
+	fileRouter.HandleFunc("/{id}", h.handleDeleteFile).Methods(http.MethodDelete)
 
 	apiRouter := r.PathPrefix("/api").Subrouter()
 	apiRouter.Use(h.Authentication)
@@ -51,10 +54,6 @@ func (h *Handler) InitRoutes() http.Handler {
 	auth.HandleFunc("/sign-in-admin", h.AdminSignIn).
 		Methods(http.MethodPost)
 	auth.HandleFunc("/refresh-token", h.RefreshTokens).Methods(http.MethodPost)
-
-	fileRouter := apiRouter.PathPrefix("/file").Subrouter()
-	fileRouter.HandleFunc("/", h.handleUploadFile).Methods(http.MethodPost)
-	fileRouter.HandleFunc("/{id}", h.handleDeleteFile).Methods(http.MethodDelete)
 
 	//complaintRouter := apiRouter.PathPrefix("/complaint").Subrouter()
 

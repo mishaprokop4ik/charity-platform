@@ -866,7 +866,7 @@ paths:
       summary: CreateNotification a new admin
       tags:
       - Admin
-  /api/complaints/:
+  /api/complaint/:
     get:
       consumes:
       - application/json
@@ -940,7 +940,7 @@ paths:
       summary: Creates new complaint for one of event
       tags:
       - Complaint
-  /api/complaints/ban-event:
+  /api/complaint/ban-event:
     post:
       consumes:
       - application/json
@@ -979,7 +979,7 @@ paths:
       summary: Ban an event
       tags:
       - Complaint
-  /api/complaints/ban-user/{id}:
+  /api/complaint/ban-user/{id}:
     post:
       consumes:
       - application/json
@@ -1953,6 +1953,45 @@ paths:
           schema:
             $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
       summary: Update proposal event
+  /api/open-api/file/:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: query params
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/Kurajj_internal_models.CommentCreateRequest'
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.CreationResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "408":
+          description: Request Timeout
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/Kurajj_internal_models.ErrResponse'
+      summary: CreateNotification new comment in help event
+      tags:
+      - Help Event
   /api/read-notifications:
     put:
       consumes:
