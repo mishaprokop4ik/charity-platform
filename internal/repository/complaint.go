@@ -61,6 +61,8 @@ func (c *Complaint) GetAll(ctx context.Context) ([]models.ComplaintsResponse, er
 				complaintResponse.CreatorEventID = int(event.AuthorID)
 				complaintResponse.CreationDate = event.CreationDate
 				complaintResponse.EventName = event.Title
+			default:
+				return nil, fmt.Errorf("there is no %s event type", complaint.EventType)
 			}
 
 			complaintsResponse = append(complaintsResponse, complaintResponse)
@@ -107,7 +109,12 @@ func (c *Complaint) BanUser(ctx context.Context, userID models.ID) error {
 
 	helpEventsIDs := make([]int, 0)
 	helpEvent := models.HelpEvent{}
-	err = tx.Table(helpEvent.TableName()).Select("id").Find(&helpEventsIDs).Error
+	err = tx.
+		Table(helpEvent.TableName()).
+		Select("id").
+		Where("created_by = ?", userID).
+		Find(&helpEventsIDs).
+		Error
 	if err != nil {
 		tx.Rollback()
 		return err
@@ -122,7 +129,12 @@ func (c *Complaint) BanUser(ctx context.Context, userID models.ID) error {
 
 	proposalEventIDs := make([]int, 0)
 	proposalEvent := models.ProposalEvent{}
-	err = tx.Table(proposalEvent.TableName()).Select("id").Find(&proposalEventIDs).Error
+	err = tx.
+		Table(proposalEvent.TableName()).
+		Select("id").
+		Where("author_id = ?", userID).
+		Find(&proposalEventIDs).
+		Error
 	if err != nil {
 		tx.Rollback()
 		return err
