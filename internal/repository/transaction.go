@@ -4,12 +4,31 @@ import (
 	"Kurajj/internal/models"
 	zlog "Kurajj/pkg/logger"
 	"context"
+	"errors"
 	"fmt"
 	"github.com/samber/lo"
+	"gorm.io/gorm"
+	"time"
 )
 
 type Transaction struct {
 	DBConnector *Connector
+}
+
+func (t *Transaction) GetGlobalStatistics(ctx context.Context, from, to time.Time) ([]models.Transaction, error) {
+	transactions := []models.Transaction{}
+	err := t.DBConnector.DB.
+		Where("creation_date >= ? AND creation_date <= ?",
+			from, to).
+		Find(&transactions).
+		WithContext(ctx).
+		Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return transactions, nil
+	}
+
+	return transactions, err
 }
 
 func (t *Transaction) GetTransactionByID(ctx context.Context, id uint) (models.Transaction, error) {

@@ -136,6 +136,7 @@ func addEKS(stack awscdk.Stack, params ClusterValues) awseks.Cluster {
 			"metrics": map[string]any{
 				"enabled": true,
 			},
+			"containerPort": 4443,
 		},
 		Version: jsii.String("3.10.0"),
 	})

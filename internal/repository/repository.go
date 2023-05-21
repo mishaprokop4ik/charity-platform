@@ -77,6 +77,7 @@ type Transactioner interface {
 	GetAllEventTransactions(ctx context.Context, eventID uint, eventType models.EventType) ([]models.Transaction, error)
 	CreateTransaction(ctx context.Context, transaction models.Transaction) (uint, error)
 	GetTransactionByID(ctx context.Context, id uint) (models.Transaction, error)
+	GetGlobalStatistics(ctx context.Context, from, to time.Time) ([]models.Transaction, error)
 }
 
 type Notifier interface {

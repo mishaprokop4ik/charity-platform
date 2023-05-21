@@ -72,6 +72,11 @@ type getProposalStatistics struct {
 	err        error
 }
 
+type getGlobalStatistics struct {
+	statistics models.GlobalStatistics
+	err        error
+}
+
 type geHelpStatistics struct {
 	statistics models.HelpEventStatistics
 	err        error

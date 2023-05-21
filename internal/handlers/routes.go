@@ -36,6 +36,7 @@ func (h *Handler) InitRoutes() http.Handler {
 	openAPI.HandleFunc("/help/{id}", h.handleGetHelpEventByID).Methods(http.MethodGet)
 	openAPI.HandleFunc("/help-search", h.handleSearchHelpEvents).
 		Methods(http.MethodPost)
+	openAPI.HandleFunc("/statistics", h.handleGetGlobalStatistics).Methods(http.MethodGet)
 	fileRouter := openAPI.PathPrefix("/file").Subrouter()
 	fileRouter.HandleFunc("/", h.handleUploadFile).Methods(http.MethodPost)
 	fileRouter.HandleFunc("/{id}", h.handleDeleteFile).Methods(http.MethodDelete)
