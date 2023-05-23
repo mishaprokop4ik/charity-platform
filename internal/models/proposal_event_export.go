@@ -24,6 +24,7 @@ func UnmarshalProposalEventCreate(r *io.ReadCloser) (ProposalEventRequestCreate,
 type ProposalEventRequestCreate struct {
 	Title                 string       `json:"title"`
 	Description           string       `json:"description"`
+	EndDate               time.Time    `json:"endDate"`
 	MaxConcurrentRequests int          `json:"maxConcurrentRequests"`
 	FileBytes             []byte       `json:"fileBytes"`
 	FileType              string       `json:"fileType"`
@@ -78,6 +79,7 @@ func (p *ProposalEventRequestCreate) InternalValue(userID uint) ProposalEvent {
 		Description:           p.Description,
 		Location:              location,
 		CreationDate:          time.Now(),
+		EndDate:               p.EndDate,
 		Status:                Active,
 		ImagePath:             p.FilePath,
 		MaxConcurrentRequests: uint(p.MaxConcurrentRequests),
@@ -100,6 +102,7 @@ type ProposalEventGetResponse struct {
 	Title                 string                `json:"title"`
 	Description           string                `json:"description"`
 	CreationDate          string                `json:"creationDate"`
+	EndDate               time.Time             `json:"endDate"`
 	MaxConcurrentRequests uint                  `json:"maxConcurrentRequests"`
 	AvailableHelps        uint                  `json:"availableHelps"`
 	CompetitionDate       string                `json:"competitionDate"`
@@ -145,6 +148,7 @@ type ProposalEventRequestUpdate struct {
 	Description           string      `json:"description"`
 	CompetitionDate       time.Time   `json:"competitionDate"`
 	Status                EventStatus `json:"status"`
+	EndDate               time.Time   `json:"endDate"`
 	FileBytes             []byte      `json:"fileBytes"`
 	FileType              string      `json:"fileType"`
 	MaxConcurrentRequests int         `json:"maxConcurrentRequests"`
@@ -156,6 +160,7 @@ func (p *ProposalEventRequestUpdate) Internal() ProposalEvent {
 		Title:       p.Title,
 		Description: p.Description,
 		Status:      p.Status,
+		EndDate:     p.EndDate,
 		CompetitionDate: sql.NullTime{
 			Time: p.CompetitionDate,
 		},
@@ -267,6 +272,7 @@ func GetProposalEvent(event ProposalEvent) ProposalEventGetResponse {
 		CreationDate:          event.CreationDate.String(),
 		CompetitionDate:       completionDate,
 		MaxConcurrentRequests: event.MaxConcurrentRequests,
+		EndDate:               event.EndDate,
 		AvailableHelps:        uint(event.RemainingHelps),
 		User: UserShortInfo{
 			ID:              event.AuthorID,

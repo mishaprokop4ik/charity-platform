@@ -14,6 +14,7 @@ const defaultImagePath = "https://charity-platform.s3.amazonaws.com/images/volun
 type HelpEventCreateRequest struct {
 	Title       string              `json:"title" validate:"required"`
 	Description string              `json:"description" validate:"required"`
+	EndDate     time.Time           `json:"endDate" validate:"required"`
 	Needs       []NeedRequestCreate `json:"needs" validate:"required"`
 	FilePath    string              `json:"imagePath"`
 	FileBytes   []byte              `json:"fileBytes"`
@@ -59,6 +60,7 @@ func (h *HelpEventCreateRequest) ToInternal(authorID uint) *HelpEvent {
 		Title:       h.Title,
 		Description: h.Description,
 		Needs:       needs,
+		EndDate:     h.EndDate,
 		Status:      Active,
 		CreatedBy:   authorID,
 	}
@@ -155,6 +157,7 @@ func (h *HelpEventsResponse) Bytes() []byte {
 type HelpEventRequestUpdate struct {
 	ID              uint        `json:"id"`
 	Title           string      `json:"title"`
+	EndDate         time.Time   `json:"endDate"`
 	Description     string      `json:"description"`
 	CompetitionDate time.Time   `json:"competitionDate"`
 	Status          EventStatus `json:"status"`
@@ -172,6 +175,7 @@ func (p *HelpEventRequestUpdate) Internal() HelpEvent {
 	event := HelpEvent{
 		ID:             p.ID,
 		Title:          p.Title,
+		EndDate:        p.EndDate,
 		Description:    p.Description,
 		Status:         p.Status,
 		CompletionTime: p.CompetitionDate,

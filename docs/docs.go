@@ -2530,6 +2530,49 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/open-api/statistics": {
+            "get": {
+                "summary": "Take statistics of events from current date - 28 to current date",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.GlobalStatistics"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "408": {
+                        "description": "Request Timeout",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/Kurajj_internal_models.ErrResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -2745,15 +2788,60 @@ const docTemplate = `{
                 "ProposalEventType"
             ]
         },
+        "Kurajj_internal_models.GlobalStatistics": {
+            "type": "object",
+            "properties": {
+                "abortedTransactionsCount": {
+                    "type": "integer"
+                },
+                "abortedTransactionsCountCompare": {
+                    "type": "integer"
+                },
+                "canceledTransactionCount": {
+                    "type": "integer"
+                },
+                "canceledTransactionCountCompare": {
+                    "type": "integer"
+                },
+                "doneTransactionsCount": {
+                    "type": "integer"
+                },
+                "doneTransactionsCountCompare": {
+                    "type": "integer"
+                },
+                "endDate": {
+                    "type": "string"
+                },
+                "requests": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/Kurajj_internal_models.Request"
+                    }
+                },
+                "startDate": {
+                    "type": "string"
+                },
+                "transactionsCount": {
+                    "type": "integer"
+                },
+                "transactionsCountCompare": {
+                    "type": "integer"
+                }
+            }
+        },
         "Kurajj_internal_models.HelpEventCreateRequest": {
             "type": "object",
             "required": [
                 "description",
+                "endDate",
                 "needs",
                 "title"
             ],
             "properties": {
                 "description": {
+                    "type": "string"
+                },
+                "endDate": {
                     "type": "string"
                 },
                 "fileBytes": {
@@ -2792,6 +2880,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "description": {
+                    "type": "string"
+                },
+                "endDate": {
                     "type": "string"
                 },
                 "fileBytes": {
@@ -3197,6 +3288,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "endDate": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "integer"
                 },
@@ -3232,6 +3326,9 @@ const docTemplate = `{
                 "description": {
                     "type": "string"
                 },
+                "endDate": {
+                    "type": "string"
+                },
                 "fileBytes": {
                     "type": "array",
                     "items": {
@@ -3265,6 +3362,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "description": {
+                    "type": "string"
+                },
+                "endDate": {
                     "type": "string"
                 },
                 "fileBytes": {
