@@ -14,6 +14,7 @@ type HelpEventer interface {
 	GetEventByID(ctx context.Context, id models.ID) (models.HelpEvent, error)
 	GetHelpEventNeeds(ctx context.Context, eventID models.ID) ([]models.Need, error)
 	CreateNeed(ctx context.Context, need models.Need) (uint, error)
+	GetAllHelpEvents(ctx context.Context) ([]models.HelpEvent, error)
 	UpdateNeeds(ctx context.Context, needs ...models.Need) error
 	GetHelpEventByTransactionID(ctx context.Context, transactionID models.ID) (models.HelpEvent, error)
 	UpdateHelpEvent(ctx context.Context, event models.HelpEvent) error

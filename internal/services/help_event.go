@@ -6,13 +6,17 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/robfig/cron/v3"
 	"github.com/samber/lo"
 	"io"
 	"time"
 )
 
-func NewHelpEvent(r Repositorier) *HelpEvent {
-	return &HelpEvent{repo: r, Transaction: NewTransaction(r)}
+func NewHelpEvent(r Repositorier) HelpEventer {
+	helpEventService := &HelpEvent{repo: r, Transaction: NewTransaction(r)}
+	helpEventCron := cron.New()
+	helpEventCron.AddFunc("@every 1h", helpEventService.provisionEvents)
+	return helpEventService
 }
 
 type HelpEvent struct {
@@ -33,6 +37,24 @@ func (h *HelpEvent) GetHelpEventStatistics(ctx context.Context, fromStart int, c
 
 	statistics := h.generateStatistics(currentTransactions, previousTransactions)
 	return statistics, nil
+}
+
+func (h *HelpEvent) provisionEvents() {
+	ctx := context.Background()
+	events, err := h.repo.GetAllHelpEvents(ctx)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, e := range events {
+		if e.Status == models.Active && e.EndDate.Before(time.Now()) {
+			e.Status = models.Done
+			err = h.repo.UpdateHelpEvent(ctx, e)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
 }
 
 func (h *HelpEvent) getCurrentMonthTransactions(ctx context.Context, fromStart int, creatorID uint) ([]models.Transaction, error) {

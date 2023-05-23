@@ -1,7 +1,7 @@
 replicaCount: 1
 
 hostNetwork:
-  enabled: true
+  enabled: false
 
 image:
   repository: miprokop/kurajj_charity_planform
@@ -26,8 +26,11 @@ securityContext: {}
   # runAsUser: 1000
 
 service:
-  type: ClusterIP
-  port: 80
+  type: NodePort
+  port: 8080
+
+serviceAccount:
+  create: true
 
 ingress:
   enabled: false
@@ -62,7 +65,7 @@ autoscaling:
   minReplicas: 1
   maxReplicas: 10
   targetCPUUtilizationPercentage: 80
-  # targetMemoryUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
 
 nodeSelector: {}
 

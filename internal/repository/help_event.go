@@ -22,6 +22,12 @@ type HelpEvent struct {
 	Filer
 }
 
+func (h *HelpEvent) GetAllHelpEvents(ctx context.Context) ([]models.HelpEvent, error) {
+	events := make([]models.HelpEvent, 0)
+	err := h.DB.Find(&events).WithContext(ctx).Error
+	return events, err
+}
+
 func (h *HelpEvent) GetHelpEventStatistics(ctx context.Context, creatorID uint, from, to time.Time) ([]models.Transaction, error) {
 	transactions := []models.Transaction{}
 	err := h.DB.

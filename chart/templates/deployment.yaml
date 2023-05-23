@@ -1,7 +1,38 @@
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: postgres-pv-volume
+  labels:
+    type: local
+    app: postgres
+spec:
+  storageClassName: manual
+  capacity:
+    storage: 5Gi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/mnt/data"
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: postgres-pv-claim
+  labels:
+    app: postgres
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 5Gi
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "charity-platform.fullname" . }}
+  namespace: {{ include "charity-platform.fullname" . }}
   labels:
     {{- include "charity-platform.labels" . | nindent 4 }}
 spec:
@@ -20,6 +51,10 @@ spec:
       labels:
         {{- include "charity-platform.selectorLabels" . | nindent 8 }}
     spec:
+      volumes:
+        - name: postgres-persistent-storage
+          persistentVolumeClaim:
+            claimName: postgres-pv-claim
       hostNetwork: {{ .Values.hostNetwork.enabled }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -29,6 +64,21 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
+        - name: postgres
+          image: postgres:15.2
+          env:
+            - name: POSTGRES_PASSWORD
+              value: rootroot
+            - name: POSTGRES_DB
+              value: kurajj
+            - name: POSTGRES_USER
+              value: postgres
+          volumeMounts:
+            - name: postgres-persistent-storage
+              mountPath: /var/lib/postgresql/data
+          ports:
+            - containerPort: 5432
+              name: postgres
         - name: {{ .Chart.Name }}
           securityContext:
             {{- toYaml .Values.securityContext | nindent 12 }}
@@ -36,7 +86,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: 80
+              containerPort: 8080
               protocol: TCP
           livenessProbe:
             httpGet:

@@ -1,7 +1,21 @@
 apiVersion: v1
 kind: Service
 metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  type: ClusterIP
+  ports:
+    - port: 5432
+  selector:
+    app: postgres
+---
+apiVersion: v1
+kind: Service
+metadata:
   name: {{ include "charity-platform.fullname" . }}
+  namespace: {{ include "charity-platform.fullname" . }}
   labels:
     {{- include "charity-platform.labels" . | nindent 4 }}
 spec:

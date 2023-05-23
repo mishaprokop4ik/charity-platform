@@ -6,13 +6,17 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/google/uuid"
+	"github.com/robfig/cron/v3"
 	"io"
 	"time"
 )
 
-func NewProposalEvent(repo Repositorier) *ProposalEvent {
-	return &ProposalEvent{
+func NewProposalEvent(repo Repositorier) ProposalEventer {
+	proposalEvent := &ProposalEvent{
 		repo: repo, Transaction: NewTransaction(repo)}
+	proposalEventCron := cron.New()
+	proposalEventCron.AddFunc("@every 1h", proposalEvent.provisionEvents)
+	return proposalEvent
 }
 
 type ProposalEvent struct {
@@ -332,4 +336,22 @@ func (p *ProposalEvent) DeleteEvent(ctx context.Context, id uint) error {
 func (p *ProposalEvent) createNotification(ctx context.Context, notification models.TransactionNotification) error {
 	_, err := p.repo.CreateNotification(ctx, notification)
 	return err
+}
+
+func (p *ProposalEvent) provisionEvents() {
+	ctx := context.Background()
+	events, err := p.repo.GetEvents(ctx)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	for _, e := range events {
+		if e.Status == models.Active && e.EndDate.Before(time.Now()) {
+			e.Status = models.Done
+			err = p.repo.UpdateEvent(ctx, e)
+			if err != nil {
+				fmt.Println(err)
+			}
+		}
+	}
 }

@@ -23,6 +23,7 @@ type ProposalEvent struct {
 	CreationDate          time.Time     `gorm:"column:creation_date"`
 	CompetitionDate       sql.NullTime  `gorm:"column:competition_date"`
 	AuthorID              uint          `gorm:"column:author_id"`
+	EndDate               time.Time     `gorm:"column:end_date"`
 	Status                EventStatus   `gorm:"column:status"`
 	MaxConcurrentRequests uint          `gorm:"column:max_concurrent_requests"`
 	RemainingHelps        int           `gorm:"column:remaining_helps"`
