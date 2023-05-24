@@ -4,9 +4,9 @@ hostNetwork:
   enabled: false
 
 image:
-  repository: miprokop/kurajj_charity_planform
+  repository: miprokop/kurajj_charity_platform
   pullPolicy: IfNotPresent
-  tag: "v1"
+  tag: "v4"
 
 imagePullSecrets: []
 nameOverride: ""
@@ -16,6 +16,12 @@ podAnnotations: {}
 
 podSecurityContext: {}
   # fsGroup: 2000
+
+
+postgres:
+  user: postgres
+  password: rootroot
+  db: kurajj
 
 securityContext: {}
   # capabilities:

@@ -396,7 +396,7 @@ func addEKS(stack awscdk.Stack, params ClusterValues) awseks.Cluster {
 		Namespace: jsii.String("kube-system"),
 	})
 
-	awsiam.NewPolicy(stack, jsii.String("AWSLoadBalancerControllerPolicy"), &awsiam.PolicyProps{
+	_ = awsiam.NewPolicy(stack, jsii.String("AWSLoadBalancerControllerPolicy"), &awsiam.PolicyProps{
 		Document:   lbcPolicy,
 		PolicyName: jsii.String(*stack.StackName() + "-AWSLoadBalancerControllerIAMPolicy"),
 		Roles: &[]awsiam.IRole{
@@ -404,9 +404,6 @@ func addEKS(stack awscdk.Stack, params ClusterValues) awseks.Cluster {
 		},
 	})
 
-	// https://github.com/kubernetes-sigs/aws-load-balancer-controller/tree/main/helm/aws-load-balancer-controller
-	// TODO: --set image.repository=
-	// TODO: https://docs.aws.amazon.com/eks/latest/userguide/add-ons-images.html
 	lbcChart := awseks.NewHelmChart(stack, jsii.String("AWSLoadBalancerControllerChart"), &awseks.HelmChartProps{
 		Cluster:         cluster,
 		Repository:      jsii.String("https://aws.github.io/eks-charts"),
@@ -441,11 +438,6 @@ func addEKS(stack awscdk.Stack, params ClusterValues) awseks.Cluster {
 			"serviceAccount": map[string]interface{}{
 				"create": false,
 				"name":   LBCServiceAccountName,
-				/*
-					"annotations": map[string]interface{}{
-						"eks.amazonaws.com/sts-regional-endpoints": jsii.Bool(true),
-					},
-				*/
 			},
 			"nodeSelector": map[string]string{
 				"kubernetes.io/os": "linux",
@@ -471,6 +463,103 @@ func addEKS(stack awscdk.Stack, params ClusterValues) awseks.Cluster {
 			"containerPort": 4443,
 		},
 		Version: jsii.String("3.10.0"),
+	})
+
+	_ = cluster.AddHelmChart(jsii.String("charity-platform"), &awseks.HelmChartOptions{
+		Chart:           jsii.String("charity-platform"),
+		CreateNamespace: jsii.Bool(true),
+		Namespace:       jsii.String("charity-platforms"),
+		Release:         jsii.String("charity-platform"),
+		Repository:      jsii.String("oci://107585599615.dkr.ecr.us-west-2.amazonaws.com/charity-platform"),
+		Values:          &map[string]any{},
+		Version:         jsii.String("0.1.0"),
+	})
+
+	_ = awseks.NewHelmChart(stack, jsii.String("CertManager"), &awseks.HelmChartProps{
+		Cluster:         cluster,
+		Repository:      jsii.String("https://charts.jetstack.io"),
+		Release:         jsii.String("cert-manager"),
+		Namespace:       jsii.String("cert-manager"),
+		CreateNamespace: jsii.Bool(true),
+		Chart:           jsii.String("cert-manager"),
+		Wait:            jsii.Bool(false),
+		Version:         jsii.String("v1.11.0"),
+		Values: &map[string]interface{}{
+			"podAnnotations": map[string]string{
+				"seccomp.security.alpha.kubernetes.io/pod": "runtime/default",
+			},
+			"installCRDs": jsii.Bool(true),
+			"resources": map[string]map[string]interface{}{
+				"limits": {
+					"cpu":    jsii.String("100m"),
+					"memory": jsii.String("60Mi"),
+				},
+				"requests": {
+					"cpu":    jsii.String("25m"),
+					"memory": jsii.String("40Mi"),
+				},
+			},
+			"containerSecurityContext": map[string]interface{}{
+				"runAsNonRoot":             jsii.Bool(true),
+				"allowPrivilegeEscalation": jsii.Bool(false),
+				"readOnlyRootFilesystem":   jsii.Bool(true),
+			},
+			"strategy": map[string]interface{}{
+				"type": jsii.String("Recreate"),
+			},
+			"global": map[string]any{
+				"priorityClassName": "system-cluster-critical",
+			},
+			"cainjector": map[string]interface{}{
+				"podAnnotations": map[string]string{
+					"seccomp.security.alpha.kubernetes.io/pod": "runtime/default",
+				},
+				"resources": map[string]map[string]interface{}{
+					"limits": {
+						"cpu":    jsii.String("100m"),
+						"memory": jsii.String("250Mi"),
+					},
+					"requests": {
+						"cpu":    jsii.String("25m"),
+						"memory": jsii.String("50Mi"),
+					},
+				},
+				"containerSecurityContext": map[string]interface{}{
+					"runAsNonRoot":             jsii.Bool(true),
+					"allowPrivilegeEscalation": jsii.Bool(false),
+					"readOnlyRootFilesystem":   jsii.Bool(true),
+				},
+			},
+			// this has to be disabled when using Calico on EKS
+			"startupapicheck": map[string]interface{}{
+				"enabled": jsii.Bool(false),
+			},
+			"webhook": map[string]interface{}{
+				"podAnnotations": map[string]string{
+					"seccomp.security.alpha.kubernetes.io/pod": "runtime/default",
+				},
+				"resources": map[string]map[string]interface{}{
+					"limits": {
+						"cpu":    jsii.String("100m"),
+						"memory": jsii.String("50Mi"),
+					},
+					"requests": {
+						"cpu":    jsii.String("25m"),
+						"memory": jsii.String("30Mi"),
+					},
+				},
+				"containerSecurityContext": map[string]interface{}{
+					"runAsNonRoot":             jsii.Bool(true),
+					"allowPrivilegeEscalation": jsii.Bool(false),
+					"readOnlyRootFilesystem":   jsii.Bool(true),
+				},
+				"hostNetwork": jsii.Bool(true),
+				"securePort":  jsii.String("10251"),
+				"strategy": map[string]interface{}{
+					"type": jsii.String("Recreate"),
+				},
+			},
+		},
 	})
 
 	return cluster

@@ -43,7 +43,7 @@ func (p *ProposalEvent) getCurrentMonthTransactions(ctx context.Context, fromSta
 	currentMonthTo := time.Now()
 	currentMonthFrom := currentMonthTo.AddDate(0, 0, int(-fromStart))
 
-	currentTransactions, err := p.repo.GetHelpEventStatistics(ctx, creatorID, currentMonthFrom, currentMonthTo)
+	currentTransactions, err := p.repo.GetProposalEventStatistics(ctx, creatorID, currentMonthFrom, currentMonthTo)
 	if err != nil {
 		return nil, err
 	}
@@ -54,7 +54,7 @@ func (p *ProposalEvent) getCurrentMonthTransactions(ctx context.Context, fromSta
 func (p *ProposalEvent) getPreviousMonthTransactions(ctx context.Context, fromStart int, creatorID uint) ([]models.Transaction, error) {
 	previousMonthTo := time.Now().AddDate(0, 0, -fromStart)
 	previousMonthFrom := previousMonthTo.AddDate(0, 0, -fromStart)
-	previousTransactions, err := p.repo.GetHelpEventStatistics(ctx, creatorID, previousMonthFrom, previousMonthTo)
+	previousTransactions, err := p.repo.GetProposalEventStatistics(ctx, creatorID, previousMonthFrom, previousMonthTo)
 	if err != nil {
 		return nil, err
 	}

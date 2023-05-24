@@ -9,7 +9,10 @@ build/docker-compose/queries.yaml
 
 # Ignore Gradle build output directory
 kurajj-openssl-ca.cnf
-
+*.tgz
+*.out
+cover.html
+synth.lock
 configs/gmail.yaml
 .env
 

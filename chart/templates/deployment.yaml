@@ -55,6 +55,9 @@ spec:
         - name: postgres-persistent-storage
           persistentVolumeClaim:
             claimName: postgres-pv-claim
+        - configMap:
+            name: postgres-config
+          name: postgres-config
       hostNetwork: {{ .Values.hostNetwork.enabled }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
@@ -66,14 +69,12 @@ spec:
       containers:
         - name: postgres
           image: postgres:15.2
-          env:
-            - name: POSTGRES_PASSWORD
-              value: rootroot
-            - name: POSTGRES_DB
-              value: kurajj
-            - name: POSTGRES_USER
-              value: postgres
+          envFrom:
+            - secretRef:
+                name: postgres-env
           volumeMounts:
+            - mountPath: /docker-entrypoint-initdb.d
+              name: postgres-config
             - name: postgres-persistent-storage
               mountPath: /var/lib/postgresql/data
           ports:

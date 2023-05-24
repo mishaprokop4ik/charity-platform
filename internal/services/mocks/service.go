@@ -373,6 +373,21 @@ func (mr *MockRepositorierMockRecorder) GetAllEventTransactions(ctx, eventID, ev
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllEventTransactions", reflect.TypeOf((*MockRepositorier)(nil).GetAllEventTransactions), ctx, eventID, eventType)
 }
 
+// GetAllHelpEvents mocks base method.
+func (m *MockRepositorier) GetAllHelpEvents(ctx context.Context) ([]models.HelpEvent, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetAllHelpEvents", ctx)
+	ret0, _ := ret[0].([]models.HelpEvent)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetAllHelpEvents indicates an expected call of GetAllHelpEvents.
+func (mr *MockRepositorierMockRecorder) GetAllHelpEvents(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetAllHelpEvents", reflect.TypeOf((*MockRepositorier)(nil).GetAllHelpEvents), ctx)
+}
+
 // GetByID mocks base method.
 func (m *MockRepositorier) GetByID(ctx context.Context, id uint) (models.TransactionNotification, error) {
 	m.ctrl.T.Helper()
@@ -506,6 +521,21 @@ func (m *MockRepositorier) GetEvents(ctx context.Context) ([]models.ProposalEven
 func (mr *MockRepositorierMockRecorder) GetEvents(ctx interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEvents", reflect.TypeOf((*MockRepositorier)(nil).GetEvents), ctx)
+}
+
+// GetGlobalStatistics mocks base method.
+func (m *MockRepositorier) GetGlobalStatistics(ctx context.Context, from, to time.Time) ([]models.Transaction, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGlobalStatistics", ctx, from, to)
+	ret0, _ := ret[0].([]models.Transaction)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGlobalStatistics indicates an expected call of GetGlobalStatistics.
+func (mr *MockRepositorierMockRecorder) GetGlobalStatistics(ctx, from, to interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGlobalStatistics", reflect.TypeOf((*MockRepositorier)(nil).GetGlobalStatistics), ctx, from, to)
 }
 
 // GetHelpEventByTransactionID mocks base method.
@@ -1259,6 +1289,21 @@ func (mr *MockProposalEventerMockRecorder) GetProposalEventBySearch(ctx, search 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProposalEventBySearch", reflect.TypeOf((*MockProposalEventer)(nil).GetProposalEventBySearch), ctx, search)
 }
 
+// GetProposalEventByTransactionID mocks base method.
+func (m *MockProposalEventer) GetProposalEventByTransactionID(ctx context.Context, transactionID models.ID) (models.ProposalEvent, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetProposalEventByTransactionID", ctx, transactionID)
+	ret0, _ := ret[0].(models.ProposalEvent)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetProposalEventByTransactionID indicates an expected call of GetProposalEventByTransactionID.
+func (mr *MockProposalEventerMockRecorder) GetProposalEventByTransactionID(ctx, transactionID interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProposalEventByTransactionID", reflect.TypeOf((*MockProposalEventer)(nil).GetProposalEventByTransactionID), ctx, transactionID)
+}
+
 // GetProposalEventStatistics mocks base method.
 func (m *MockProposalEventer) GetProposalEventStatistics(ctx context.Context, fromStart int, creatorID uint) (models.ProposalEventStatistics, error) {
 	m.ctrl.T.Helper()
@@ -1493,6 +1538,21 @@ func (m *MockTransactioner) GetCurrentEventTransactions(ctx context.Context, eve
 func (mr *MockTransactionerMockRecorder) GetCurrentEventTransactions(ctx, eventID, eventType interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetCurrentEventTransactions", reflect.TypeOf((*MockTransactioner)(nil).GetCurrentEventTransactions), ctx, eventID, eventType)
+}
+
+// GetGlobalStatistics mocks base method.
+func (m *MockTransactioner) GetGlobalStatistics(ctx context.Context, fromStart int) (models.GlobalStatistics, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetGlobalStatistics", ctx, fromStart)
+	ret0, _ := ret[0].(models.GlobalStatistics)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetGlobalStatistics indicates an expected call of GetGlobalStatistics.
+func (mr *MockTransactionerMockRecorder) GetGlobalStatistics(ctx, fromStart interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetGlobalStatistics", reflect.TypeOf((*MockTransactioner)(nil).GetGlobalStatistics), ctx, fromStart)
 }
 
 // GetTransactionByID mocks base method.
