@@ -373,8 +373,6 @@ func (h *Handler) GetProposalEventReports(w http.ResponseWriter, r *http.Request
 
 }
 
-// TODO add report CRUD
-
 // ResponseProposalEvent creates new transaction with waiting status for the proposal event if slot is available
 // @Summary      CreateNotification new transaction with waiting status for the proposal event if slot is available
 // @SearchValuesResponse         Proposal Event

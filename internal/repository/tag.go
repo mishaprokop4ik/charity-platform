@@ -37,7 +37,6 @@ func (t *Tag) CreateTag(ctx context.Context, tag models.Tag) error {
 }
 
 func (t *Tag) UpsertTags(ctx context.Context, eventType models.EventType, eventID uint, tags []models.Tag) error {
-	// TODO add real upsert
 	tx := t.DBConnector.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {

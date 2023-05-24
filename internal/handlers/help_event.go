@@ -706,7 +706,6 @@ func (h *Handler) handleUpdateHelpEventComment(w http.ResponseWriter, r *http.Re
 	eventch := make(chan errResponse)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 	defer cancel()
-	// TODO check that event in not blocked/completed state
 	go func() {
 		err := h.services.UpdateComment(ctx, models.Comment{
 			ID:        uint(parsedCommentID),

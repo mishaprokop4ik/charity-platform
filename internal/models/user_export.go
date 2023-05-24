@@ -20,7 +20,6 @@ func UnmarshalCreateAdmin(r *io.ReadCloser) (AdminCreation, error) {
 		return AdminCreation{}, fmt.Errorf("cound not decode user: %s", err)
 	}
 
-	// TODO add validation for company name
 	admin.CompanyName = "nure"
 
 	return admin, nil

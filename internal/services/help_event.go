@@ -314,16 +314,15 @@ func (h *HelpEvent) CreateRequest(ctx context.Context, userID models.ID, transac
 	if models.ID(helpEvent.CreatedBy) == userID {
 		return 0, fmt.Errorf("event creator cannot response his/her own events")
 	}
-	//TODO remove after debug
-	//for _, transaction := range Transactions {
-	//	if transaction.CreatorEventID == responderID && lo.Contains([]models.TransactionStatus{
-	//		models.Accepted,
-	//		models.InProcess,
-	//		models.Waiting,
-	//	}, transaction.TransactionStatus) {
-	//		return fmt.Errorf("user already has transaction in this event")
-	//	}
-	//}
+	for _, transaction := range helpEvent.Transactions {
+		if models.ID(transaction.CreatorID) == userID && lo.Contains([]models.TransactionStatus{
+			models.Accepted,
+			models.InProcess,
+			models.Waiting,
+		}, transaction.TransactionStatus) {
+			return 0, fmt.Errorf("user already has transaction in this event")
+		}
+	}
 	transactionID, err := h.CreateTransaction(ctx, models.Transaction{
 		CreatorID:         uint(userID),
 		EventID:           uint(transactionInfo.ID),

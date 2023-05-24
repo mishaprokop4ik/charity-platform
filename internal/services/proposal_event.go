@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/robfig/cron/v3"
+	"github.com/samber/lo"
 	"io"
 	"time"
 )
@@ -41,7 +42,7 @@ func (p *ProposalEvent) GetProposalEventStatistics(ctx context.Context, fromStar
 
 func (p *ProposalEvent) getCurrentMonthTransactions(ctx context.Context, fromStart int, creatorID uint) ([]models.Transaction, error) {
 	currentMonthTo := time.Now()
-	currentMonthFrom := currentMonthTo.AddDate(0, 0, int(-fromStart))
+	currentMonthFrom := currentMonthTo.AddDate(0, 0, -fromStart)
 
 	currentTransactions, err := p.repo.GetProposalEventStatistics(ctx, creatorID, currentMonthFrom, currentMonthTo)
 	if err != nil {
@@ -225,17 +226,21 @@ func (p *ProposalEvent) Response(ctx context.Context, proposalEventID, responder
 	if proposalEvent.AuthorID == responderID {
 		return fmt.Errorf("event creator cannot response his/her own events")
 	}
+	for _, transaction := range proposalEvent.Transactions {
+		if transaction.CreatorID == responderID && lo.Contains([]models.TransactionStatus{
+			models.Accepted,
+			models.InProcess,
+			models.Waiting,
+		}, transaction.TransactionStatus) {
+			return fmt.Errorf("user already has transaction in this event")
+		}
+	}
+
 	err = p.repo.UpdateRemainingHelps(ctx, models.ID(proposalEventID), false, 1)
-	//TODO remove after debug
-	//for _, transaction := range proposalEvent.Transactions {
-	//	if transaction.CreatorEventID == responderID && lo.Contains([]models.TransactionStatus{
-	//		models.Accepted,
-	//		models.InProcess,
-	//		models.Waiting,
-	//	}, transaction.TransactionStatus) {
-	//		return fmt.Errorf("user already has transaction in this event")
-	//	}
-	//}
+	if err != nil {
+		return err
+	}
+
 	id, err := p.CreateTransaction(ctx, models.Transaction{
 		CreatorID:         responderID,
 		EventID:           proposalEventID,

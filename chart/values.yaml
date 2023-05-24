@@ -4,7 +4,7 @@ hostNetwork:
   enabled: false
 
 image:
-  repository: miprokop/kurajj_charity_platform
+  repository: miprokop/kurajj_charity_planform
   pullPolicy: IfNotPresent
   tag: "v4"
 

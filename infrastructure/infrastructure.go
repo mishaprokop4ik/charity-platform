@@ -445,9 +445,8 @@ func addEKS(stack awscdk.Stack, params ClusterValues) awseks.Cluster {
 		},
 	})
 	lbcChart.Node().AddDependency(lbcSa)
-	lbcChart.Node().AddDependency(lbcSa)
 
-	_ = cluster.AddHelmChart(jsii.String("metrics-server"), &awseks.HelmChartOptions{
+	_ = cluster.AddHelmChart(jsii.String("MetricsServer"), &awseks.HelmChartOptions{
 		Chart:           jsii.String("metrics-server"),
 		CreateNamespace: jsii.Bool(true),
 		Namespace:       jsii.String("metrics-server"),
@@ -468,7 +467,7 @@ func addEKS(stack awscdk.Stack, params ClusterValues) awseks.Cluster {
 	_ = cluster.AddHelmChart(jsii.String("charity-platform"), &awseks.HelmChartOptions{
 		Chart:           jsii.String("charity-platform"),
 		CreateNamespace: jsii.Bool(true),
-		Namespace:       jsii.String("charity-platforms"),
+		Namespace:       jsii.String("charity-platform"),
 		Release:         jsii.String("charity-platform"),
 		Repository:      jsii.String("oci://107585599615.dkr.ecr.us-west-2.amazonaws.com/charity-platform"),
 		Values:          &map[string]any{},
@@ -482,7 +481,7 @@ func addEKS(stack awscdk.Stack, params ClusterValues) awseks.Cluster {
 		Namespace:       jsii.String("cert-manager"),
 		CreateNamespace: jsii.Bool(true),
 		Chart:           jsii.String("cert-manager"),
-		Wait:            jsii.Bool(false),
+		Wait:            jsii.Bool(true),
 		Version:         jsii.String("v1.11.0"),
 		Values: &map[string]interface{}{
 			"podAnnotations": map[string]string{

@@ -30,6 +30,5 @@ func SendHTTPResponse(w http.ResponseWriter, resp Byter) error {
 	if err != nil {
 		return fmt.Errorf("could not send response: %s", err)
 	}
-	// TODO add tries when w.Write did not send all bytes
 	return nil
 }
