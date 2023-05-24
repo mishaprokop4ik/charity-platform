@@ -68,9 +68,10 @@ func BenchmarkCreateProposalEvent(b *testing.B) {
 		},
 	}
 
+	repo.EXPECT().
+		CreateProposalEvent(context.TODO(), proposalEvent).Times(b.N)
+
 	for n := 0; n < b.N; n++ {
-		repo.EXPECT().
-			CreateProposalEvent(context.TODO(), proposalEvent)
 
 		_, err := proposalEventService.CreateEvent(context.TODO(), proposalEvent)
 		assert.NoError(b, err)
