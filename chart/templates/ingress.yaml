@@ -9,7 +9,7 @@ metadata:
     alb.ingress.kubernetes.io/target-type: instance
 spec:
   rules:
-    - host: united-ua.charity-platform.api
+    - host: {{ .Values.hostName }}
       http:
         paths:
           - path: /
@@ -18,4 +18,4 @@ spec:
               service:
                 name: {{ include "charity-platform.fullname" . }}
                 port:
-                  number: 8080
+                  number: {{ .Values.service.port }}

@@ -16,7 +16,7 @@ func NewProposalEvent(repo Repositorier) ProposalEventer {
 	proposalEvent := &ProposalEvent{
 		repo: repo, Transaction: NewTransaction(repo)}
 	proposalEventCron := cron.New()
-	proposalEventCron.AddFunc("@every 1h", proposalEvent.provisionEvents)
+	proposalEventCron.AddFunc("@every 1m", proposalEvent.provisionEvents)
 	return proposalEvent
 }
 
