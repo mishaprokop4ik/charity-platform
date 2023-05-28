@@ -47,15 +47,15 @@ func (h *HelpEvent) provisionEvents() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	loc, err := time.LoadLocation("Europe/Kiev")
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	currentTime := time.Now().In(loc)
+	//loc, err := time.LoadLocation("Europe/Kiev")
+	//if err != nil {
+	//	fmt.Println(err)
+	//	return
+	//}
+	currentTime := time.Now().Add(3 * time.Hour)
 	for _, e := range events {
-		fmt.Println("there", currentTime, currentTime.After(e.EndDate))
-		if e.Status == models.Active && currentTime.After(e.EndDate) {
+		endDate := e.EndDate
+		if e.Status == models.Active && currentTime.After(endDate) {
 			e.Status = models.Done
 			err = h.repo.UpdateHelpEvent(ctx, e)
 			if err != nil {
