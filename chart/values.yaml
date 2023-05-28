@@ -1,5 +1,7 @@
 replicaCount: 1
 
+hostName: united-ua.charity-platform.api
+
 hostNetwork:
   enabled: false
 

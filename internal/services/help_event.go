@@ -15,7 +15,7 @@ import (
 func NewHelpEvent(r Repositorier) HelpEventer {
 	helpEventService := &HelpEvent{repo: r, Transaction: NewTransaction(r)}
 	helpEventCron := cron.New()
-	helpEventCron.AddFunc("@every 1h", helpEventService.provisionEvents)
+	helpEventCron.AddFunc("@every 1m", helpEventService.provisionEvents)
 	return helpEventService
 }
 
