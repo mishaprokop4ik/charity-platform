@@ -1,5 +1,6 @@
 BEGIN;
-
+SET TIME ZONE 'Europe/Kiev';
+SET timezone TO 'Europe/Kiev';
 CREATE TABLE IF NOT EXISTS members
 (
     id                bigserial PRIMARY KEY,
