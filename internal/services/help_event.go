@@ -46,9 +46,9 @@ func (h *HelpEvent) provisionEvents() {
 	if err != nil {
 		fmt.Println(err)
 	}
-
+	loc, _ := time.LoadLocation("Europe/Kiev")
 	for _, e := range events {
-		if e.Status == models.Active && time.Now().After(e.EndDate) {
+		if e.Status == models.Active && time.Now().In(loc).After(e.EndDate) {
 			e.Status = models.Done
 			err = h.repo.UpdateHelpEvent(ctx, e)
 			if err != nil {
