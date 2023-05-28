@@ -10,6 +10,7 @@ import (
 	"github.com/samber/lo"
 	"io"
 	"time"
+	_ "time/tzdata"
 )
 
 func NewHelpEvent(r Repositorier) HelpEventer {
@@ -46,7 +47,11 @@ func (h *HelpEvent) provisionEvents() {
 	if err != nil {
 		fmt.Println(err)
 	}
-	loc, _ := time.LoadLocation("Europe/Kiev")
+	loc, err := time.LoadLocation("Europe/Kyiv")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 	for _, e := range events {
 		if e.Status == models.Active && time.Now().In(loc).After(e.EndDate) {
 			e.Status = models.Done
