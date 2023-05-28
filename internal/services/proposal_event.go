@@ -16,7 +16,11 @@ func NewProposalEvent(repo Repositorier) ProposalEventer {
 	proposalEvent := &ProposalEvent{
 		repo: repo, Transaction: NewTransaction(repo)}
 	proposalEventCron := cron.New()
-	proposalEventCron.AddFunc("@every 1m", proposalEvent.provisionEvents)
+	_, err := proposalEventCron.AddFunc("@every 1m", proposalEvent.provisionEvents)
+	if err != nil {
+		fmt.Println(err)
+	}
+	proposalEventCron.Start()
 	return proposalEvent
 }
 
@@ -351,7 +355,7 @@ func (p *ProposalEvent) provisionEvents() {
 	}
 
 	for _, e := range events {
-		if e.Status == models.Active && e.EndDate.Before(time.Now()) {
+		if e.Status == models.Active && time.Now().After(e.EndDate) {
 			e.Status = models.Done
 			err = p.repo.UpdateEvent(ctx, e)
 			if err != nil {

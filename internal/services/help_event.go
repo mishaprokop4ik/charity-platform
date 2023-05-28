@@ -16,6 +16,7 @@ func NewHelpEvent(r Repositorier) HelpEventer {
 	helpEventService := &HelpEvent{repo: r, Transaction: NewTransaction(r)}
 	helpEventCron := cron.New()
 	helpEventCron.AddFunc("@every 1m", helpEventService.provisionEvents)
+	helpEventCron.Start()
 	return helpEventService
 }
 
@@ -47,7 +48,7 @@ func (h *HelpEvent) provisionEvents() {
 	}
 
 	for _, e := range events {
-		if e.Status == models.Active && e.EndDate.Before(time.Now()) {
+		if e.Status == models.Active && time.Now().After(e.EndDate) {
 			e.Status = models.Done
 			err = h.repo.UpdateHelpEvent(ctx, e)
 			if err != nil {
