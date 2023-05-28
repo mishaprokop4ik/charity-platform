@@ -52,8 +52,10 @@ func (h *HelpEvent) provisionEvents() {
 		fmt.Println(err)
 		return
 	}
+	currentTime := time.Now().In(loc)
 	for _, e := range events {
-		if e.Status == models.Active && time.Now().In(loc).After(e.EndDate) {
+		fmt.Println("there", currentTime, currentTime.After(e.EndDate))
+		if e.Status == models.Active && currentTime.After(e.EndDate) {
 			e.Status = models.Done
 			err = h.repo.UpdateHelpEvent(ctx, e)
 			if err != nil {
