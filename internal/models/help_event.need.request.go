@@ -62,6 +62,7 @@ type HelpEventResponse struct {
 	CreationDate          time.Time                      `json:"creationDate"`
 	CompetitionDate       time.Time                      `json:"competitionDate"`
 	Status                EventStatus                    `json:"status"`
+	EndDate               time.Time                      `json:"endDate"`
 	ImageURL              string                         `json:"imageURL"`
 	AuthorInfo            UserShortInfo                  `json:"authorInfo"`
 	Comments              []CommentResponse              `json:"comments"`

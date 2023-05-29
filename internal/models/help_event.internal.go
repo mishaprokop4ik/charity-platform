@@ -71,6 +71,7 @@ func (h *HelpEvent) Response() HelpEventResponse {
 		ID:                    h.ID,
 		Title:                 h.Title,
 		Description:           h.Description,
+		EndDate:               h.EndDate,
 		CreationDate:          h.CreatedAt,
 		CompetitionDate:       h.CompletionTime,
 		Status:                h.Status,

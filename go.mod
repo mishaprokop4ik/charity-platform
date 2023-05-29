@@ -3,6 +3,7 @@ module Kurajj
 go 1.18
 
 require (
+	bou.ke/monkey v1.0.2
 	github.com/aws/aws-sdk-go v1.44.224
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-logr/logr v1.2.3
@@ -12,6 +13,7 @@ require (
 	github.com/google/uuid v1.3.0
 	github.com/gorilla/mux v1.8.0
 	github.com/joho/godotenv v1.5.1
+	github.com/robfig/cron/v3 v3.0.0
 	github.com/rs/cors v1.8.3
 	github.com/samber/lo v1.37.0
 	github.com/stretchr/testify v1.8.2
@@ -24,7 +26,6 @@ require (
 )
 
 require (
-	bou.ke/monkey v1.0.2 // indirect
 	github.com/KyleBanks/depth v1.2.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect
@@ -43,7 +44,6 @@ require (
 	github.com/leodido/go-urn v1.2.2 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
-	github.com/robfig/cron/v3 v3.0.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.0 // indirect
 	github.com/swaggo/files v0.0.0-20220610200504-28940afbdbfe // indirect
 	go.uber.org/atomic v1.10.0 // indirect
