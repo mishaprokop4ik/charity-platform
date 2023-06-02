@@ -24,6 +24,7 @@ type Authenticator interface {
 	NewRefreshToken() (string, error)
 	RefreshTokens(ctx context.Context, refreshToken string) (models.Tokens, error)
 	ConfirmEmail(ctx context.Context, email string) error
+	UpdateEntity(ctx context.Context, entity models.UserUpdate) error
 }
 
 type Authentication struct {
@@ -100,32 +101,41 @@ func (a *Authentication) SignUp(ctx context.Context, user models.User) (uint, er
 		return 0, err
 	}
 
+	emailPage, err := a.generateEmail(user.Email)
+	if err != nil {
+		return 0, err
+	}
+
+	err = a.emailSender.SendEmail(user.Email, emailPage.String(), "html")
+	if err != nil {
+		return 0, err
+	}
+
+	return id, nil
+}
+
+func (a *Authentication) generateEmail(email string) (fmt.Stringer, error) {
 	confirmEmailBody := bytes.Buffer{}
 
 	confirmEmailValues := EmailCheck{
 		Title:         confirmEmail,
-		Email:         user.Email,
+		Email:         email,
 		ServerConfirm: "http://localhost:8080/auth/confirm",
 	}
 
 	confirmEmailTmpl, err := template.New("confirm_email.tmpl").ParseFiles("internal/templates/confirm_email.tmpl")
 	if err != nil {
 		zlog.Log.Error(err, "could not parse confirm_email.tmpl")
-		return 0, err
+		return nil, err
 	}
 
 	err = confirmEmailTmpl.Execute(&confirmEmailBody, confirmEmailValues)
 	if err != nil {
 		zlog.Log.Error(err, "could not create confirm email body")
-		return 0, err
+		return nil, err
 	}
 
-	err = a.emailSender.SendEmail(user.Email, confirmEmailBody.String(), "html")
-	if err != nil {
-		return 0, err
-	}
-
-	return id, nil
+	return &confirmEmailBody, nil
 }
 
 func GeneratePasswordHash(password, salt string) string {
@@ -239,6 +249,20 @@ func (a *Authentication) createSession(ctx context.Context, userID uint, isAdmin
 	err = a.repo.SetSession(ctx, userID, session)
 
 	return res, err
+}
+
+func (a *Authentication) UpdateEntity(ctx context.Context, entity models.UserUpdate) error {
+	if entity.Email != nil {
+		emailPage, err := a.generateEmail(*entity.Email)
+		if err != nil {
+			return err
+		}
+		err = a.emailSender.SendEmail(*entity.Email, emailPage.String(), "html")
+		if err != nil {
+			return err
+		}
+	}
+	return a.repo.UpdateUser(ctx, entity)
 }
 
 type TokenClaims struct {

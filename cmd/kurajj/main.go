@@ -20,6 +20,11 @@ var (
 
 var port = flag.Int("port", 8080, "HTTP server port number")
 
+var (
+	privateCertPath = flag.String("private-cert-path", "certs/cert.pem", "Path to private TLS certificate")
+	publicCertPath  = flag.String("public-cert-path", "certs/cert-key.pem", "Path to public TLS certificate")
+)
+
 // @title           Swagger Core Charity Platform
 // @version         1.0
 // @description     Kurajj Charity Platform
@@ -85,8 +90,8 @@ func main() {
 	handlers := handlers2.New(service)
 
 	httpServer, err := server.NewHTTPServer(*port, server.TLSCertPair{
-		Key:  "tls/key.pem",
-		Cert: "tls/cert.pem",
+		Key:  *publicCertPath,
+		Cert: *privateCertPath,
 	}, handlers.InitRoutes())
 	httpServer.Run()
 }

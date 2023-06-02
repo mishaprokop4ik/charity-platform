@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -323,6 +324,56 @@ func (h *Handler) RefreshUserData(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		err := httpHelper.SendHTTPResponse(w, resp.resp)
+		if err != nil {
+			return
+		}
+	}
+}
+
+func (h *Handler) handleUserUpdate(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	userUpdateValues, err := models.UnmarshalUserUpdateRequest(&r.Body)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	id, ok := mux.Vars(r)["id"]
+	parsedID, err := strconv.Atoi(id)
+	if !ok || err != nil {
+		response := "there is no id for user update in URL"
+		if err != nil {
+			response = err.Error()
+		}
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, response)
+		return
+	}
+	userUpdateValues.ID = uint(parsedID)
+
+	eventch := make(chan errResponse)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		err = h.services.UpdateEntity(ctx, userUpdateValues.GetInternalUser())
+
+		eventch <- errResponse{
+			err: err,
+		}
+	}()
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "creating help userUpdateValues took too long")
+		return
+	case resp := <-eventch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.ErrNotFound.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+		w.WriteHeader(http.StatusOK)
 		if err != nil {
 			return
 		}

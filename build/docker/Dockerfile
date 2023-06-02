@@ -16,7 +16,7 @@ WORKDIR /root
 
 COPY --from=builder /kurajj/kurajj .
 COPY --from=builder /kurajj/configs/ configs/
-COPY --from=builder /kurajj/tls/ tls/
+COPY --from=builder /kurajj/certs/ certs/
 COPY --from=builder /kurajj/internal/templates/ internal/templates/
 COPY --from=builder /kurajj/.env .
 CMD ["./kurajj"]

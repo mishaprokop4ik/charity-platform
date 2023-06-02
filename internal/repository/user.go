@@ -10,12 +10,54 @@ import (
 	"github.com/samber/lo"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
+	"strings"
 )
 
 type User struct {
 	DBConnector *Connector
 	Filer
 	Notifier
+}
+
+func (u *User) UpdateUser(ctx context.Context, user models.UserUpdate) error {
+	if user.Image != nil && user.FileType != nil {
+		err := u.saveFile(ctx, &user)
+		if err != nil {
+			return err
+		}
+	}
+	err := u.DBConnector.DB.Model(&models.UserUpdate{}).Where("id = ?", user.ID).Updates(&user).WithContext(ctx).Error
+	return err
+}
+
+func (u *User) saveFile(ctx context.Context, user *models.UserUpdate) error {
+	if user.Image != nil {
+		oldEvent := models.UserUpdate{}
+		err := u.DBConnector.DB.Where("id = ?", user.ID).First(&oldEvent).WithContext(ctx).Error
+		if err != nil {
+			return err
+		}
+		if oldEvent.AvatarImagePath != nil {
+			imagePath := strings.Split(*oldEvent.AvatarImagePath, "s3.amazonaws.com/")
+			imageName := imagePath[len(imagePath)-1]
+			err = u.Filer.Delete(ctx, imageName)
+			if err != nil {
+				return err
+			}
+		}
+		fileName, err := uuid.NewUUID()
+		if err != nil {
+			return err
+		}
+		filePath, err := u.Filer.Upload(ctx, fmt.Sprintf("%s.%s", fileName.String(), *user.FileType), user.File)
+		if err != nil {
+			zlog.Log.Error(err, "could not upload file")
+			return err
+		}
+
+		user.AvatarImagePath = &filePath
+	}
+	return nil
 }
 
 func (u *User) SetSession(ctx context.Context, userID uint, session models.MemberSession) error {

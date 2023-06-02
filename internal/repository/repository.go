@@ -100,6 +100,7 @@ type Userer interface {
 	UpsertUser(ctx context.Context, values map[string]any) error
 	UpdateUserByEmail(ctx context.Context, email string, values map[string]any) error
 	IsEmailTaken(ctx context.Context, email string) (bool, error)
+	UpdateUser(ctx context.Context, user models.UserUpdate) error
 }
 
 type UserSearcher interface {

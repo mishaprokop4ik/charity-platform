@@ -10,10 +10,6 @@ import (
 
 const DecodedAddressLength = 4
 
-type Tabler interface {
-	TableName() string
-}
-
 type User struct {
 	gorm.Model
 	ID                      uint                      `gorm:"primaryKey"`
@@ -34,6 +30,24 @@ type User struct {
 	Token                   string                    `json:"token" gorm:"-"`
 	RefreshToken            string                    `json:"refreshToken" gorm:"-"`
 	TransactionNotification []TransactionNotification `gorm:"-"`
+}
+
+type UserUpdate struct {
+	gorm.Model
+	Email            *string   `gorm:"column:email"`
+	FullName         *string   `gorm:"column:full_name"`
+	Telephone        *string   `gorm:"column:telephone"`
+	Password         *string   `gorm:"column:password"`
+	Address          *string   `gorm:"column:address"`
+	TelegramUsername *string   `gorm:"column:telegram_username"`
+	Image            io.Reader `gorm:"-"`
+	FileType         *string   `gorm:"-"`
+	AvatarImagePath  *string   `gorm:"column:image_path"`
+	File             io.Reader `gorm:"-"`
+}
+
+func (UserUpdate) TableName() string {
+	return "members"
 }
 
 func (u User) ToShortInfo() UserShortInfo {

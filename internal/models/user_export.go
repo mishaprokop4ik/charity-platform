@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"gorm.io/gorm"
 	"io"
 	"net/url"
 	"regexp"
@@ -214,6 +215,50 @@ type UserShortInfo struct {
 	Username        string    `json:"username"`
 	ProfileImageURL string    `json:"profileImageURL"`
 	PhoneNumber     Telephone `json:"phoneNumber"`
+}
+
+func UnmarshalUserUpdateRequest(r *io.ReadCloser) (UserUpdateRequest, error) {
+	user := UserUpdateRequest{}
+	if err := json.NewDecoder(*r).Decode(&user); err != nil {
+		return UserUpdateRequest{}, fmt.Errorf("cound not decode user: %s", err)
+	}
+
+	return user, nil
+}
+
+type UserUpdateRequest struct {
+	ID               uint    `json:"id,omitempty"`
+	Email            *string `json:"email,omitempty"`
+	FirstName        string  `json:"firstName"`
+	SecondName       string  `json:"secondName"`
+	Telephone        *string `json:"telephone,omitempty"`
+	Password         *string `json:"password,omitempty"`
+	Address          *string `json:"address,omitempty"`
+	TelegramUsername *string `json:"telegram_username,omitempty"`
+	FileBytes        []byte  `json:"fileBytes"`
+	FileType         string  `json:"fileType"`
+	ImagePath        string  `json:"imagePath"`
+}
+
+func (i UserUpdateRequest) GetInternalUser() UserUpdate {
+	fullName := fmt.Sprintf("%s %s", i.FirstName, i.SecondName)
+	user := UserUpdate{
+		Model: gorm.Model{
+			ID: i.ID,
+		},
+		Email:           i.Email,
+		FullName:        &fullName,
+		Telephone:       i.Telephone,
+		AvatarImagePath: &i.ImagePath,
+		Password:        i.Password,
+		Address:         i.Address,
+	}
+	if len(i.FileBytes) != 0 && i.FileType != "" {
+		user.FileType = &i.FileType
+		user.Image = bytes.NewBuffer(i.FileBytes)
+	}
+
+	return user
 }
 
 func (u UserShortInfo) TableName() string {

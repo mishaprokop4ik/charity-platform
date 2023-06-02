@@ -57,7 +57,7 @@ func NewHTTPServer(port int, certPaths TLSCertPair, h http.Handler) (*HTTP, erro
 func (h *HTTP) Run() {
 	go func() {
 		zlog.Log.Info("started server")
-		if err := h.server.ListenAndServe(); err != nil {
+		if err := h.server.ListenAndServeTLS("", ""); err != nil {
 			if err.Error() == "http: Server closed" {
 				return
 			}
