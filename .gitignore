@@ -14,6 +14,7 @@ kurajj-openssl-ca.cnf
 cover.html
 synth.lock
 configs/gmail.yaml
+configs/message.yaml
 .env
 
 # Ignore mock files
