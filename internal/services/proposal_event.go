@@ -15,7 +15,7 @@ import (
 
 func NewProposalEvent(repo Repositorier) ProposalEventer {
 	proposalEvent := &ProposalEvent{
-		repo: repo, Transaction: NewTransaction(repo)}
+		repo: repo, Transaction: NewTransaction(repo), MaxEventsPerUser: 5}
 	proposalEventCron := cron.New()
 	_, err := proposalEventCron.AddFunc("@every 1m", proposalEvent.provisionEvents)
 	if err != nil {
@@ -27,7 +27,8 @@ func NewProposalEvent(repo Repositorier) ProposalEventer {
 
 type ProposalEvent struct {
 	*Transaction
-	repo Repositorier
+	repo             Repositorier
+	MaxEventsPerUser uint
 }
 
 func (p *ProposalEvent) GetProposalEventStatistics(ctx context.Context, fromStart int, creatorID uint) (models.ProposalEventStatistics, error) {
@@ -309,6 +310,22 @@ func (p *ProposalEvent) GetUserProposalEvents(ctx context.Context, userID uint) 
 }
 
 func (p *ProposalEvent) CreateEvent(ctx context.Context, event models.ProposalEvent) (uint, error) {
+	userID := event.AuthorID
+	events, err := p.GetUserProposalEvents(ctx, userID)
+	if err != nil {
+		return 0, err
+	}
+	currentEventsCount := uint(0)
+	for _, event := range events {
+		if event.Status == models.Active {
+			currentEventsCount += 1
+		}
+
+		if currentEventsCount >= p.MaxEventsPerUser {
+			return 0, fmt.Errorf("user cannot create more than %d events", p.MaxEventsPerUser)
+		}
+
+	}
 	return p.repo.CreateProposalEvent(ctx, event)
 }
 

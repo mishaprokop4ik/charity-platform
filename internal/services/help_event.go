@@ -14,7 +14,7 @@ import (
 )
 
 func NewHelpEvent(r Repositorier) HelpEventer {
-	helpEventService := &HelpEvent{repo: r, Transaction: NewTransaction(r)}
+	helpEventService := &HelpEvent{repo: r, Transaction: NewTransaction(r), MaxEventsPerUser: 5}
 	helpEventCron := cron.New()
 	helpEventCron.AddFunc("@every 1m", helpEventService.provisionEvents)
 	helpEventCron.Start()
@@ -23,7 +23,8 @@ func NewHelpEvent(r Repositorier) HelpEventer {
 
 type HelpEvent struct {
 	*Transaction
-	repo Repositorier
+	repo             Repositorier
+	MaxEventsPerUser uint
 }
 
 func (h *HelpEvent) GetHelpEventStatistics(ctx context.Context, fromStart int, creatorID uint) (models.HelpEventStatistics, error) {
@@ -301,6 +302,22 @@ func (h *HelpEvent) CompleteHelpEvent(ctx context.Context, helpEventID uint, eve
 }
 
 func (h *HelpEvent) CreateHelpEvent(ctx context.Context, event *models.HelpEvent) (uint, error) {
+	userID := models.ID(event.CreatedBy)
+	events, err := h.GetUserHelpEvents(ctx, userID)
+	if err != nil {
+		return 0, err
+	}
+	currentEventsCount := uint(0)
+	for _, event := range events {
+		if event.Status == models.Active {
+			currentEventsCount += 1
+		}
+
+		if currentEventsCount >= h.MaxEventsPerUser {
+			return 0, fmt.Errorf("user cannot create more than %d events", h.MaxEventsPerUser)
+		}
+
+	}
 	return h.repo.CreateEvent(ctx, event)
 }
 
