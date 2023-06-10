@@ -129,7 +129,6 @@ func (u *User) GetUserInfo(ctx context.Context, id uint) (models.User, error) {
 		Where("id = ?", id).
 		Where("is_deleted = ?", false).
 		Where("is_blocked = ?", false).
-		Where("is_activated = ?", true).
 		First(&user).
 		WithContext(ctx).
 		Error

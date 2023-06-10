@@ -18,6 +18,7 @@ CREATE TABLE IF NOT EXISTS members
     deleted_at        timestamp,
     is_deleted        boolean,
     is_admin          boolean,
+    confirm_code integer[],
     is_activated      boolean,
     UNIQUE (email)
 );

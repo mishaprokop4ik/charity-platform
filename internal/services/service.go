@@ -123,9 +123,10 @@ type Service struct {
 func New(repo Repositorier,
 	authConfig *configs.AuthenticationConfig,
 	emailConfig *configs.Email,
+	messageConfig *configs.MessageConfirm,
 ) *Service {
 	return &Service{
-		NewAuthentication(repo, authConfig, emailConfig),
+		NewAuthentication(repo, authConfig, emailConfig, messageConfig),
 		NewAdmin(repo, authConfig, emailConfig),
 		NewProposalEvent(repo),
 		NewTransaction(repo),

@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	pq "github.com/lib/pq"
 	"gorm.io/gorm"
 	"io"
 	"reflect"
@@ -30,6 +31,7 @@ type User struct {
 	Token                   string                    `json:"token" gorm:"-"`
 	RefreshToken            string                    `json:"refreshToken" gorm:"-"`
 	TransactionNotification []TransactionNotification `gorm:"-"`
+	ConfirmCode             pq.Int64Array             `gorm:"type:integer[];column:confirm_code"`
 }
 
 type UserUpdate struct {
@@ -44,6 +46,7 @@ type UserUpdate struct {
 	FileType         *string   `gorm:"-"`
 	AvatarImagePath  *string   `gorm:"column:image_path"`
 	File             io.Reader `gorm:"-"`
+	IsActivated      *bool     `gorm:"column:is_activated"`
 }
 
 func (UserUpdate) TableName() string {

@@ -32,6 +32,7 @@ data:
       updated_at        timestamp,
       deleted_at        timestamp,
       is_deleted        boolean,
+      confirm_code integer[],
       is_admin          boolean,
       is_activated      boolean,
       UNIQUE (email)

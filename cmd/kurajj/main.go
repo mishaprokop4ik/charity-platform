@@ -13,9 +13,10 @@ import (
 )
 
 var (
-	dbConfig    = flag.String("db-config", "configs/db.yaml", "Provide Database's config values")
-	authConfig  = flag.String("auth-config", "configs/auth.yaml", "Provide Authentication's config values")
-	emailConfig = flag.String("admin-config", "configs/gmail.yaml", "Provide Email's config values")
+	dbConfig      = flag.String("db-config", "configs/db.yaml", "Provide Database's config values")
+	authConfig    = flag.String("auth-config", "configs/auth.yaml", "Provide Authentication's config values")
+	emailConfig   = flag.String("admin-config", "configs/gmail.yaml", "Provide Email's config values")
+	messageConfig = flag.String("message-config", "configs/message.yaml", "Provide Message's config values")
 )
 
 var port = flag.Int("port", 8080, "HTTP server port number")
@@ -62,6 +63,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	messageConfig, err := configs.NewMessageConfirm(*messageConfig)
+	if err != nil {
+		zlog.Log.Error(err, "could not read email config")
+		os.Exit(1)
+	}
+
 	conn, err := repository.NewConnector(dbConfig)
 	if err != nil {
 		zlog.Log.Error(err, "could not create connector")
@@ -86,7 +93,7 @@ func main() {
 		BucketName:      s3Bucket,
 	})
 
-	service := logic.New(repo, &authConfig, &emailConfig)
+	service := logic.New(repo, &authConfig, &emailConfig, &messageConfig)
 	handlers := handlers2.New(service)
 
 	httpServer, err := server.NewHTTPServer(*port, server.TLSCertPair{

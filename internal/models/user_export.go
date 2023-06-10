@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/lib/pq"
 	"gorm.io/gorm"
 	"io"
 	"net/url"
@@ -141,6 +142,7 @@ func (i SignUpUser) GetInternalUser() User {
 		AvatarImagePath: i.ImagePath,
 		Password:        i.Password,
 		Address:         i.Address.String(),
+		ConfirmCode:     pq.Int64Array{},
 	}
 	_, err := url.ParseRequestURI(i.ImagePath)
 	if (len(i.FileBytes) == 0 || i.FileType == "") && err != nil {

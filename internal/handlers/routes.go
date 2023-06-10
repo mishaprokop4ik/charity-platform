@@ -54,7 +54,8 @@ func (h *Handler) InitRoutes() http.Handler {
 		Methods(http.MethodPost)
 	auth.HandleFunc("/sign-in", h.UserSignIn).
 		Methods(http.MethodPost)
-	auth.HandleFunc("/confirm/{email}", h.ConfirmEmail)
+	auth.HandleFunc("/confirm/{email}", h.ConfirmEmail).Methods(http.MethodPost)
+	auth.HandleFunc("/confirm/", h.handleConfirmUserByPhone).Methods(http.MethodPost)
 	auth.HandleFunc("/sign-in-admin", h.AdminSignIn).
 		Methods(http.MethodPost)
 	auth.HandleFunc("/refresh-token", h.RefreshTokens).Methods(http.MethodPost)

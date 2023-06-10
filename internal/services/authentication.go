@@ -10,6 +10,9 @@ import (
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/twilio/twilio-go"
+	twilloAPI "github.com/twilio/twilio-go/rest/api/v2010"
+	"gorm.io/gorm"
 	"html/template"
 	"math/rand"
 	"time"
@@ -25,12 +28,81 @@ type Authenticator interface {
 	RefreshTokens(ctx context.Context, refreshToken string) (models.Tokens, error)
 	ConfirmEmail(ctx context.Context, email string) error
 	UpdateEntity(ctx context.Context, entity models.UserUpdate) error
+	SendMessage(ctx context.Context, message models.ConfirmMessage) error
+	ConfirmUserByPhoneCode(ctx context.Context, confirm models.UserConfirm) error
+}
+
+func NewAuthentication(repo Repositorier,
+	authConfig *configs.AuthenticationConfig,
+	emailConfig *configs.Email,
+	messageConfig *configs.MessageConfirm) *Authentication {
+	return &Authentication{repo: repo, authConfig: authConfig, emailSender: Sender{
+		email:        emailConfig.Email,
+		password:     emailConfig.Password,
+		SMTPEndpoint: emailConfig.SMPTEndpoint,
+	}, VerificationPhoneNumber: messageConfig.PhoneNumber, MessageAuthToken: messageConfig.Password, AccountSid: messageConfig.Account}
 }
 
 type Authentication struct {
-	repo        Repositorier
-	authConfig  *configs.AuthenticationConfig
-	emailSender Sender
+	repo                         Repositorier
+	authConfig                   *configs.AuthenticationConfig
+	emailSender                  Sender
+	VerificationPhoneNumber      string
+	MessageAuthToken, AccountSid string
+}
+
+func (a *Authentication) ConfirmUserByPhoneCode(ctx context.Context, confirm models.UserConfirm) error {
+	user, err := a.repo.GetUserInfo(ctx, uint(confirm.UserID))
+	if err != nil {
+		return err
+	}
+
+	if len(confirm.ConfirmCode) != len(user.ConfirmCode) {
+		return fmt.Errorf("incorrect code size")
+	}
+
+	for i := range user.ConfirmCode {
+		if user.ConfirmCode[i] != confirm.ConfirmCode[i] {
+			return fmt.Errorf("incorrect code")
+		}
+	}
+
+	user.IsActivated = true
+	err = a.repo.UpdateUser(ctx, models.UserUpdate{
+		Model: gorm.Model{
+			ID: user.ID,
+		},
+		IsActivated: &user.IsActivated,
+	})
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *Authentication) SendMessage(ctx context.Context, message models.ConfirmMessage) error {
+	client := twilio.NewRestClientWithParams(twilio.ClientParams{
+		Username:   a.AccountSid,
+		Password:   a.MessageAuthToken,
+		AccountSid: a.AccountSid,
+	})
+
+	params := &twilloAPI.CreateMessageParams{}
+	params.SetBody(message.Text)
+	params.SetFrom(a.VerificationPhoneNumber)
+	params.SetTo(message.To)
+
+	resp, err := client.Api.CreateMessage(params)
+	if err != nil {
+		zlog.Log.Error(err, "could not send message")
+		return err
+	}
+	if resp.Status != nil {
+		zlog.Log.Info(*resp.Status, "phone number", message.To)
+	}
+
+	return nil
 }
 
 func (a *Authentication) GetUserShortInfo(ctx context.Context, id uint) (models.UserShortInfo, error) {
@@ -73,14 +145,6 @@ func GenerateRandomPassword() string {
 	return string(s)
 }
 
-func NewAuthentication(repo Repositorier, authConfig *configs.AuthenticationConfig, emailConfig *configs.Email) *Authentication {
-	return &Authentication{repo: repo, authConfig: authConfig, emailSender: Sender{
-		email:        emailConfig.Email,
-		password:     emailConfig.Password,
-		SMTPEndpoint: emailConfig.SMPTEndpoint,
-	}}
-}
-
 type EmailCheck struct {
 	Title         string
 	Email         string
@@ -89,13 +153,21 @@ type EmailCheck struct {
 
 func (a *Authentication) SignUp(ctx context.Context, user models.User) (uint, error) {
 	user.Password = GeneratePasswordHash(user.Password, a.authConfig.Salt)
-	//isEmailTaken, err := a.repo.User.IsEmailTaken(ctx, user.Email)
-	//if err != nil {
-	//	return 0, err
-	//}
-	//if isEmailTaken {
-	//	return 0, fmt.Errorf("email %s is taken", user.Email)
-	//}
+	isEmailTaken, err := a.repo.IsEmailTaken(ctx, user.Email)
+	if err != nil {
+		return 0, err
+	}
+	if isEmailTaken {
+		return 0, fmt.Errorf("email %s is taken", user.Email)
+	}
+
+	code := make([]int64, 6)
+	for i := range code {
+		code[i] = int64(rand.Intn(9))
+	}
+
+	user.ConfirmCode = code
+
 	id, err := a.repo.CreateUser(ctx, user)
 	if err != nil {
 		return 0, err
@@ -110,6 +182,11 @@ func (a *Authentication) SignUp(ctx context.Context, user models.User) (uint, er
 	if err != nil {
 		return 0, err
 	}
+
+	err = a.SendMessage(ctx, models.ConfirmMessage{
+		Text: fmt.Sprintf("Hi %s, please confirm your account by entering next Code: %v", user.FullName, code),
+		To:   user.Telephone,
+	})
 
 	return id, nil
 }

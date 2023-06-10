@@ -213,6 +213,53 @@ func (h *Handler) ConfirmEmail(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+// handleConfirmUserByPhone confirms that user's phone is real and user has access to it
+// @Summary      Updates user's status to 'activated'.
+// @Tags         Auth
+// @Accept       json
+// @Produce      json
+// @Param        email   path string  true  "Email"
+// @Success      200
+// @Failure      401  {object}  models.ErrResponse
+// @Failure      403  {object}  models.ErrResponse
+// @Failure      404  {object}  models.ErrResponse
+// @Failure      408  {object}  models.ErrResponse
+// @Failure      500  {object}  models.ErrResponse
+// @Router       /auth/confirm/ [post]
+func (h *Handler) handleConfirmUserByPhone(w http.ResponseWriter, r *http.Request) {
+	defer r.Body.Close()
+	confirm, err := models.UnmarshalUserConfirm(&r.Body)
+	if err != nil {
+		httpHelper.SendErrorResponse(w, http.StatusBadRequest, err.Error())
+		return
+	}
+	userch := make(chan errResponse)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second*5)
+	defer cancel()
+	go func() {
+		err := h.services.ConfirmUserByPhoneCode(ctx, confirm)
+		userch <- errResponse{
+			err: err,
+		}
+	}()
+
+	select {
+	case <-ctx.Done():
+		httpHelper.SendErrorResponse(w, http.StatusRequestTimeout, "confirming email took too long")
+		return
+	case resp := <-userch:
+		if resp.err != nil {
+			status := 500
+			switch resp.err.Error() {
+			case models.ErrNotFound.Error():
+				status = 404
+			}
+			httpHelper.SendErrorResponse(w, uint(status), resp.err.Error())
+			return
+		}
+	}
+}
+
 // RefreshTokens updates access token expiration date and returns access and refresh tokens
 // @Summary      Update access token expiration date
 // @Tags         Auth
