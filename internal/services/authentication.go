@@ -3,10 +3,11 @@ package service
 import (
 	"Kurajj/configs"
 	"Kurajj/internal/models"
+	"Kurajj/pkg/encrypt"
+	"Kurajj/pkg/hash"
 	zlog "Kurajj/pkg/logger"
 	"bytes"
 	"context"
-	"crypto/sha1"
 	"errors"
 	"fmt"
 	"github.com/dgrijalva/jwt-go"
@@ -15,6 +16,7 @@ import (
 	"gorm.io/gorm"
 	"html/template"
 	"math/rand"
+	"strings"
 	"time"
 )
 
@@ -152,7 +154,6 @@ type EmailCheck struct {
 }
 
 func (a *Authentication) SignUp(ctx context.Context, user models.User) (uint, error) {
-	user.Password = GeneratePasswordHash(user.Password, a.authConfig.Salt)
 	isEmailTaken, err := a.repo.IsEmailTaken(ctx, user.Email)
 	if err != nil {
 		return 0, err
@@ -160,18 +161,14 @@ func (a *Authentication) SignUp(ctx context.Context, user models.User) (uint, er
 	if isEmailTaken {
 		return 0, fmt.Errorf("email %s is taken", user.Email)
 	}
-
+	user.Password = hash.GenerateHash(user.Password, a.authConfig.Salt)
+	user.SearchIndex = hash.GenerateHash(user.Email, a.authConfig.Salt)
 	code := make([]int64, 6)
 	for i := range code {
 		code[i] = int64(rand.Intn(9))
 	}
 
 	user.ConfirmCode = code
-
-	id, err := a.repo.CreateUser(ctx, user)
-	if err != nil {
-		return 0, err
-	}
 
 	emailPage, err := a.generateEmail(user.Email)
 	if err != nil {
@@ -188,7 +185,43 @@ func (a *Authentication) SignUp(ctx context.Context, user models.User) (uint, er
 		To:   user.Telephone,
 	})
 
+	if err := a.encryptUserPersonalData(&user); err != nil {
+		zlog.Log.Error(err, "user cannot be created, because encryption failed")
+		return 0, fmt.Errorf("cannot encrypt user sensetive fields, %v", err)
+	}
+
+	id, err := a.repo.CreateUser(ctx, user)
+	if err != nil {
+		return 0, err
+	}
+
 	return id, nil
+}
+
+func (a *Authentication) encryptUserPersonalData(user *models.User) error {
+	signingKey := a.authConfig.Key
+	encryptedEmail, err := encrypt.Encrypt(user.Email, signingKey)
+	if err != nil {
+		return fmt.Errorf("cannot encrypt email: %v", err)
+	}
+	user.Email = encryptedEmail
+	if phone := strings.TrimSpace(user.Telephone); phone != "" {
+		encryptedTelephone, err := encrypt.Encrypt(phone, signingKey)
+		if err != nil {
+			return fmt.Errorf("cannot encrypt email: %v", err)
+		}
+		user.Telephone = encryptedTelephone
+	}
+
+	if telegramUsername := strings.TrimSpace(user.TelegramUsername); telegramUsername != "" {
+		encryptedTelegramUsername, err := encrypt.Encrypt(telegramUsername, signingKey)
+		if err != nil {
+			return fmt.Errorf("cannot encrypt email: %v", err)
+		}
+		user.TelegramUsername = encryptedTelegramUsername
+	}
+
+	return nil
 }
 
 func (a *Authentication) generateEmail(email string) (fmt.Stringer, error) {
@@ -215,14 +248,7 @@ func (a *Authentication) generateEmail(email string) (fmt.Stringer, error) {
 	return &confirmEmailBody, nil
 }
 
-func GeneratePasswordHash(password, salt string) string {
-	hash := sha1.New()
-	hash.Write([]byte(password))
-
-	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
-}
-
-func (a *Authentication) generateAccessToken(ctx context.Context, userID uint, isAdmin bool) (string, error) {
+func (a *Authentication) generateAccessToken(_ context.Context, userID uint, isAdmin bool) (string, error) {
 	expirationAfterHours := a.authConfig.AccessTokenTTL
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, TokenClaims{
 		jwt.StandardClaims{
@@ -258,8 +284,10 @@ func (a *Authentication) ParseToken(accessToken string) (uint, error) {
 }
 
 func (a *Authentication) SignIn(ctx context.Context, user models.User) (models.SignedInUser, error) {
-	user.Password = GeneratePasswordHash(user.Password, a.authConfig.Salt)
-	userInformation, err := a.repo.GetEntity(ctx, user.Email, user.Password, user.IsAdmin, false)
+	user.Password = hash.GenerateHash(user.Password, a.authConfig.Salt)
+	user.SearchIndex = hash.GenerateHash(user.Email, a.authConfig.Salt)
+
+	userInformation, err := a.repo.GetEntity(ctx, user.SearchIndex, user.Password, user.IsAdmin, false)
 	if err != nil {
 		return models.SignedInUser{}, err
 	}
@@ -267,7 +295,38 @@ func (a *Authentication) SignIn(ctx context.Context, user models.User) (models.S
 	if err != nil {
 		return models.SignedInUser{}, err
 	}
+	fmt.Println(userInformation.Email, "there1")
+	if err := a.decryptUserPersonalData(&userInformation); err != nil {
+		return models.SignedInUser{}, err
+	}
 	return userInformation.GetUserFullResponse(tokens), nil
+}
+
+func (a *Authentication) decryptUserPersonalData(user *models.User) error {
+	signingKey := a.authConfig.Key
+	fmt.Println(user.Email, "there2")
+	decryptedEmail, err := encrypt.Decrypt(user.Email, signingKey)
+	if err != nil {
+		return fmt.Errorf("cannot decrypt email: %v", err)
+	}
+	user.Email = decryptedEmail
+	if phone := strings.TrimSpace(user.Telephone); phone != "" {
+		decryptedTelephone, err := encrypt.Decrypt(phone, signingKey)
+		if err != nil {
+			return fmt.Errorf("cannot decrypt email: %v", err)
+		}
+		user.Telephone = decryptedTelephone
+	}
+
+	if telegramUsername := strings.TrimSpace(user.TelegramUsername); telegramUsername != "" {
+		decryptedTelegramUsername, err := encrypt.Decrypt(telegramUsername, signingKey)
+		if err != nil {
+			return fmt.Errorf("cannot decrypt email: %v", err)
+		}
+		user.TelegramUsername = decryptedTelegramUsername
+	}
+
+	return nil
 }
 
 func (a *Authentication) ConfirmEmail(ctx context.Context, email string) error {

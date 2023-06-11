@@ -3,9 +3,10 @@ SET TIME ZONE 'Europe/Kiev';
 SET timezone TO 'Europe/Kiev';
 CREATE TABLE IF NOT EXISTS members
 (
+    search_index varchar,
     id                bigserial PRIMARY KEY,
     full_name         varchar,
-    telephone         varchar(15),
+    telephone         varchar,
     telegram_username varchar,
     email             varchar,
     password          varchar,

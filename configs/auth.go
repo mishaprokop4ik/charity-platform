@@ -11,6 +11,7 @@ type AuthenticationConfig struct {
 	SigningKey      string        `yaml:"signingKey"`
 	AccessTokenTTL  time.Duration `yaml:"accessTokenTTL"`
 	RefreshTokenTTL time.Duration `yaml:"refreshTokenTTL"`
+	Key             string        `yaml:"key"`
 }
 
 func NewAuthenticationConfigFromFile(filename string) (AuthenticationConfig, error) {

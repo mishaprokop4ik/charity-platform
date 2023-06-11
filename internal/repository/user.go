@@ -228,7 +228,7 @@ func (u *User) GetEntity(ctx context.Context, email, password string, isAdmin, i
 	member := models.User{}
 	err := u.DBConnector.DB.
 		WithContext(ctx).
-		Where("email = ?", email).
+		Where("search_index = ?", email).
 		Where("password = ?", password).
 		Where("is_admin = ?", isAdmin).
 		Where("is_blocked = ?", false).

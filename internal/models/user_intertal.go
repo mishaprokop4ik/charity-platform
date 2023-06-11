@@ -13,6 +13,7 @@ const DecodedAddressLength = 4
 
 type User struct {
 	gorm.Model
+	SearchIndex             string                    `gorm:"column:search_index"`
 	ID                      uint                      `gorm:"primaryKey"`
 	Email                   string                    `gorm:"column:email"`
 	FullName                string                    `gorm:"column:full_name"`
